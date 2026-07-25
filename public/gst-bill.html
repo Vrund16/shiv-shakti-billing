@@ -6,59 +6,41 @@
 <title>Shiv Shakti Tiles – GST Tax Invoice</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Inter',Arial,sans-serif;background:#eef2f7;min-height:100vh;color:#000;}
 
-/* ── NAV ── */
-.topnav{background:#0f2847;padding:0 28px;height:58px;display:flex;align-items:center;
-  justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.25);}
+.topnav{background:#0f2847;padding:0 28px;height:58px;display:flex;align-items:center;justify-space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.25);}
 .nav-brand{display:flex;align-items:center;gap:12px;}
-.nav-logo{width:34px;height:34px;background:rgba(255,255,255,.12);border-radius:8px;
-  display:flex;align-items:center;justify-content:center;}
 .nav-title{font-size:15px;font-weight:700;color:#fff;}
 .nav-title span{font-weight:300;opacity:.6;font-size:13px;margin-left:6px;}
 .nav-links{display:flex;gap:4px;}
-.nav-link{padding:6px 16px;border-radius:6px;font-size:13px;font-weight:500;
-  color:rgba(255,255,255,.7);text-decoration:none;transition:all .15s;}
+.nav-link{padding:6px 14px;border-radius:6px;font-size:13px;font-weight:500;color:rgba(255,255,255,.7);text-decoration:none;transition:all .15s;}
 .nav-link:hover{background:rgba(255,255,255,.1);color:#fff;}
 .nav-link.active{background:rgba(255,255,255,.15);color:#fff;}
 
 .page{padding:20px;max-width:1000px;margin:0 auto;}
-
-/* ── TOOLBAR ── */
-.toolbar-card{background:#fff;border-radius:10px;padding:14px 20px;margin-bottom:20px;
-  display:flex;align-items:center;justify-content:space-between;box-shadow:0 1px 6px rgba(0,0,0,.08);flex-wrap:wrap;gap:12px;}
+.toolbar-card{background:#fff;border-radius:10px;padding:14px 20px;margin-bottom:20px;display:flex;align-items:center;justify-space-between;box-shadow:0 1px 6px rgba(0,0,0,.08);flex-wrap:wrap;gap:12px;}
 .gst-control-group{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:600;}
 .gst-control-group input{width:70px;padding:6px 10px;border:1.5px solid #0f2847;border-radius:6px;font-weight:700;text-align:center;}
-.btn-action{padding:8px 16px;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;border:none;}
-.btn-print{background:#0f2847;color:#fff;}
-.btn-print:hover{background:#1a3a5c;}
 
-/* ── TAX INVOICE FORM (TALLY / BIZANALYST FORMAT) ── */
+.btn-action{padding:8px 16px;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;border:none;}
+.btn-save{background:#16a34a;color:#fff;margin-right:8px;}
+.btn-print{background:#0f2847;color:#fff;}
+
 .invoice-container{background:#fff;border:1px solid #000;padding:0;font-size:11px;line-height:1.3;box-shadow:0 4px 20px rgba(0,0,0,.08);}
 .inv-title-bar{text-align:center;font-weight:800;font-size:14px;letter-spacing:1px;padding:4px 0;border-bottom:1px solid #000;background:#f8fafc;}
-
-/* Grid layouts */
 .grid-2{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid #000;}
-.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;border-bottom:1px solid #000;}
 
 .border-r{border-right:1px solid #000;}
 .border-b{border-bottom:1px solid #000;}
-
 .p-2{padding:4px 8px;}
 .p-3{padding:6px 10px;}
 
-.seller-box{font-size:11px;}
 .seller-name{font-size:14px;font-weight:800;margin-bottom:2px;}
-
 .field-label{font-size:10px;color:#333;font-weight:600;}
-.field-val{font-weight:700;font-size:11px;}
-
 .inv-input{border:none;border-bottom:1px dashed #aaa;outline:none;font-family:inherit;font-size:11px;width:100%;background:transparent;}
 .inv-input:focus{background:#eff6ff;}
 
-/* Table */
 .gst-table{width:100%;border-collapse:collapse;font-size:10.5px;}
 .gst-table th{border-right:1px solid #000;border-bottom:1px solid #000;padding:4px;text-align:center;font-weight:700;background:#f8fafc;}
 .gst-table td{border-right:1px solid #000;border-bottom:1px solid #000;padding:3px 5px;vertical-align:middle;}
@@ -66,16 +48,10 @@ body{font-family:'Inter',Arial,sans-serif;background:#eef2f7;min-height:100vh;co
 
 .text-right{text-align:right;}
 .text-center{text-align:center;}
-
-.subtotal-row td{font-weight:700;}
-
-/* Footer */
 .hsn-table{width:100%;border-collapse:collapse;font-size:10px;margin-top:2px;}
 .hsn-table th, .hsn-table td{border:1px solid #000;padding:3px;text-align:center;}
-
 .del-btn{color:red;border:none;background:none;font-size:14px;cursor:pointer;}
 
-/* ── PRINT STYLES ── */
 @media print {
   @page { size: A4 portrait; margin: 8mm; }
   body{background:#fff;}
@@ -90,40 +66,34 @@ body{font-family:'Inter',Arial,sans-serif;background:#eef2f7;min-height:100vh;co
 
 <nav class="topnav">
   <div class="nav-brand">
-    <div class="nav-logo">
-      <svg width="20" height="20" viewBox="0 0 40 40" fill="none"><rect x="4" y="4" width="14" height="14" rx="2" fill="white"/><rect x="22" y="22" width="14" height="14" rx="2" fill="white"/></svg>
-    </div>
     <div class="nav-title">SHIV SHAKTI TILES <span>GST Invoice</span></div>
   </div>
   <div class="nav-links">
     <a href="/" class="nav-link">New Bill</a>
     <a href="/gst-bill" class="nav-link active">Print GST Bill</a>
     <a href="/history" class="nav-link">Bill History</a>
+    <a href="/gst-history" class="nav-link">GST History</a>
   </div>
 </nav>
 
 <div class="page">
-
-  <!-- Control Toolbar -->
   <div class="toolbar-card">
     <div class="gst-control-group">
       <label>Applied GST Rate (%):</label>
-      <input type="number" id="gst-rate-input" value="0" min="0" max="100" step="0.5" oninput="recalculateAll()">
-      <span style="color:#666;font-weight:400;">(e.g., 0% for Default Chalan, 18% for Standard GST)</span>
+      <input type="number" id="gst-rate-input" value="18" min="0" max="100" step="0.5" oninput="recalculateAll()">
+      <span style="color:#666;font-weight:400;">(Default 18%)</span>
     </div>
     <div>
+      <button class="btn-action btn-save" onclick="saveGstBill()">💾 Save to GST History</button>
       <button class="btn-action btn-print" onclick="window.print()">🖨️ Print GST Invoice</button>
     </div>
   </div>
 
-  <!-- TAX INVOICE CONTENT -->
   <div class="invoice-container">
     <div class="inv-title-bar">TAX INVOICE</div>
 
-    <!-- Header Section -->
     <div class="grid-2">
-      <!-- Seller Info -->
-      <div class="p-3 border-r seller-box">
+      <div class="p-3 border-r">
         <div class="seller-name">Shiv Shakti Tiles</div>
         <div>Opp. Mahanagar Soc., Nr. Yamuna Mill, Dabhoi Road</div>
         <div>Vadodara, Pin code: 390004</div>
@@ -132,11 +102,10 @@ body{font-family:'Inter',Arial,sans-serif;background:#eef2f7;min-height:100vh;co
         <div>E-Mail: sureshpatel@sungranites.in</div>
       </div>
 
-      <!-- Invoice Meta Grid -->
       <div style="display:grid;grid-template-columns:1fr 1fr;font-size:10.5px;">
         <div class="p-2 border-r border-b">
           <div class="field-label">Invoice No.</div>
-          <input class="inv-input" id="inv-no" value="26-27/676">
+          <input class="inv-input" id="inv-no" value="">
         </div>
         <div class="p-2 border-b">
           <div class="field-label">Dated</div>
@@ -144,23 +113,23 @@ body{font-family:'Inter',Arial,sans-serif;background:#eef2f7;min-height:100vh;co
         </div>
         <div class="p-2 border-r border-b">
           <div class="field-label">Delivery Note</div>
-          <input class="inv-input" value="705">
+          <input class="inv-input" id="inv-del-note" value="">
         </div>
         <div class="p-2 border-b">
           <div class="field-label">Mode/Terms of Payment</div>
-          <input class="inv-input" value="">
+          <input class="inv-input" id="inv-payment-terms" value="">
         </div>
         <div class="p-2 border-r border-b">
           <div class="field-label">Supplier's Ref</div>
-          <input class="inv-input" value="">
+          <input class="inv-input" id="inv-supplier-ref" value="">
         </div>
         <div class="p-2 border-b">
           <div class="field-label">Other Reference(s)</div>
-          <input class="inv-input" value="">
+          <input class="inv-input" id="inv-other-ref" value="">
         </div>
         <div class="p-2 border-r border-b">
           <div class="field-label">Buyer's Order No.</div>
-          <input class="inv-input" value="POGN/II/260217">
+          <input class="inv-input" id="inv-order-no" value="">
         </div>
         <div class="p-2 border-b">
           <div class="field-label">Dated</div>
@@ -168,7 +137,7 @@ body{font-family:'Inter',Arial,sans-serif;background:#eef2f7;min-height:100vh;co
         </div>
         <div class="p-2 border-r">
           <div class="field-label">Despatch Doc No.</div>
-          <input class="inv-input" value="">
+          <input class="inv-input" id="inv-despatch-no" value="">
         </div>
         <div class="p-2">
           <div class="field-label">Delivery Note Date</div>
@@ -177,31 +146,27 @@ body{font-family:'Inter',Arial,sans-serif;background:#eef2f7;min-height:100vh;co
       </div>
     </div>
 
-    <!-- Consignee & Buyer Section -->
     <div class="grid-2">
       <div class="p-3 border-r">
         <div class="field-label" style="font-weight:800;color:#000;">Consignee (Ship to)</div>
-        <input class="inv-input" id="consignee-name" value="KLM Laboratories Pvt Ltd." style="font-weight:700;">
-        <input class="inv-input" id="consignee-addr" value="12/2, City Survey, Village Maglej Tal. Karjan, Nareshwar Road, Off. NH 48, VADODARA">
-        <div>Pincode: <input class="inv-input" id="consignee-pin" value="391243" style="width:80px;"></div>
-        <div>GSTIN/UIN: <input class="inv-input" id="consignee-gst" value="24AAECK1686P1Z1" style="width:140px;font-weight:700;"></div>
-        <div>State Name: <input class="inv-input" value="Gujarat, Code: 24" style="width:130px;"></div>
+        <input class="inv-input" id="consignee-name" placeholder="Consignee Name" style="font-weight:700;">
+        <input class="inv-input" id="consignee-addr" placeholder="Address">
+        <div>Pincode: <input class="inv-input" id="consignee-pin" placeholder="390001" style="width:80px;"></div>
+        <div>GSTIN/UIN: <input class="inv-input" id="consignee-gst" placeholder="GSTIN" style="width:140px;font-weight:700;"></div>
       </div>
       <div class="p-3">
         <div class="field-label" style="font-weight:800;color:#000;">Buyer (Bill to)</div>
-        <input class="inv-input" id="buyer-name" value="KLM Laboratories Pvt Ltd." style="font-weight:700;">
-        <input class="inv-input" id="buyer-addr" value="12/2, City Survey, Village Karjan, Nareshwar Road, Karjan">
-        <div>Pincode: <input class="inv-input" id="buyer-pin" value="391243" style="width:80px;"></div>
-        <div>GSTIN/UIN: <input class="inv-input" id="buyer-gst" value="24AAECK1686P1Z1" style="width:140px;font-weight:700;"></div>
-        <div>Place of supply: <input class="inv-input" value="Gujarat" style="width:100px;"></div>
+        <input class="inv-input" id="buyer-name" placeholder="Buyer Name" style="font-weight:700;">
+        <input class="inv-input" id="buyer-addr" placeholder="Address">
+        <div>Pincode: <input class="inv-input" id="buyer-pin" placeholder="390001" style="width:80px;"></div>
+        <div>GSTIN/UIN: <input class="inv-input" id="buyer-gst" placeholder="GSTIN" style="width:140px;font-weight:700;"></div>
       </div>
     </div>
 
-    <!-- Items Table -->
     <table class="gst-table">
       <thead>
         <tr>
-          <th style="width:30px;">Sr No.</th>
+          <th style="width:30px;">Sr</th>
           <th>Description of Goods/Services</th>
           <th style="width:75px;">HSN/SAC</th>
           <th style="width:65px;">Quantity</th>
@@ -212,17 +177,15 @@ body{font-family:'Inter',Arial,sans-serif;background:#eef2f7;min-height:100vh;co
           <th style="width:25px;" class="del-btn"></th>
         </tr>
       </thead>
-      <tbody id="items-tbody">
-        <!-- Rows dynamically rendered -->
-      </tbody>
+      <tbody id="items-tbody"></tbody>
       <tfoot>
-        <tr id="cgst-row" style="display:none;">
+        <tr id="cgst-row">
           <td colspan="2" class="text-right" style="font-weight:700;">CGST</td>
           <td colspan="5"></td>
           <td class="text-right" id="cgst-amt-cell">0.00</td>
           <td></td>
         </tr>
-        <tr id="sgst-row" style="display:none;">
+        <tr id="sgst-row">
           <td colspan="2" class="text-right" style="font-weight:700;">SGST</td>
           <td colspan="5"></td>
           <td class="text-right" id="sgst-amt-cell">0.00</td>
@@ -248,13 +211,11 @@ body{font-family:'Inter',Arial,sans-serif;background:#eef2f7;min-height:100vh;co
       <button class="btn-action" onclick="addItemRow()">+ Add Line Item</button>
     </div>
 
-    <!-- Amount Chargeable in words -->
     <div class="p-2 border-b" style="border-top:1px solid #000;">
       <span class="field-label">Amount Chargeable (in words):</span>
       <div id="words-amount" style="font-weight:800;font-size:11px;margin-top:2px;">Indian Rupee Zero Only</div>
     </div>
 
-    <!-- HSN/SAC Summary Table -->
     <div class="p-2 border-b">
       <table class="hsn-table">
         <thead>
@@ -272,46 +233,31 @@ body{font-family:'Inter',Arial,sans-serif;background:#eef2f7;min-height:100vh;co
             <th>Amount</th>
           </tr>
         </thead>
-        <tbody id="hsn-tbody">
-          <!-- Dynamic HSN summary -->
-        </tbody>
+        <tbody id="hsn-tbody"></tbody>
       </table>
     </div>
 
-    <!-- Tax Amount in words -->
     <div class="p-2 border-b">
       <span class="field-label">Tax Amount (in words):</span>
       <div id="words-tax" style="font-weight:800;font-size:11px;margin-top:2px;">Indian Rupee Zero Only</div>
     </div>
 
-    <!-- Declarations & Signatures -->
     <div class="grid-2" style="border-bottom:none;">
       <div class="p-3 border-r" style="font-size:10px;">
         <div><strong>Company's GST No.:</strong> 24ACCFS8163L1ZR</div>
         <div><strong>Company's PAN:</strong> ACCFS8163L</div>
         <div style="margin-top:4px;"><strong>Declaration:</strong> We declare that this invoice shows the actual price of the goods described and that all particulars are true and correct.</div>
-        <div style="margin-top:6px;border-top:1px dashed #ccc;padding-top:4px;">
-          <strong>Company's Bank Details:</strong><br>
-          Bank Name: Union Bank of India (India)<br>
-          A/c No.: 355101010110766<br>
-          Branch & IFS Code: UBIN0807346
-        </div>
       </div>
-      <div class="p-3 text-right" style="display:flex;flex-direction:column;justify-space-between;min-height:90px;">
+      <div class="p-3 text-right" style="display:flex;flex-direction:column;justify-content:space-between;min-height:90px;">
         <div style="font-weight:800;">for Shiv Shakti Tiles</div>
         <div style="margin-top:35px;font-weight:700;">Authorised Signatory</div>
-        <div style="font-size:9px;color:#666;margin-top:4px;">This is a Computer Generated Invoice</div>
       </div>
     </div>
-
-  </div><!-- /.invoice-container -->
-
-</div><!-- /.page -->
+  </div>
+</div>
 
 <script>
-let items = [
-  { desc: 'JCP-CHR-352415 CONTROL PLATE\nBatch Primary Batch', hsn: '39221000', qty: 3, unit: 'NO', rate: 1355.93, amount: 4067.79 }
-];
+let items = [];
 
 window.addEventListener('DOMContentLoaded', () => {
   const today = new Date();
@@ -319,9 +265,40 @@ window.addEventListener('DOMContentLoaded', () => {
   document.getElementById('inv-date').value = dStr;
   document.getElementById('inv-order-date').value = dStr;
   document.getElementById('inv-del-date').value = dStr;
-  
-  renderItems();
+
+  // Check if bill data passed from Main Page or History
+  const passedData = sessionStorage.getItem('gstTransferBill');
+  if (passedData) {
+    sessionStorage.removeItem('gstTransferBill');
+    loadFromMainBill(JSON.parse(passedData));
+  } else {
+    // Leave blank by default
+    addItemRow();
+  }
 });
+
+function loadFromMainBill(data) {
+  if (data.buyerName) document.getElementById('buyer-name').value = data.buyerName;
+  if (data.buyerAddress) document.getElementById('buyer-addr').value = data.buyerAddress;
+  if (data.buyerGst) document.getElementById('buyer-gst').value = data.buyerGst;
+  
+  if (data.consigneeName) document.getElementById('consignee-name').value = data.consigneeName;
+  if (data.consigneeAddress) document.getElementById('consignee-addr').value = data.consigneeAddress;
+
+  if (data.items && data.items.length) {
+    items = data.items.map(it => ({
+      desc: it.desc || it.name || '',
+      hsn: it.hsn || '39221000',
+      qty: parseFloat(it.qty) || 1,
+      unit: it.unit || 'NO',
+      rate: parseFloat(it.rate) || 0,
+      amount: (parseFloat(it.qty) || 1) * (parseFloat(it.rate) || 0)
+    }));
+  } else {
+    addItemRow();
+  }
+  renderItems();
+}
 
 function addItemRow(){
   items.push({ desc: '', hsn: '39221000', qty: 1, unit: 'NO', rate: 0, amount: 0 });
@@ -341,25 +318,13 @@ function renderItems(){
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td class="text-center">${i + 1}</td>
-      <td>
-        <input class="inv-input" value="${esc(it.desc)}" oninput="items[${i}].desc=this.value">
-      </td>
-      <td>
-        <input class="inv-input text-center" value="${esc(it.hsn)}" oninput="items[${i}].hsn=this.value;recalculateAll();">
-      </td>
-      <td>
-        <input class="inv-input text-center" type="number" value="${it.qty}" oninput="items[${i}].qty=parseFloat(this.value)||0;calcRow(${i});">
-      </td>
-      <td>
-        <input class="inv-input text-right" type="number" value="${it.rate}" oninput="items[${i}].rate=parseFloat(this.value)||0;calcRow(${i});">
-      </td>
-      <td class="text-center">
-        <input class="inv-input text-center" value="${esc(it.unit)}" oninput="items[${i}].unit=this.value">
-      </td>
+      <td><input class="inv-input" value="${esc(it.desc)}" oninput="items[${i}].desc=this.value"></td>
+      <td><input class="inv-input text-center" value="${esc(it.hsn)}" oninput="items[${i}].hsn=this.value;recalculateAll();"></td>
+      <td><input class="inv-input text-center" type="number" value="${it.qty}" oninput="items[${i}].qty=parseFloat(this.value)||0;calcRow(${i});"></td>
+      <td><input class="inv-input text-right" type="number" value="${it.rate}" oninput="items[${i}].rate=parseFloat(this.value)||0;calcRow(${i});"></td>
+      <td class="text-center"><input class="inv-input text-center" value="${esc(it.unit)}" oninput="items[${i}].unit=this.value"></td>
       <td class="text-center">-</td>
-      <td class="text-right">
-        <input class="inv-input text-right" type="number" value="${it.amount.toFixed(2)}" oninput="items[${i}].amount=parseFloat(this.value)||0;recalculateAll();">
-      </td>
+      <td class="text-right"><input class="inv-input text-right" type="number" value="${it.amount.toFixed(2)}" oninput="items[${i}].amount=parseFloat(this.value)||0;recalculateAll();"></td>
       <td class="text-center del-btn" onclick="deleteItemRow(${i})">&times;</td>
     `;
     tbody.appendChild(tr);
@@ -389,7 +354,6 @@ function recalculateAll(){
   const grandTotal = Math.round(rawTotal);
   const roundOff = grandTotal - rawTotal;
 
-  // Toggle CGST / SGST visibility
   document.getElementById('cgst-row').style.display = gstRate > 0 ? 'table-row' : 'none';
   document.getElementById('sgst-row').style.display = gstRate > 0 ? 'table-row' : 'none';
 
@@ -418,19 +382,31 @@ function renderHsnSummary(taxable, cRate, cAmt, sRate, sAmt, totTax){
       <td>${sAmt.toFixed(2)}</td>
       <td>${totTax.toFixed(2)}</td>
     </tr>
-    <tr style="font-weight:700;background:#f8fafc;">
-      <td>Total</td>
-      <td>${taxable.toFixed(2)}</td>
-      <td></td>
-      <td>${cAmt.toFixed(2)}</td>
-      <td></td>
-      <td>${sAmt.toFixed(2)}</td>
-      <td>${totTax.toFixed(2)}</td>
-    </tr>
   `;
 }
 
-/* Indian Currency Words Converter */
+function saveGstBill() {
+  const payload = {
+    invNo: document.getElementById('inv-no').value || ('GST-' + Date.now().toString().slice(-4)),
+    invDate: document.getElementById('inv-date').value,
+    buyerName: document.getElementById('buyer-name').value || 'Cash Customer',
+    gstRate: document.getElementById('gst-rate-input').value,
+    items: items,
+    grandTotal: document.getElementById('tot-amt-cell').textContent
+  };
+
+  fetch('/api/gst-bills', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(payload)
+  })
+  .then(res => res.json())
+  .then(data => {
+    alert('✅ GST Bill saved successfully!');
+    window.location.href = '/gst-history';
+  });
+}
+
 function numberToWords(num) {
   num = Math.round(num * 100) / 100;
   if (!num || num === 0) return "Indian Rupee Zero Only";
@@ -442,7 +418,6 @@ function numberToWords(num) {
   const b = ['', '', 'Twenty','Thirty','Forty','Fifty','Sixty','Seventy','Eighty','Ninety'];
 
   function inWords(n) {
-    if ((n = n.toString()).length > 9) return 'Overflow';
     let str = '';
     const match = ('000000000' + n).substr(-9).match(/^(\d{2})(\d{2})(\d{2})(\d{1})(\d{2})$/);
     if (!match) return '';
