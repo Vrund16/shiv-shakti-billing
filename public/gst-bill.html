@@ -22,14 +22,20 @@ input[type="number"] {
 }
 
 /* ── Navigation ── */
-.topnav{background:#0f2847;padding:0 28px;height:58px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.25);}
+.topnav{background:#0f2847;padding:0 28px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 10px rgba(0,0,0,.15);}
 .nav-brand{display:flex;align-items:center;gap:12px;}
-.nav-title{font-size:15px;font-weight:700;color:#fff;}
-.nav-title span{font-weight:300;opacity:.6;font-size:13px;margin-left:6px;}
-.nav-links{display:flex;gap:4px;}
-.nav-link{padding:6px 14px;border-radius:6px;font-size:13px;font-weight:500;color:rgba(255,255,255,.7);text-decoration:none;transition:all .15s;}
-.nav-link:hover{background:rgba(255,255,255,.1);color:#fff;}
-.nav-link.active{background:rgba(255,255,255,.15);color:#fff;}
+.brand-logo{background:rgba(255,255,255,.15);width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;}
+.nav-title{font-size:16px;font-weight:800;color:#fff;letter-spacing:.5px;}
+.nav-title span{font-weight:300;opacity:.65;font-size:13px;margin-left:6px;}
+.nav-links{display:flex;align-items:center;gap:6px;}
+.nav-link, .nav-link:visited{padding:8px 16px;border-radius:6px;font-size:13px;font-weight:600;color:rgba(255,255,255,.75)!important;text-decoration:none!important;transition:all .2s ease;}
+.nav-link:hover{background:rgba(255,255,255,.1);color:#fff!important;}
+.nav-link.active{background:rgba(255,255,255,.18);color:#fff!important;box-shadow:0 1px 3px rgba(0,0,0,.2);}
+.nav-user{display:flex;align-items:center;gap:12px;}
+.user-pill{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.1);padding:5px 12px 5px 6px;border-radius:20px;color:#fff;font-size:13px;font-weight:500;}
+.avatar{width:24px;height:24px;background:#3b82f6;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;}
+.btn-signout{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;padding:6px 14px;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;transition:background .2s;}
+.btn-signout:hover{background:rgba(255,255,255,.2);}
 
 /* ── Layout ── */
 .page{padding:20px;max-width:1000px;margin:0 auto;}
@@ -85,6 +91,9 @@ input[type="number"] {
 
 <nav class="topnav">
   <div class="nav-brand">
+    <div class="brand-logo">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+    </div>
     <div class="nav-title">SHIV SHAKTI TILES <span>GST Invoice</span></div>
   </div>
   <div class="nav-links">
@@ -92,6 +101,10 @@ input[type="number"] {
     <a href="gst-bill.html" class="nav-link active">GST Invoice</a>
     <a href="gst-history.html" class="nav-link">GST Bill History</a>
     <a href="history.html" class="nav-link">Bill History</a>
+  </div>
+  <div class="nav-user">
+    <div class="user-pill"><span class="avatar">A</span> Admin</div>
+    <button class="btn-signout" onclick="location.href='index.html'">Sign Out</button>
   </div>
 </nav>
 
@@ -182,17 +195,17 @@ input[type="number"] {
       </div>
     </div>
 
+    <!-- MAIN ITEMS TABLE (Without HSN/SAC Column) -->
     <table class="gst-table">
       <thead>
         <tr>
-          <th style="width:30px;">Sr</th>
+          <th style="width:35px;">Sr</th>
           <th>Description of Goods/Services</th>
-          <th style="width:80px;">HSN/SAC</th>
-          <th style="width:65px;">Quantity</th>
-          <th style="width:75px;">Rate</th>
-          <th style="width:45px;">per</th>
-          <th style="width:50px;">Disc. %</th>
-          <th style="width:95px;">Amount</th>
+          <th style="width:75px;">Quantity</th>
+          <th style="width:85px;">Rate</th>
+          <th style="width:55px;">per</th>
+          <th style="width:60px;">Disc. %</th>
+          <th style="width:105px;">Amount</th>
           <th style="width:25px;"></th>
         </tr>
       </thead>
@@ -200,24 +213,24 @@ input[type="number"] {
       <tfoot>
         <tr id="cgst-row">
           <td colspan="2" class="text-right" style="font-weight:700;">CGST</td>
-          <td colspan="5"></td>
+          <td colspan="4"></td>
           <td class="text-right" id="cgst-amt-cell">0.00</td>
           <td></td>
         </tr>
         <tr id="sgst-row">
           <td colspan="2" class="text-right" style="font-weight:700;">SGST</td>
-          <td colspan="5"></td>
+          <td colspan="4"></td>
           <td class="text-right" id="sgst-amt-cell">0.00</td>
           <td></td>
         </tr>
         <tr id="round-row">
           <td colspan="2" class="text-right" style="font-weight:700;">Rounded Off</td>
-          <td colspan="5"></td>
+          <td colspan="4"></td>
           <td class="text-right" id="round-amt-cell">0.00</td>
           <td></td>
         </tr>
         <tr class="subtotal-row" style="background:#f8fafc;">
-          <td colspan="3" class="text-right" style="font-weight:800;">Total</td>
+          <td colspan="2" class="text-right" style="font-weight:800;">Total</td>
           <td class="text-center" id="tot-qty-cell" style="font-weight:800;">0</td>
           <td colspan="3"></td>
           <td class="text-right" id="tot-amt-cell" style="font-size:12px;font-weight:800;">₹ 0.00</td>
@@ -235,11 +248,11 @@ input[type="number"] {
       <div id="words-amount" style="font-weight:800;font-size:11px;margin-top:2px;">Indian Rupee Zero Only</div>
     </div>
 
+    <!-- LOWER TAX SUMMARY TABLE (Without HSN/SAC Column) -->
     <div class="p-2 border-b">
       <table class="hsn-table">
         <thead>
           <tr>
-            <th rowspan="2">HSN/SAC</th>
             <th rowspan="2">Taxable Value</th>
             <th colspan="2">Central Tax</th>
             <th colspan="2">State Tax</th>
@@ -288,7 +301,6 @@ window.addEventListener('DOMContentLoaded', () => {
   document.getElementById('inv-order-date').value = dStr;
   document.getElementById('inv-del-date').value = dStr;
 
-  // Retrieve transferred bill data from localStorage or sessionStorage
   const localData = localStorage.getItem('currentGstBill');
   const sessionData = sessionStorage.getItem('gstTransferBill');
 
@@ -304,8 +316,8 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 function loadFromMainBill(data) {
-  if (data.billNo) document.getElementById('inv-no').value = data.billNo;
-  if (data.billDate) document.getElementById('inv-date').value = data.billDate;
+  if (data.invNo || data.billNo) document.getElementById('inv-no').value = data.invNo || data.billNo;
+  if (data.invDate || data.billDate) document.getElementById('inv-date').value = data.invDate || data.billDate;
 
   const buyer = data.buyerName || data.partyName || '';
   const addr = data.buyerAddress || data.partyAddr || '';
@@ -325,7 +337,6 @@ function loadFromMainBill(data) {
       const a = parseFloat(it.amount) || (q * r);
       return {
         desc: it.desc || it.name || '',
-        hsn: it.hsn || '39221000',
         qty: q,
         unit: it.unit || 'SQFT',
         rate: r,
@@ -339,7 +350,7 @@ function loadFromMainBill(data) {
 }
 
 function addItemRow(){
-  items.push({ desc: '', hsn: '39221000', qty: 1, unit: 'SQFT', rate: 0, amount: 0 });
+  items.push({ desc: '', qty: 1, unit: 'SQFT', rate: 0, amount: 0 });
   renderItems();
 }
 
@@ -358,7 +369,6 @@ function renderItems(){
     tr.innerHTML = `
       <td class="text-center">${i + 1}</td>
       <td><input class="inv-input" id="desc-${i}" value="${esc(it.desc)}" oninput="items[${i}].desc=this.value"></td>
-      <td><input class="inv-input text-center" id="hsn-${i}" value="${esc(it.hsn)}" oninput="items[${i}].hsn=this.value;recalculateAll();"></td>
       <td><input class="inv-input text-center" id="qty-${i}" type="number" value="${it.qty || ''}" placeholder="0" oninput="calcRow(${i})"></td>
       <td><input class="inv-input text-right" id="rate-${i}" type="number" value="${it.rate || ''}" placeholder="0.00" oninput="calcRow(${i})"></td>
       <td class="text-center"><input class="inv-input text-center" id="unit-${i}" value="${esc(it.unit)}" oninput="items[${i}].unit=this.value"></td>
@@ -413,42 +423,26 @@ function recalculateAll(){
   document.getElementById('words-amount').textContent = numberToWords(grandTotal);
   document.getElementById('words-tax').textContent = numberToWords(totalTax);
 
-  renderHsnSummary(gstRate);
+  renderTaxSummary(gstRate, taxableSum, cgstAmt, sgstAmt, totalTax);
 }
 
-function renderHsnSummary(gstRate){
+function renderTaxSummary(gstRate, taxableSum, cgstAmt, sgstAmt, totalTax){
   const tbody = document.getElementById('hsn-tbody');
   tbody.innerHTML = '';
 
   const cRate = gstRate / 2;
   const sRate = gstRate / 2;
 
-  const hsnMap = {};
-  items.forEach(it => {
-    const code = (it.hsn || '39221000').trim();
-    const amt = parseFloat(it.amount) || 0;
-    if (!hsnMap[code]) hsnMap[code] = 0;
-    hsnMap[code] += amt;
-  });
-
-  Object.keys(hsnMap).forEach(code => {
-    const taxable = hsnMap[code];
-    const cAmt = taxable * (cRate / 100);
-    const sAmt = taxable * (sRate / 100);
-    const totTax = cAmt + sAmt;
-
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td>${esc(code)}</td>
-      <td>${taxable.toFixed(2)}</td>
-      <td>${cRate > 0 ? cRate + '%' : '-'}</td>
-      <td>${cAmt.toFixed(2)}</td>
-      <td>${sRate > 0 ? sRate + '%' : '-'}</td>
-      <td>${sAmt.toFixed(2)}</td>
-      <td>${totTax.toFixed(2)}</td>
-    `;
-    tbody.appendChild(tr);
-  });
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td>${taxableSum.toFixed(2)}</td>
+    <td>${cRate > 0 ? cRate + '%' : '-'}</td>
+    <td>${cgstAmt.toFixed(2)}</td>
+    <td>${sRate > 0 ? sRate + '%' : '-'}</td>
+    <td>${sgstAmt.toFixed(2)}</td>
+    <td>${totalTax.toFixed(2)}</td>
+  `;
+  tbody.appendChild(tr);
 }
 
 function saveGstBill() {
@@ -471,12 +465,17 @@ function saveGstBill() {
     body: JSON.stringify(payload)
   })
   .then(res => res.json())
-  .then(data => {
+  .then(() => {
     alert('✅ GST Bill saved successfully!');
     window.location.href = 'gst-history.html';
   })
   .catch(() => {
-    alert('⚠️ Saved locally or server unavailable.');
+    // Local storage fallback
+    const existing = JSON.parse(localStorage.getItem('savedGstBills') || '[]');
+    existing.unshift(payload);
+    localStorage.setItem('savedGstBills', JSON.stringify(existing));
+    alert('✅ GST Bill saved locally!');
+    window.location.href = 'gst-history.html';
   });
 }
 
