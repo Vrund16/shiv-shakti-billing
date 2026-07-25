@@ -4,7 +4,7 @@ const path    = require('path');
 const fs      = require('fs');
 
 const app  = express();
-const PORT = 4000;
+const PORT = process.env.PORT || 4000;
 
 // ─── ALLOWED USERS ──────────────────────────────────────────────────────────
 const USERS = {
@@ -16,7 +16,10 @@ const USERS = {
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
+
+// DISABLE default index.html serving so login check works at '/'
+app.use(express.static(path.join(__dirname, 'public'), { index: false }));
+
 app.use(session({
   secret: 'shivshakti-secret-2024',
   resave: false,
@@ -31,7 +34,7 @@ function requireLogin(req, res, next) {
 
 // ── Page routes ──────────────────────────────────────────────────────────────
 app.get('/login', (req, res) => {
-  if (req.session.user) return res.redirect('/');
+  if (req.session && req.session.user) return res.redirect('/');
   res.sendFile(path.join(__dirname, 'public', 'login.html'));
 });
 
@@ -46,9 +49,12 @@ app.post('/login', (req, res) => {
   res.redirect('/login?error=1');
 });
 
-app.get('/logout',  (req, res) => { req.session.destroy(); res.redirect('/login'); });
-app.get('/',        requireLogin, (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
-app.get('/history', requireLogin, (req, res) => res.sendFile(path.join(__dirname, 'public', 'history.html')));
+app.get('/logout',   (req, res) => { req.session.destroy(); res.redirect('/login'); });
+
+// Protected Pages (Triggers /login if not logged in)
+app.get('/',         requireLogin, (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
+app.get('/gst-bill', requireLogin, (req, res) => res.sendFile(path.join(__dirname, 'public', 'gst-bill.html')));
+app.get('/history',  requireLogin, (req, res) => res.sendFile(path.join(__dirname, 'public', 'history.html')));
 
 // ── API ──────────────────────────────────────────────────────────────────────
 app.get('/api/me', requireLogin, (req, res) =>
