@@ -51,6 +51,8 @@ body{font-family:'Inter','Segoe UI',sans-serif;background:#eef2f7;min-height:100
 .btn-clear:hover{background:#e5e7eb;}
 .btn-save{background:#059669;color:#fff;}
 .btn-save:hover{background:#047857;}
+.btn-gst{background:#0284c7;color:#fff;}
+.btn-gst:hover{background:#0369a1;}
 .btn-print{background:#1a3a5c;color:#fff;}
 .btn-print:hover{background:#0f2847;}
 .action-btn svg{width:15px;height:15px;flex-shrink:0;}
@@ -160,7 +162,7 @@ body{font-family:'Inter','Segoe UI',sans-serif;background:#eef2f7;min-height:100
   .nav-user span { display: none; }
   .page { padding: 12px 8px 40px; }
   .toolbar-card { flex-direction: column; align-items: stretch; gap: 10px; }
-  .toolbar-right { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
+  .toolbar-right { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
   .action-btn { justify-content: center; padding: 8px 6px; font-size: 11.5px; }
   .bill-paper-inner { padding: 16px 12px; }
   
@@ -289,6 +291,12 @@ body{font-family:'Inter','Segoe UI',sans-serif;background:#eef2f7;min-height:100
           <polyline points="7 3 7 8 15 8"/>
         </svg>
         <span id="save-btn-label">Save Bill</span>
+      </button>
+      <button class="action-btn btn-gst" onclick="sendToGst()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="22" y1="2" x2="11" y2="13"></line>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+        </svg>Send to GST
       </button>
       <button class="action-btn btn-print" onclick="doPrint()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -492,6 +500,9 @@ function calcTotal(){
   const t=rows.reduce((s,r)=>s+(parseFloat(r.amount)||0),0);
   document.getElementById('grand-total').textContent=t.toFixed(2);
 }
+function esc(str){
+  return (str || '').toString().replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
 function renderRows(){
   const tbody=document.getElementById('item-body'); tbody.innerHTML='';
   rows.forEach((r,i)=>{
@@ -675,6 +686,7 @@ function getPayload(){
     total:     document.getElementById('grand-total').textContent,
   };
 }
+
 function saveBill(){
   const p=getPayload();
   const url =editingId?'/api/bills/'+editingId:'/api/bills';
@@ -684,6 +696,21 @@ function saveBill(){
     .then(d=>showToast(d.ok?(editingId?'✓ Bill updated!':'✓ Bill saved!'):d.message,d.ok?'success':'error'))
     .catch(()=>showToast('Could not save.','error'));
 }
+
+/* ── Send to GST Page ── */
+function sendToGst(){
+  const payload = getPayload();
+  if(!payload.partyName && payload.items.length === 0){
+    showToast('Please add customer details or items first', 'error');
+    return;
+  }
+  sessionStorage.setItem('gstBillData', JSON.stringify(payload));
+  showToast('Sending to GST Bill...', 'info');
+  setTimeout(() => {
+    window.location.href = '/gst-bill';
+  }, 300);
+}
+
 function clearBill(){
   editingId=null;
   ['bill-no','party-name','party-phone','party-addr'].forEach(id=>
@@ -697,15 +724,13 @@ function clearBill(){
 }
 
 /* ── Helpers ── */
-function showToast(msg,type){
-  const t=document.getElementById('toast');
-  t.textContent=msg; t.className=`toast toast-${type} show`;
-  setTimeout(()=>t.className='toast',3000);
-}
-function esc(s){
-  return String(s)
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+function showToast(msg, type='info'){
+  const t = document.getElementById('toast');
+  t.className = `toast toast-${type} show`;
+  t.textContent = msg;
+  setTimeout(() => {
+    t.classList.remove('show');
+  }, 3000);
 }
 </script>
 </body>
