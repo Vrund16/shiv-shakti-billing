@@ -11,6 +11,16 @@
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Inter','Segoe UI',sans-serif;background:#eef2f7;min-height:100vh;color:#1a1a2e;}
 
+/* Hide number input arrows */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
 /* ── NAV ── */
 .topnav{background:#0f2847;padding:0 28px;height:58px;display:flex;align-items:center;
   justify-content:space-between;position:sticky;top:0;z-index:100;
@@ -153,9 +163,7 @@ body{font-family:'Inter','Segoe UI',sans-serif;background:#eef2f7;min-height:100
 .toast-error{background:#dc2626;color:#fff;}
 .toast-info{background:#1a3a5c;color:#fff;}
 
-/* ═══════════════════════════════════════════════════════
-   RESPONSIVE MEDIA QUERIES (Mobile & Tablet Optimization)
-   ═══════════════════════════════════════════════════════ */
+/* RESPONSIVE MEDIA QUERIES */
 @media (max-width: 680px) {
   .topnav { height: auto; padding: 10px 14px; flex-wrap: wrap; gap: 10px; }
   .nav-title span { display: none; }
@@ -181,9 +189,7 @@ body{font-family:'Inter','Segoe UI',sans-serif;background:#eef2f7;min-height:100
   .gstin-strip { padding: 10px 14px; flex-direction: column; gap: 4px; text-align: center; font-size: 11px; }
 }
 
-/* ═══════════════════════════════════════════════════════
-   PRECISION PRINT STYLES
-   ═══════════════════════════════════════════════════════ */
+/* PRECISION PRINT STYLES */
 @media print {
   @page { size: A4 portrait; margin: 5mm; }
   html, body { background: #fff !important; margin: 0 !important; padding: 0 !important; height: auto !important; }
@@ -255,9 +261,9 @@ body{font-family:'Inter','Segoe UI',sans-serif;background:#eef2f7;min-height:100
     <div class="nav-title">SHIV SHAKTI TILES <span>Billing</span></div>
   </div>
   <div class="nav-links">
-    <a href="/" class="nav-link active">New Bill</a>
-    <a href="/gst-bill" class="nav-link">Print GST Bill</a>
-    <a href="/history" class="nav-link">Bill History</a>
+    <a href="index.html" class="nav-link active">New Bill</a>
+    <a href="gst-history.html" class="nav-link">GST Bill History</a>
+    <a href="history.html" class="nav-link">Bill History</a>
   </div>
   <div class="nav-right">
     <div class="nav-user">
@@ -674,7 +680,7 @@ function doPrint(){
   setTimeout(() => window.print(), 150);
 }
 
-/* ── Save / Update ── */
+/* ── Save / Update / GST ── */
 function getPayload(){
   return {
     billNo:    document.getElementById('bill-no').value,
@@ -687,6 +693,12 @@ function getPayload(){
   };
 }
 
+function sendToGst(){
+  const payload = getPayload();
+  localStorage.setItem('currentGstBill', JSON.stringify(payload));
+  window.location.href = 'gst-bill.html';
+}
+
 function saveBill(){
   const p=getPayload();
   const url =editingId?'/api/bills/'+editingId:'/api/bills';
@@ -697,40 +709,25 @@ function saveBill(){
     .catch(()=>showToast('Could not save.','error'));
 }
 
-/* ── Send to GST Page ── */
-function sendToGst(){
-  const payload = getPayload();
-  if(!payload.partyName && payload.items.length === 0){
-    showToast('Please add customer details or items first', 'error');
-    return;
-  }
-  sessionStorage.setItem('gstBillData', JSON.stringify(payload));
-  showToast('Sending to GST Bill...', 'info');
-  setTimeout(() => {
-    window.location.href = '/gst-bill';
-  }, 300);
-}
-
 function clearBill(){
-  editingId=null;
-  ['bill-no','party-name','party-phone','party-addr'].forEach(id=>
-    document.getElementById(id).value='');
+  editingId = null;
   document.getElementById('edit-badge').classList.remove('show');
   document.getElementById('toolbar-title').textContent='New Bill';
   document.getElementById('save-btn-label').textContent='Save Bill';
-  rows=[];
+  document.getElementById('bill-no').value = '';
+  document.getElementById('party-name').value = '';
+  document.getElementById('party-phone').value = '';
+  document.getElementById('party-addr').value = '';
+  rows = [];
   initBlank();
-  showToast('Bill cleared','info');
+  showToast('Cleared bill', 'info');
 }
 
-/* ── Helpers ── */
 function showToast(msg, type='info'){
   const t = document.getElementById('toast');
-  t.className = `toast toast-${type} show`;
   t.textContent = msg;
-  setTimeout(() => {
-    t.classList.remove('show');
-  }, 3000);
+  t.className = `toast toast-${type} show`;
+  setTimeout(() => t.classList.remove('show'), 3000);
 }
 </script>
 </body>
