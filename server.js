@@ -12,12 +12,9 @@ const USERS = {
   'vishnu': { password: 'vishnu123',  name: 'Vishnu Patel' },
   'admin':  { password: 'shivshakti', name: 'Admin'        },
 };
-// ────────────────────────────────────────────────────────────────────────────
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-
-// DISABLE default index.html serving so login check works at '/'
 app.use(express.static(path.join(__dirname, 'public'), { index: false }));
 
 app.use(session({
@@ -49,12 +46,11 @@ app.post('/login', (req, res) => {
   res.redirect('/login?error=1');
 });
 
-app.get('/logout',   (req, res) => { req.session.destroy(); res.redirect('/login'); });
-
-// Protected Pages (Triggers /login if not logged in)
-app.get('/',         requireLogin, (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
-app.get('/gst-bill', requireLogin, (req, res) => res.sendFile(path.join(__dirname, 'public', 'gst-bill.html')));
-app.get('/history',  requireLogin, (req, res) => res.sendFile(path.join(__dirname, 'public', 'history.html')));
+app.get('/logout',      (req, res) => { req.session.destroy(); res.redirect('/login'); });
+app.get('/',            requireLogin, (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
+app.get('/gst-bill',    requireLogin, (req, res) => res.sendFile(path.join(__dirname, 'public', 'gst-bill.html')));
+app.get('/gst-history', requireLogin, (req, res) => res.sendFile(path.join(__dirname, 'public', 'gst-history.html')));
+app.get('/history',     requireLogin, (req, res) => res.sendFile(path.join(__dirname, 'public', 'history.html')));
 
 // ── API ──────────────────────────────────────────────────────────────────────
 app.get('/api/me', requireLogin, (req, res) =>
@@ -62,26 +58,25 @@ app.get('/api/me', requireLogin, (req, res) =>
 
 app.get('/api/ping', requireLogin, (req, res) => res.json({ ok: true }));
 
-// ── Bills data ───────────────────────────────────────────────────────────────
-const DATA_DIR  = path.join(__dirname, 'data');
-const DATA_FILE = path.join(DATA_DIR, 'bills.json');
-if (!fs.existsSync(DATA_DIR))  fs.mkdirSync(DATA_DIR, { recursive: true });
-if (!fs.existsSync(DATA_FILE)) fs.writeFileSync(DATA_FILE, '[]');
+// ── Standard Bills Data ──────────────────────────────────────────────────────
+const DATA_DIR      = path.join(__dirname, 'data');
+const DATA_FILE     = path.join(DATA_DIR, 'bills.json');
+const DATA_FILE_GST = path.join(DATA_DIR, 'gst_bills.json');
+
+if (!fs.existsSync(DATA_DIR))      fs.mkdirSync(DATA_DIR, { recursive: true });
+if (!fs.existsSync(DATA_FILE))     fs.writeFileSync(DATA_FILE, '[]');
+if (!fs.existsSync(DATA_FILE_GST)) fs.writeFileSync(DATA_FILE_GST, '[]');
 
 const readBills  = ()      => JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
 const writeBills = (bills) => fs.writeFileSync(DATA_FILE, JSON.stringify(bills, null, 2));
 
+const readGstBills  = ()      => JSON.parse(fs.readFileSync(DATA_FILE_GST, 'utf8'));
+const writeGstBills = (bills) => fs.writeFileSync(DATA_FILE_GST, JSON.stringify(bills, null, 2));
+
+// Standard Bills Routes
 app.get('/api/bills', requireLogin, (req, res) => {
   try { res.json({ ok: true, bills: readBills() }); }
   catch(e) { res.status(500).json({ ok: false, message: 'Could not read bills.' }); }
-});
-
-app.get('/api/bills/:id', requireLogin, (req, res) => {
-  try {
-    const bill = readBills().find(b => b.id === req.params.id);
-    if (!bill) return res.status(404).json({ ok: false, message: 'Bill not found.' });
-    res.json({ ok: true, bill });
-  } catch(e) { res.status(500).json({ ok: false, message: 'Error.' }); }
 });
 
 app.post('/api/bills', requireLogin, (req, res) => {
@@ -92,33 +87,12 @@ app.post('/api/bills', requireLogin, (req, res) => {
       id: 'BILL-' + Date.now(),
       savedBy: req.session.user.username,
       savedByName: req.session.user.name,
-      savedAt: new Date().toISOString(),
-      updatedAt: null
+      savedAt: new Date().toISOString()
     };
     bills.unshift(bill);
     writeBills(bills);
     res.json({ ok: true, message: 'Bill saved.', bill });
   } catch(e) { res.status(500).json({ ok: false, message: 'Could not save bill.' }); }
-});
-
-app.put('/api/bills/:id', requireLogin, (req, res) => {
-  try {
-    const bills = readBills();
-    const idx   = bills.findIndex(b => b.id === req.params.id);
-    if (idx === -1) return res.status(404).json({ ok: false, message: 'Bill not found.' });
-    bills[idx] = {
-      ...bills[idx], ...req.body,
-      id: bills[idx].id,
-      savedBy: bills[idx].savedBy,
-      savedByName: bills[idx].savedByName,
-      savedAt: bills[idx].savedAt,
-      updatedBy: req.session.user.username,
-      updatedByName: req.session.user.name,
-      updatedAt: new Date().toISOString()
-    };
-    writeBills(bills);
-    res.json({ ok: true, message: 'Bill updated.', bill: bills[idx] });
-  } catch(e) { res.status(500).json({ ok: false, message: 'Could not update bill.' }); }
 });
 
 app.delete('/api/bills/:id', requireLogin, (req, res) => {
@@ -128,23 +102,36 @@ app.delete('/api/bills/:id', requireLogin, (req, res) => {
   } catch(e) { res.status(500).json({ ok: false, message: 'Could not delete bill.' }); }
 });
 
-// ── Start server ─────────────────────────────────────────────────────────────
-const server = app.listen(PORT, () => {
-  console.log('\n==========================================');
-  console.log('  SHIV SHAKTI TILES - BILLING SERVER');
-  console.log('==========================================\n');
-  console.log(`  ✅  Running at: http://localhost:${PORT}`);
-  console.log(`  ✅  Login at:   http://localhost:${PORT}/login\n`);
-  console.log('  Keep this window open.');
-  console.log('  Press Ctrl+C to stop.\n');
+// GST Bills Routes
+app.get('/api/gst-bills', requireLogin, (req, res) => {
+  try { res.json({ ok: true, bills: readGstBills() }); }
+  catch(e) { res.status(500).json({ ok: false, message: 'Could not read GST bills.' }); }
 });
 
-server.on('error', (err) => {
-  if (err.code === 'EADDRINUSE') {
-    console.error(`\n❌  Port ${PORT} is already in use!`);
-    console.error('    Fix: Double-click STOP.bat first, then try START.bat again.\n');
-    process.exit(1);
-  } else {
-    throw err;
-  }
+app.post('/api/gst-bills', requireLogin, (req, res) => {
+  try {
+    const bills = readGstBills();
+    const bill  = {
+      ...req.body,
+      id: 'GST-' + Date.now(),
+      savedBy: req.session.user.username,
+      savedByName: req.session.user.name,
+      savedAt: new Date().toISOString()
+    };
+    bills.unshift(bill);
+    writeGstBills(bills);
+    res.json({ ok: true, message: 'GST Bill saved.', bill });
+  } catch(e) { res.status(500).json({ ok: false, message: 'Could not save GST bill.' }); }
+});
+
+app.delete('/api/gst-bills/:id', requireLogin, (req, res) => {
+  try {
+    writeGstBills(readGstBills().filter(b => b.id !== req.params.id));
+    res.json({ ok: true, message: 'GST Bill deleted.' });
+  } catch(e) { res.status(500).json({ ok: false, message: 'Could not delete GST bill.' }); }
+});
+
+// ── Start Server ─────────────────────────────────────────────────────────────
+app.listen(PORT, () => {
+  console.log(`\n✅ Server running at: http://localhost:${PORT}`);
 });
