@@ -58,6 +58,14 @@ body{font-family:'Inter',Arial,sans-serif;background:#f1f5f9;min-height:100vh;co
 .bill-customer{font-size:15px;font-weight:700;color:#0f172a;}
 .bill-amount{font-size:18px;font-weight:800;color:#16a34a;text-align:right;}
 .bill-date-sub{font-size:11px;color:#94a3b8;text-align:right;}
+
+/* ── EDIT & DELETE BUTTON STYLES ── */
+.bill-right-group{display:flex;align-items:center;gap:18px;}
+.action-btns{display:flex;gap:8px;}
+.btn-edit{background:#f1f5f9;border:1px solid #cbd5e1;color:#334155;padding:6px 12px;border-radius:6px;font-weight:600;font-size:12px;cursor:pointer;transition:all .15s;}
+.btn-edit:hover{background:#e2e8f0;color:#0f172a;}
+.btn-delete{background:#fef2f2;border:1px solid #fca5a5;color:#dc2626;padding:6px 12px;border-radius:6px;font-weight:600;font-size:12px;cursor:pointer;transition:all .15s;}
+.btn-delete:hover{background:#fee2e2;}
 </style>
 </head>
 <body>
@@ -85,23 +93,23 @@ body{font-family:'Inter',Arial,sans-serif;background:#f1f5f9;min-height:100vh;co
   <div class="stats-grid">
     <div class="stat-card">
       <div class="stat-label">Total Bills</div>
-      <div class="stat-value" id="stat-total-bills">1</div>
+      <div class="stat-value" id="stat-total-bills">0</div>
       <div class="stat-sub">All time</div>
     </div>
     <div class="stat-card">
       <div class="stat-label">Total Revenue</div>
-      <div class="stat-value" id="stat-total-rev">₹70.00</div>
+      <div class="stat-value" id="stat-total-rev">₹0.00</div>
       <div class="stat-sub">Sum of all bills</div>
     </div>
     <div class="stat-card">
       <div class="stat-label">This Month</div>
-      <div class="stat-value" id="stat-month-bills">1</div>
-      <div class="stat-sub">July bills</div>
+      <div class="stat-value" id="stat-month-bills">0</div>
+      <div class="stat-sub">Current month bills</div>
     </div>
     <div class="stat-card">
       <div class="stat-label">Latest Bill</div>
-      <div class="stat-value" id="stat-latest-id">#01</div>
-      <div class="stat-sub" id="stat-latest-date">24 Jul 2026</div>
+      <div class="stat-value" id="stat-latest-id">#--</div>
+      <div class="stat-sub" id="stat-latest-date">N/A</div>
     </div>
   </div>
 
@@ -133,17 +141,52 @@ body{font-family:'Inter',Arial,sans-serif;background:#f1f5f9;min-height:100vh;co
 
 <script>
 let searchType = 'customer';
-let billsData = [
-  {
-    billNo: '01',
-    customerName: 'kinjal patel',
-    date: '24 / 07 / 2026',
-    phone: '9016994085',
-    itemsCount: 28,
-    address: 'soma talav',
-    amount: 70.00
+
+// Fetch saved bills from localStorage or initialize with sample data if empty
+function getStoredBills() {
+  const stored = localStorage.getItem("bills");
+  if (stored) {
+    try {
+      return JSON.parse(stored);
+    } catch(e) {
+      return [];
+    }
   }
-];
+  
+  // Initial fallback sample data
+  const defaultBills = [
+    {
+      id: 'bill_1700000000000',
+      billNo: '01',
+      customerName: 'kinjal patel',
+      date: '24 / 07 / 2026',
+      phone: '9016994085',
+      items: new Array(28),
+      address: 'soma talav',
+      totalAmount: 70.00
+    }
+  ];
+  localStorage.setItem("bills", JSON.stringify(defaultBills));
+  return defaultBills;
+}
+
+function updateStats(bills) {
+  const totalBills = bills.length;
+  const totalRev = bills.reduce((sum, b) => sum + (parseFloat(b.totalAmount || b.amount || 0)), 0);
+
+  document.getElementById('stat-total-bills').textContent = totalBills;
+  document.getElementById('stat-total-rev').textContent = `₹${totalRev.toFixed(2)}`;
+  document.getElementById('stat-month-bills').textContent = totalBills;
+
+  if (bills.length > 0) {
+    const latest = bills[bills.length - 1];
+    document.getElementById('stat-latest-id').textContent = `#${String(latest.billNo || '01').padStart(2, '0')}`;
+    document.getElementById('stat-latest-date').textContent = latest.date || '';
+  } else {
+    document.getElementById('stat-latest-id').textContent = '#--';
+    document.getElementById('stat-latest-date').textContent = 'N/A';
+  }
+}
 
 function setSearchType(type, btn) {
   searchType = type;
@@ -159,29 +202,42 @@ function renderBills(list) {
   container.innerHTML = '';
 
   if (!list || list.length === 0) {
-    container.innerHTML = `<div style="text-align:center;padding:40px;color:#64748b;background:#fff;border-radius:10px;">No matching bills found.</div>`;
+    container.innerHTML = `<div style="text-align:center;padding:40px;color:#64748b;background:#fff;border-radius:10px;border:1px solid #e2e8f0;">No matching bills found.</div>`;
     return;
   }
 
   list.forEach(b => {
+    const billId = b.id || b.billNo;
+    const itemsCount = b.items ? b.items.length : (b.itemsCount || 0);
+    const amount = parseFloat(b.totalAmount || b.amount || 0);
+
     const card = document.createElement('div');
     card.className = 'bill-item-card';
     card.innerHTML = `
       <div style="display:flex;align-items:center;gap:16px;">
-        <div class="bill-id-tag">#${b.billNo}</div>
+        <div class="bill-id-tag">#${String(b.billNo || '01').padStart(2, '0')}</div>
         <div>
-          <div class="bill-customer">${esc(b.customerName)}</div>
+          <div class="bill-customer">${esc(b.customerName || 'Customer')}</div>
           <div class="bill-meta">
-            <span>📅 ${b.date}</span>
-            <span>📞 ${b.phone}</span>
-            <span>📦 ${b.itemsCount} items</span>
-            <span>📍 ${esc(b.address)}</span>
+            <span>📅 ${b.date || ''}</span>
+            <span>📞 ${b.phone || 'N/A'}</span>
+            <span>📦 ${itemsCount} items</span>
+            <span>📍 ${esc(b.address || 'N/A')}</span>
           </div>
         </div>
       </div>
-      <div>
-        <div class="bill-amount">₹ ${b.amount.toFixed(2)}</div>
-        <div class="bill-date-sub">${b.date}</div>
+      
+      <div class="bill-right-group">
+        <div>
+          <div class="bill-amount">₹ ${amount.toFixed(2)}</div>
+          <div class="bill-date-sub">${b.date || ''}</div>
+        </div>
+        
+        <!-- RESTORED EDIT & DELETE BUTTONS -->
+        <div class="action-btns">
+          <button type="button" class="btn-edit" onclick="editBill('${billId}')">✏️ Edit</button>
+          <button type="button" class="btn-delete" onclick="deleteBill('${billId}')">🗑️ Delete</button>
+        </div>
       </div>
     `;
     container.appendChild(card);
@@ -191,24 +247,49 @@ function renderBills(list) {
 function applyFilters() {
   const query = document.getElementById('main-search-input').value.toLowerCase();
   const sort = document.getElementById('sort-select').value;
+  const allBills = getStoredBills();
 
-  let filtered = billsData.filter(b => {
-    if (searchType === 'customer') return b.customerName.toLowerCase().includes(query);
-    if (searchType === 'phone') return b.phone.includes(query);
-    if (searchType === 'billNo') return b.billNo.toLowerCase().includes(query);
+  updateStats(allBills);
+
+  let filtered = allBills.filter(b => {
+    const name = (b.customerName || '').toLowerCase();
+    const phone = b.phone || '';
+    const billNo = String(b.billNo || '').toLowerCase();
+
+    if (searchType === 'customer') return name.includes(query);
+    if (searchType === 'phone') return phone.includes(query);
+    if (searchType === 'billNo') return billNo.includes(query);
     return true;
   });
 
-  if (sort === 'newest') filtered.reverse();
-  else if (sort === 'highest') filtered.sort((a,b) => b.amount - a.amount);
+  if (sort === 'newest') {
+    filtered = filtered.reverse();
+  } else if (sort === 'highest') {
+    filtered.sort((a,b) => parseFloat(b.totalAmount || b.amount || 0) - parseFloat(a.totalAmount || a.amount || 0));
+  } else if (sort === 'oldest') {
+    // Keeps original order
+  }
 
   renderBills(filtered);
+}
+
+function deleteBill(id) {
+  if (confirm("Are you sure you want to delete this bill?")) {
+    let bills = getStoredBills();
+    bills = bills.filter(b => String(b.id || b.billNo) !== String(id));
+    localStorage.setItem("bills", JSON.stringify(bills));
+    applyFilters();
+  }
+}
+
+function editBill(id) {
+  window.location.href = `index.html?edit=${id}`;
 }
 
 function esc(s){ return String(s||'').replace(/"/g,'&quot;'); }
 
 window.addEventListener('DOMContentLoaded', () => {
-  renderBills(billsData);
+  applyFilters();
 });
 </script>
 </body>
