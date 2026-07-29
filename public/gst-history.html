@@ -106,17 +106,34 @@ window.addEventListener('DOMContentLoaded', fetchGstHistory);
 
 function fetchGstHistory() {
   fetch('/api/gst-bills')
-    .then(res => res.json())
+    .then(res => {
+      if (!res.ok) throw new Error('API server returned error');
+      return res.json();
+    })
     .then(data => {
-      allGstBills = data;
+      if (Array.isArray(data) && data.length > 0) {
+        allGstBills = data;
+        // Keep LocalStorage synced with backend data
+        localStorage.setItem('savedGstBills', JSON.stringify(allGstBills));
+      } else {
+        loadFromLocalStorage();
+      }
       renderTable(allGstBills);
     })
     .catch(() => {
-      // Fallback for local testing
-      const local = JSON.parse(localStorage.getItem('savedGstBills') || '[]');
-      allGstBills = local;
+      // Fallback to local storage when server API is not active
+      loadFromLocalStorage();
       renderTable(allGstBills);
     });
+}
+
+function loadFromLocalStorage() {
+  try {
+    const local = JSON.parse(localStorage.getItem('savedGstBills') || '[]');
+    allGstBills = Array.isArray(local) ? local : [];
+  } catch(e) {
+    allGstBills = [];
+  }
 }
 
 function renderTable(bills) {
@@ -128,17 +145,19 @@ function renderTable(bills) {
     return;
   }
 
-  bills.forEach((b, index) => {
+  bills.forEach((b) => {
+    // Map index relative to the full array to handle search filters correctly
+    const realIndex = allGstBills.indexOf(b);
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td><strong>${esc(b.invNo || 'GST-' + index)}</strong></td>
+      <td><strong>${esc(b.invNo || 'GST-' + realIndex)}</strong></td>
       <td>${esc(b.buyerName || 'Cash Customer')}</td>
       <td>${esc(b.invDate || '-')}</td>
-      <td><span class="badge-gst">${b.gstRate || '18'}%</span></td>
+      <td><span class="badge-gst">${esc(b.gstRate || '18')}%</span></td>
       <td><strong>${esc(b.grandTotal || '₹ 0.00')}</strong></td>
       <td>
-        <button class="action-btn btn-view" onclick="openGstBill(${index})">View / Print</button>
-        <button class="action-btn btn-del" onclick="deleteGstBill(${index})">Delete</button>
+        <button class="action-btn btn-view" onclick="openGstBill(${realIndex})">View / Print</button>
+        <button class="action-btn btn-del" onclick="deleteGstBill(${realIndex})">Delete</button>
       </td>
     `;
     tbody.appendChild(tr);
@@ -146,7 +165,11 @@ function renderTable(bills) {
 }
 
 function filterGstBills() {
-  const q = document.getElementById('search-box').value.toLowerCase();
+  const q = document.getElementById('search-box').value.toLowerCase().trim();
+  if (!q) {
+    renderTable(allGstBills);
+    return;
+  }
   const filtered = allGstBills.filter(b => 
     (b.buyerName && b.buyerName.toLowerCase().includes(q)) ||
     (b.invNo && b.invNo.toLowerCase().includes(q))
@@ -155,15 +178,24 @@ function filterGstBills() {
 }
 
 function openGstBill(index) {
-  localStorage.setItem('currentGstBill', JSON.stringify(allGstBills[index]));
-  window.location.href = 'gst-bill.html';
+  if (allGstBills[index]) {
+    localStorage.setItem('currentGstBill', JSON.stringify(allGstBills[index]));
+    window.location.href = 'gst-bill.html';
+  }
 }
 
 function deleteGstBill(index) {
   if (confirm('Are you sure you want to delete this GST Bill?')) {
+    const billToDelete = allGstBills[index];
     allGstBills.splice(index, 1);
     localStorage.setItem('savedGstBills', JSON.stringify(allGstBills));
-    renderTable(allGstBills);
+
+    // Try deleting from API if applicable
+    if (billToDelete && billToDelete.invNo) {
+      fetch(`/api/gst-bills/${encodeURIComponent(billToDelete.invNo)}`, { method: 'DELETE' }).catch(() => {});
+    }
+
+    filterGstBills();
   }
 }
 
