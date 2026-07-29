@@ -195,7 +195,7 @@ input[type="number"] {
       </div>
     </div>
 
-    <!-- MAIN ITEMS TABLE (Without HSN/SAC Column) -->
+    <!-- MAIN ITEMS TABLE -->
     <table class="gst-table">
       <thead>
         <tr>
@@ -248,7 +248,7 @@ input[type="number"] {
       <div id="words-amount" style="font-weight:800;font-size:11px;margin-top:2px;">Indian Rupee Zero Only</div>
     </div>
 
-    <!-- LOWER TAX SUMMARY TABLE (Without HSN/SAC Column) -->
+    <!-- LOWER TAX SUMMARY TABLE -->
     <div class="p-2 border-b">
       <table class="hsn-table">
         <thead>
@@ -316,25 +316,40 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 function loadFromMainBill(data) {
-  if (data.invNo || data.billNo) document.getElementById('inv-no').value = data.invNo || data.billNo;
-  if (data.invDate || data.billDate) document.getElementById('inv-date').value = data.invDate || data.billDate;
+  if (!data) return;
+
+  if (data.invNo || data.billNo) document.getElementById('inv-no').value = data.invNo || data.billNo || '';
+  if (data.invDate || data.billDate) document.getElementById('inv-date').value = data.invDate || data.billDate || '';
+  if (data.delNote !== undefined) document.getElementById('inv-del-note').value = data.delNote;
+  if (data.paymentTerms !== undefined) document.getElementById('inv-payment-terms').value = data.paymentTerms;
+  if (data.supplierRef !== undefined) document.getElementById('inv-supplier-ref').value = data.supplierRef;
+  if (data.otherRef !== undefined) document.getElementById('inv-other-ref').value = data.otherRef;
+  if (data.orderNo !== undefined) document.getElementById('inv-order-no').value = data.orderNo;
+  if (data.orderDate !== undefined) document.getElementById('inv-order-date').value = data.orderDate;
+  if (data.despatchNo !== undefined) document.getElementById('inv-despatch-no').value = data.despatchNo;
+  if (data.delDate !== undefined) document.getElementById('inv-del-date').value = data.delDate;
 
   const buyer = data.buyerName || data.partyName || '';
-  const addr = data.buyerAddress || data.partyAddr || '';
+  const addr = data.buyerAddr || data.buyerAddress || data.partyAddr || '';
   const phone = data.partyPhone || '';
 
   document.getElementById('buyer-name').value = buyer;
-  document.getElementById('buyer-addr').value = addr + (phone ? ` (Ph: ${phone})` : '');
+  document.getElementById('buyer-addr').value = addr + (phone && !addr.includes(phone) ? ` (Ph: ${phone})` : '');
+  if (data.buyerPin) document.getElementById('buyer-pin').value = data.buyerPin;
   if (data.buyerGst) document.getElementById('buyer-gst').value = data.buyerGst;
 
   document.getElementById('consignee-name').value = data.consigneeName || buyer;
-  document.getElementById('consignee-addr').value = data.consigneeAddress || addr;
+  document.getElementById('consignee-addr').value = data.consigneeAddr || data.consigneeAddress || addr;
+  if (data.consigneePin) document.getElementById('consignee-pin').value = data.consigneePin;
+  if (data.consigneeGst) document.getElementById('consignee-gst').value = data.consigneeGst;
+
+  if (data.gstRate !== undefined) document.getElementById('gst-rate-input').value = data.gstRate;
 
   if (data.items && data.items.length) {
     items = data.items.map(it => {
       const q = parseFloat(it.qty) || 0;
       const r = parseFloat(it.rate) || 0;
-      const a = parseFloat(it.amount) || (q * r);
+      const a = (it.amount !== undefined && it.amount !== null) ? parseFloat(it.amount) : (q * r);
       return {
         desc: it.desc || it.name || '',
         qty: q,
@@ -344,6 +359,7 @@ function loadFromMainBill(data) {
       };
     });
   } else {
+    items = [];
     addItemRow();
   }
   renderItems();
@@ -447,35 +463,72 @@ function renderTaxSummary(gstRate, taxableSum, cgstAmt, sgstAmt, totalTax){
 
 function saveGstBill() {
   const payload = {
-    invNo: document.getElementById('inv-no').value || ('GST-' + Date.now().toString().slice(-4)),
+    invNo: document.getElementById('inv-no').value.trim() || ('GST-' + Date.now().toString().slice(-6)),
     invDate: document.getElementById('inv-date').value,
-    buyerName: document.getElementById('buyer-name').value || 'Cash Customer',
-    buyerAddr: document.getElementById('buyer-addr').value,
-    buyerGst: document.getElementById('buyer-gst').value,
+    delNote: document.getElementById('inv-del-note').value,
+    paymentTerms: document.getElementById('inv-payment-terms').value,
+    supplierRef: document.getElementById('inv-supplier-ref').value,
+    otherRef: document.getElementById('inv-other-ref').value,
+    orderNo: document.getElementById('inv-order-no').value,
+    orderDate: document.getElementById('inv-order-date').value,
+    despatchNo: document.getElementById('inv-despatch-no').value,
+    delDate: document.getElementById('inv-del-date').value,
+
     consigneeName: document.getElementById('consignee-name').value,
     consigneeAddr: document.getElementById('consignee-addr').value,
+    consigneePin: document.getElementById('consignee-pin').value,
+    consigneeGst: document.getElementById('consignee-gst').value,
+
+    buyerName: document.getElementById('buyer-name').value || 'Cash Customer',
+    buyerAddr: document.getElementById('buyer-addr').value,
+    buyerPin: document.getElementById('buyer-pin').value,
+    buyerGst: document.getElementById('buyer-gst').value,
+
     gstRate: document.getElementById('gst-rate-input').value,
     items: items,
     grandTotal: document.getElementById('tot-amt-cell').textContent
   };
 
+  const saveToLocal = () => {
+    let existing = [];
+    try {
+      existing = JSON.parse(localStorage.getItem('savedGstBills') || '[]');
+    } catch(e) { existing = []; }
+
+    const idx = existing.findIndex(b => b.invNo === payload.invNo);
+    if (idx !== -1) {
+      existing[idx] = payload;
+    } else {
+      existing.unshift(payload);
+    }
+    localStorage.setItem('savedGstBills', JSON.stringify(existing));
+    alert('✅ GST Bill saved successfully!');
+    window.location.href = 'gst-history.html';
+  };
+
+  // Attempt API save, fall back gracefully to LocalStorage if API fails or isn't present
   fetch('/api/gst-bills', {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
     body: JSON.stringify(payload)
   })
-  .then(res => res.json())
+  .then(res => {
+    if (!res.ok) throw new Error('API Unavailable');
+    return res.json();
+  })
   .then(() => {
+    // Keep local storage synced
+    let existing = [];
+    try { existing = JSON.parse(localStorage.getItem('savedGstBills') || '[]'); } catch(e){}
+    const idx = existing.findIndex(b => b.invNo === payload.invNo);
+    if (idx !== -1) { existing[idx] = payload; } else { existing.unshift(payload); }
+    localStorage.setItem('savedGstBills', JSON.stringify(existing));
+
     alert('✅ GST Bill saved successfully!');
     window.location.href = 'gst-history.html';
   })
   .catch(() => {
-    // Local storage fallback
-    const existing = JSON.parse(localStorage.getItem('savedGstBills') || '[]');
-    existing.unshift(payload);
-    localStorage.setItem('savedGstBills', JSON.stringify(existing));
-    alert('✅ GST Bill saved locally!');
-    window.location.href = 'gst-history.html';
+    saveToLocal();
   });
 }
 
