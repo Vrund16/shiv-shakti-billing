@@ -1,215 +1,196 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Shiv Shakti Tiles – Bill History</title>
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shiv Shakti Tiles – Bill History</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #f1f5f9; color: #1e293b; }
+        header { background-color: #0f172a; color: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; }
+        .logo-title { font-weight: bold; font-size: 20px; letter-spacing: 0.5px; }
+        nav { display: flex; gap: 10px; align-items: center; }
+        nav a { color: #94a3b8; text-decoration: none; padding: 8px 16px; border-radius: 6px; font-size: 14px; font-weight: 500; }
+        nav a.active { background-color: #1e293b; color: #ffffff; }
+        nav a:hover { color: white; }
+        .user-actions { display: flex; gap: 10px; align-items: center; margin-left: 20px; }
+        .btn-signout { background-color: #1e293b; border: 1px solid #334155; color: white; padding: 6px 14px; border-radius: 6px; cursor: pointer; }
 
-*{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Inter',Arial,sans-serif;background:#f1f5f9;min-height:100vh;color:#0f172a;}
+        .container { max-width: 1100px; margin: 30px auto; padding: 0 20px; }
 
-/* ── Navigation Bar ── */
-.topnav{background:#0f2847;padding:0 28px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 10px rgba(0,0,0,.15);}
-.nav-brand{display:flex;align-items:center;gap:12px;}
-.brand-logo{background:rgba(255,255,255,.15);width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;}
-.nav-title{font-size:16px;font-weight:800;color:#fff;letter-spacing:.5px;}
-.nav-title span{font-weight:300;opacity:.65;font-size:13px;margin-left:6px;}
-.nav-links{display:flex;align-items:center;gap:6px;}
-.nav-link, .nav-link:visited{padding:8px 16px;border-radius:6px;font-size:13px;font-weight:600;color:rgba(255,255,255,.75)!important;text-decoration:none!important;transition:all .2s ease;}
-.nav-link:hover{background:rgba(255,255,255,.1);color:#fff!important;}
-.nav-link.active{background:rgba(255,255,255,.18);color:#fff!important;box-shadow:0 1px 3px rgba(0,0,0,.2);}
-.nav-user{display:flex;align-items:center;gap:12px;}
-.user-pill{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.1);padding:5px 12px 5px 6px;border-radius:20px;color:#fff;font-size:13px;font-weight:500;}
-.avatar{width:24px;height:24px;background:#3b82f6;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;}
-.btn-signout{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;padding:6px 14px;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;transition:background .2s;}
-.btn-signout:hover{background:rgba(255,255,255,.2);}
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 25px; }
+        .stat-card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .stat-title { font-size: 13px; color: #64748b; font-weight: 600; margin-bottom: 8px; }
+        .stat-value { font-size: 24px; font-weight: bold; color: #0f172a; }
+        .stat-sub { font-size: 12px; color: #94a3b8; margin-top: 4px; }
 
-/* ── Content Layout ── */
-.container{max-width:1140px;margin:24px auto;padding:0 20px;}
+        .search-card { background: white; padding: 15px 20px; border-radius: 10px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; }
+        .search-input { width: 60%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; }
+        .btn-new-bill { background: #0f172a; color: white; padding: 10px 18px; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 14px; }
 
-/* ── Stats Row ── */
-.stats-grid{display:grid;grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));gap:16px;margin-bottom:24px;}
-.stat-card{background:#fff;border-radius:12px;padding:18px 20px;box-shadow:0 1px 3px rgba(0,0,0,.05);border:1px solid #e2e8f0;}
-.stat-label{font-size:12px;font-weight:600;color:#64748b;margin-bottom:6px;}
-.stat-value{font-size:24px;font-weight:800;color:#0f2847;}
-.stat-sub{font-size:11px;color:#94a3b8;margin-top:4px;}
+        .bill-card { background: white; padding: 18px 24px; border-radius: 10px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .bill-left { display: flex; align-items: center; gap: 15px; }
+        .bill-badge { background: #0f172a; color: white; padding: 8px 14px; border-radius: 6px; font-weight: bold; font-size: 16px; }
+        .customer-name { font-size: 17px; font-weight: bold; color: #0f172a; }
+        .bill-details { font-size: 13px; color: #64748b; margin-top: 4px; display: flex; gap: 12px; }
 
-/* ── Search & Filter Card ── */
-.filter-card{background:#fff;border-radius:12px;padding:18px 20px;margin-bottom:20px;box-shadow:0 1px 3px rgba(0,0,0,.05);border:1px solid #e2e8f0;display:flex;flex-direction:column;gap:14px;}
-.search-type-group{display:flex;align-items:center;gap:8px;}
-.type-btn{padding:8px 16px;border-radius:20px;font-size:13px;font-weight:600;border:1px solid #cbd5e1;background:#f8fafc;color:#475569;cursor:pointer;transition:all .15s;}
-.type-btn.active{background:#0f2847;color:#fff;border-color:#0f2847;}
-
-.search-row{display:flex;gap:12px;align-items:center;}
-.search-input-wrap{flex:1;position:relative;}
-.search-input{width:100%;padding:10px 16px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:14px;outline:none;}
-.search-input:focus{border-color:#0f2847;}
-.sort-select{padding:10px 14px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:13px;font-weight:600;background:#fff;outline:none;}
-.btn-new-bill{background:#0f2847;color:#fff;padding:10px 18px;border-radius:8px;font-weight:600;font-size:13px;text-decoration:none;display:inline-flex;align-items:center;gap:6px;}
-
-/* ── Bill Card List ── */
-.bill-list{display:flex;flex-direction:column;gap:12px;}
-.bill-item-card{background:#fff;border-radius:10px;padding:16px 20px;border:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;box-shadow:0 1px 2px rgba(0,0,0,.04);transition:transform .15s, box-shadow .15s;}
-.bill-item-card:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.06);}
-.bill-id-tag{background:#0f2847;color:#fff;font-weight:700;padding:6px 12px;border-radius:6px;font-size:13px;}
-.bill-meta{display:flex;align-items:center;gap:16px;font-size:13px;color:#64748b;margin-top:4px;}
-.bill-customer{font-size:15px;font-weight:700;color:#0f172a;}
-.bill-amount{font-size:18px;font-weight:800;color:#16a34a;text-align:right;}
-.bill-date-sub{font-size:11px;color:#94a3b8;text-align:right;}
-</style>
+        .bill-right { display: flex; align-items: center; gap: 20px; }
+        .bill-amount { font-size: 20px; font-weight: bold; color: #16a34a; text-align: right; }
+        .btn-action { padding: 7px 14px; border-radius: 6px; font-weight: 600; font-size: 13px; cursor: pointer; border: 1px solid transparent; }
+        .btn-edit { background-color: #f1f5f9; border-color: #cbd5e1; color: #334155; }
+        .btn-edit:hover { background-color: #e2e8f0; }
+        .btn-delete { background-color: #fef2f2; border-color: #fca5a5; color: #dc2626; }
+        .btn-delete:hover { background-color: #fee2e2; }
+    </style>
 </head>
 <body>
 
-<nav class="topnav">
-  <div class="nav-brand">
-    <div class="brand-logo">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
-    </div>
-    <div class="nav-title">SHIV SHAKTI TILES <span>Billing</span></div>
-  </div>
-  <div class="nav-links">
-    <a href="index.html" class="nav-link">New Bill</a>
-    <a href="gst-bill.html" class="nav-link">GST Invoice</a>
-    <a href="gst-history.html" class="nav-link">GST Bill History</a>
-    <a href="history.html" class="nav-link active">Bill History</a>
-  </div>
-  <div class="nav-user">
-    <div class="user-pill"><span class="avatar">A</span> Admin</div>
-    <button class="btn-signout" onclick="location.href='index.html'">Sign Out</button>
-  </div>
-</nav>
-
-<div class="container">
-  <div class="stats-grid">
-    <div class="stat-card">
-      <div class="stat-label">Total Bills</div>
-      <div class="stat-value" id="stat-total-bills">1</div>
-      <div class="stat-sub">All time</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">Total Revenue</div>
-      <div class="stat-value" id="stat-total-rev">₹70.00</div>
-      <div class="stat-sub">Sum of all bills</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">This Month</div>
-      <div class="stat-value" id="stat-month-bills">1</div>
-      <div class="stat-sub">July bills</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">Latest Bill</div>
-      <div class="stat-value" id="stat-latest-id">#01</div>
-      <div class="stat-sub" id="stat-latest-date">24 Jul 2026</div>
-    </div>
-  </div>
-
-  <div class="filter-card">
-    <div class="search-type-group">
-      <span style="font-size:13px;font-weight:700;color:#64748b;margin-right:8px;">🔍 Search by :</span>
-      <button class="type-btn active" onclick="setSearchType('customer', this)">👤 Customer Name</button>
-      <button class="type-btn" onclick="setSearchType('phone', this)">📞 Phone Number</button>
-      <button class="type-btn" onclick="setSearchType('billNo', this)">🧾 Bill No.</button>
-    </div>
-
-    <div class="search-row">
-      <div class="search-input-wrap">
-        <input type="text" id="main-search-input" class="search-input" placeholder="Search by customer name..." oninput="applyFilters()">
-      </div>
-      <select class="sort-select" id="sort-select" onchange="applyFilters()">
-        <option value="newest">Newest first</option>
-        <option value="oldest">Oldest first</option>
-        <option value="highest">Highest amount</option>
-      </select>
-      <a href="index.html" class="btn-new-bill">＋ New Bill</a>
-    </div>
-  </div>
-
-  <div class="bill-list" id="bill-cards-container">
-    <!-- Rendered dynamically -->
-  </div>
-</div>
-
-<script>
-let searchType = 'customer';
-let billsData = [
-  {
-    billNo: '01',
-    customerName: 'kinjal patel',
-    date: '24 / 07 / 2026',
-    phone: '9016994085',
-    itemsCount: 28,
-    address: 'soma talav',
-    amount: 70.00
-  }
-];
-
-function setSearchType(type, btn) {
-  searchType = type;
-  document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  const input = document.getElementById('main-search-input');
-  input.placeholder = `Search by ${type === 'customer' ? 'customer name' : type === 'phone' ? 'phone number' : 'bill number'}...`;
-  applyFilters();
-}
-
-function renderBills(list) {
-  const container = document.getElementById('bill-cards-container');
-  container.innerHTML = '';
-
-  if (!list || list.length === 0) {
-    container.innerHTML = `<div style="text-align:center;padding:40px;color:#64748b;background:#fff;border-radius:10px;">No matching bills found.</div>`;
-    return;
-  }
-
-  list.forEach(b => {
-    const card = document.createElement('div');
-    card.className = 'bill-item-card';
-    card.innerHTML = `
-      <div style="display:flex;align-items:center;gap:16px;">
-        <div class="bill-id-tag">#${b.billNo}</div>
-        <div>
-          <div class="bill-customer">${esc(b.customerName)}</div>
-          <div class="bill-meta">
-            <span>📅 ${b.date}</span>
-            <span>📞 ${b.phone}</span>
-            <span>📦 ${b.itemsCount} items</span>
-            <span>📍 ${esc(b.address)}</span>
-          </div>
+    <header>
+        <div class="logo-title">🎛️ SHIV SHAKTI TILES <span style="font-size:14px; font-weight:normal; color:#94a3b8;">Billing</span></div>
+        <nav>
+            <a href="index.html">New Bill</a>
+            <a href="gst-bill.html">GST Invoice</a>
+            <a href="gst-history.html">GST Bill History</a>
+            <a href="history.html" class="active">Bill History</a>
+        </nav>
+        <div class="user-actions">
+            <span style="font-size: 14px;">Admin</span>
+            <button class="btn-signout">Sign Out</button>
         </div>
-      </div>
-      <div>
-        <div class="bill-amount">₹ ${b.amount.toFixed(2)}</div>
-        <div class="bill-date-sub">${b.date}</div>
-      </div>
-    `;
-    container.appendChild(card);
-  });
-}
+    </header>
 
-function applyFilters() {
-  const query = document.getElementById('main-search-input').value.toLowerCase();
-  const sort = document.getElementById('sort-select').value;
+    <div class="container">
+        <!-- Stats Row -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-title">Total Bills</div>
+                <div class="stat-value" id="stat-total-bills">0</div>
+                <div class="stat-sub">All time</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">Total Revenue</div>
+                <div class="stat-value" id="stat-total-revenue">₹0.00</div>
+                <div class="stat-sub">Sum of all bills</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">This Month</div>
+                <div class="stat-value" id="stat-this-month">0</div>
+                <div class="stat-sub">Current month bills</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">Latest Bill</div>
+                <div class="stat-value" id="stat-latest-bill">#--</div>
+                <div class="stat-sub" id="stat-latest-date">N/A</div>
+            </div>
+        </div>
 
-  let filtered = billsData.filter(b => {
-    if (searchType === 'customer') return b.customerName.toLowerCase().includes(query);
-    if (searchType === 'phone') return b.phone.includes(query);
-    if (searchType === 'billNo') return b.billNo.toLowerCase().includes(query);
-    return true;
-  });
+        <!-- Search Bar -->
+        <div class="search-card">
+            <input type="text" id="search-input" class="search-input" placeholder="Search by customer name, phone, or bill no..." oninput="filterBills()">
+            <a href="index.html" class="btn-new-bill">+ New Bill</a>
+        </div>
 
-  if (sort === 'newest') filtered.reverse();
-  else if (sort === 'highest') filtered.sort((a,b) => b.amount - a.amount);
+        <!-- Bill History List -->
+        <div id="bills-list-container">
+            <!-- Dynamic Bills Rendered Here -->
+        </div>
+    </div>
 
-  renderBills(filtered);
-}
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            renderBills();
+        });
 
-function esc(s){ return String(s||'').replace(/"/g,'&quot;'); }
+        function getBills() {
+            return JSON.parse(localStorage.getItem("bills")) || [];
+        }
 
-window.addEventListener('DOMContentLoaded', () => {
-  renderBills(billsData);
-});
-</script>
+        function renderBills(filteredBills = null) {
+            const bills = filteredBills || getBills();
+            const container = document.getElementById("bills-list-container");
+
+            updateStats();
+
+            if (bills.length === 0) {
+                container.innerHTML = `<div style="background:white; padding:40px; text-align:center; border-radius:10px; color:#64748b;">No saved bills found.</div>`;
+                return;
+            }
+
+            container.innerHTML = bills.map(bill => `
+                <div class="bill-card" id="bill-${bill.id}">
+                    <div class="bill-left">
+                        <div class="bill-badge">#${String(bill.billNo).padStart(2, '0')}</div>
+                        <div>
+                            <div class="customer-name">${bill.customerName || 'Customer'}</div>
+                            <div class="bill-details">
+                                <span>📅 ${bill.date || 'N/A'}</span>
+                                <span>📞 ${bill.phone || 'N/A'}</span>
+                                <span>📦 ${bill.items ? bill.items.length : 0} items</span>
+                                <span>📍 ${bill.address || 'N/A'}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bill-right">
+                        <div>
+                            <div class="bill-amount">₹${parseFloat(bill.totalAmount || 0).toFixed(2)}</div>
+                            <div style="font-size:11px; color:#94a3b8; text-align:right;">${bill.date || ''}</div>
+                        </div>
+                        <!-- EDIT & DELETE BUTTONS RESTORED HERE -->
+                        <div style="display:flex; gap:8px;">
+                            <button class="btn-action btn-edit" onclick="editBill('${bill.id}')">✏️ Edit</button>
+                            <button class="btn-action btn-delete" onclick="deleteBill('${bill.id}')">🗑️ Delete</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateStats() {
+            const bills = getBills();
+            const totalRevenue = bills.reduce((sum, b) => sum + (parseFloat(b.totalAmount) || 0), 0);
+
+            document.getElementById("stat-total-bills").textContent = bills.length;
+            document.getElementById("stat-total-revenue").textContent = `₹${totalRevenue.toFixed(2)}`;
+            document.getElementById("stat-this-month").textContent = bills.length;
+
+            if (bills.length > 0) {
+                const latest = bills[bills.length - 1];
+                document.getElementById("stat-latest-bill").textContent = `#${String(latest.billNo).padStart(2, '0')}`;
+                document.getElementById("stat-latest-date").textContent = latest.date || '';
+            } else {
+                document.getElementById("stat-latest-bill").textContent = "#--";
+                document.getElementById("stat-latest-date").textContent = "N/A";
+            }
+        }
+
+        function filterBills() {
+            const query = document.getElementById("search-input").value.toLowerCase();
+            const bills = getBills();
+            const filtered = bills.filter(b => 
+                (b.customerName && b.customerName.toLowerCase().includes(query)) ||
+                (b.phone && b.phone.includes(query)) ||
+                (b.billNo && String(b.billNo).includes(query))
+            );
+            renderBills(filtered);
+        }
+
+        function deleteBill(id) {
+            if (confirm("Are you sure you want to delete this bill?")) {
+                let bills = getBills();
+                bills = bills.filter(b => String(b.id) !== String(id));
+                localStorage.setItem("bills", JSON.stringify(bills));
+                renderBills();
+            }
+        }
+
+        function editBill(id) {
+            const bills = getBills();
+            const billToEdit = bills.find(b => String(b.id) === String(id));
+            if (billToEdit) {
+                localStorage.setItem("edit_bill_data", JSON.stringify(billToEdit));
+                window.location.href = `index.html?edit=${id}`;
+            }
+        }
+    </script>
 </body>
 </html>
