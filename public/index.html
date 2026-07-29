@@ -262,15 +262,16 @@ input[type="number"] {
   </div>
   <div class="nav-links">
     <a href="index.html" class="nav-link active">New Bill</a>
+    <a href="gst-bill.html" class="nav-link">GST Invoice</a>
     <a href="gst-history.html" class="nav-link">GST Bill History</a>
     <a href="history.html" class="nav-link">Bill History</a>
   </div>
   <div class="nav-right">
     <div class="nav-user">
-      <div class="user-avatar" id="user-initials">–</div>
-      <span id="user-name">Loading...</span>
+      <div class="user-avatar" id="user-initials">A</div>
+      <span id="user-name">Admin</span>
     </div>
-    <button class="btn-logout" onclick="location.href='/logout'">Sign Out</button>
+    <button class="btn-logout" onclick="location.href='index.html'">Sign Out</button>
   </div>
 </nav>
 
@@ -441,79 +442,114 @@ const MIN_ROWS = 13;
 let rows      = [];
 let editingId = null;
 
-/* ── Keep-alive ── */
-setInterval(() => fetch('/api/ping').catch(()=>{}), 4 * 60 * 1000);
+/* ── Storage Helper ── */
+function getStoredBills() {
+  const stored = localStorage.getItem('bills');
+  if (stored) {
+    try { return JSON.parse(stored); } catch(e) { return []; }
+  }
+  return [];
+}
 
 /* ── Boot ── */
 window.addEventListener('DOMContentLoaded', () => {
-  fetch('/api/me').then(r=>r.json()).then(d=>{
-    document.getElementById('user-name').textContent = d.name;
-    document.getElementById('user-initials').textContent =
-      d.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
-  }).catch(()=>{});
+  const urlParams = new URLSearchParams(window.location.search);
+  const editId = urlParams.get('edit');
+
+  if (editId) {
+    const bills = getStoredBills();
+    const found = bills.find(b => String(b.id || b.billNo) === String(editId));
+    if (found) {
+      loadBillForEdit(found);
+      return;
+    }
+  }
 
   const eb = sessionStorage.getItem('editBill');
-  if (eb) { sessionStorage.removeItem('editBill'); loadBillForEdit(JSON.parse(eb)); }
-  else     { initBlank(); }
+  if (eb) {
+    sessionStorage.removeItem('editBill');
+    loadBillForEdit(JSON.parse(eb));
+  } else {
+    initBlank();
+  }
 });
 
 function initBlank(){
-  for(let i=0;i<MIN_ROWS;i++) addRow();
+  rows = [];
+  for(let i=0; i<MIN_ROWS; i++) {
+    rows.push({ id: Date.now() + Math.random(), desc: '', qty: '', rate: '', amount: '' });
+  }
+  renderRows();
   setToday();
 }
 
 function setToday(){
-  const n=new Date();
-  const dd=String(n.getDate()).padStart(2,'0');
-  const mm=String(n.getMonth()+1).padStart(2,'0');
-  document.getElementById('bill-date').value=`${dd} / ${mm} / ${n.getFullYear()}`;
+  const n = new Date();
+  const dd = String(n.getDate()).padStart(2,'0');
+  const mm = String(n.getMonth()+1).padStart(2,'0');
+  document.getElementById('bill-date').value = `${dd} / ${mm} / ${n.getFullYear()}`;
 }
 
 function loadBillForEdit(bill){
-  editingId=bill.id;
-  document.getElementById('bill-no').value    =bill.billNo    ||'';
-  document.getElementById('bill-date').value  =bill.billDate  ||'';
-  document.getElementById('party-name').value =bill.partyName ||'';
-  document.getElementById('party-phone').value=bill.partyPhone||'';
-  document.getElementById('party-addr').value =bill.partyAddr ||'';
-  rows=(bill.items||[]).map(it=>({...it,id:Date.now()+Math.random()}));
-  while(rows.length<MIN_ROWS) rows.push({id:Date.now()+Math.random(),desc:'',qty:'',rate:'',amount:''});
+  editingId = bill.id || bill.billNo;
+  document.getElementById('bill-no').value    = bill.billNo    || '';
+  document.getElementById('bill-date').value  = bill.billDate  || bill.date || '';
+  document.getElementById('party-name').value = bill.partyName || bill.customerName || '';
+  document.getElementById('party-phone').value= bill.partyPhone|| bill.phone || '';
+  document.getElementById('party-addr').value = bill.partyAddr || bill.address || '';
+  
+  rows = (bill.items || []).map(it => ({ ...it, id: Date.now() + Math.random() }));
+  while(rows.length < MIN_ROWS) {
+    rows.push({ id: Date.now() + Math.random(), desc: '', qty: '', rate: '', amount: '' });
+  }
   renderRows();
   document.getElementById('edit-badge').classList.add('show');
-  document.getElementById('toolbar-title').textContent='Editing Bill';
-  document.getElementById('save-btn-label').textContent='Update Bill';
-  showToast('Bill loaded for editing','info');
+  document.getElementById('toolbar-title').textContent = 'Editing Bill';
+  document.getElementById('save-btn-label').textContent = 'Update Bill';
+  showToast('Bill loaded for editing', 'info');
 }
 
 /* ── Row management ── */
 function addRow(){
-  rows.push({id:Date.now()+Math.random(),desc:'',qty:'',rate:'',amount:''});
+  rows.push({ id: Date.now() + Math.random(), desc: '', qty: '', rate: '', amount: '' });
   renderRows();
 }
+
 function deleteRow(id){
-  rows=rows.filter(r=>r.id!==id);
-  while(rows.length<MIN_ROWS) rows.push({id:Date.now()+Math.random(),desc:'',qty:'',rate:'',amount:''});
-  renderRows(); calcTotal();
-}
-function calcRowAmount(id){
-  const r=rows.find(x=>x.id===id); if(!r)return;
-  const qty=parseFloat(r.qty)||0, rate=parseFloat(r.rate)||0;
-  r.amount=(qty>0&&rate>0)?(qty*rate).toFixed(2):'';
-  const el=document.getElementById('amt-'+id); if(el) el.value=r.amount;
+  rows = rows.filter(r => r.id !== id);
+  while(rows.length < MIN_ROWS) {
+    rows.push({ id: Date.now() + Math.random(), desc: '', qty: '', rate: '', amount: '' });
+  }
+  renderRows();
   calcTotal();
 }
-function calcTotal(){
-  const t=rows.reduce((s,r)=>s+(parseFloat(r.amount)||0),0);
-  document.getElementById('grand-total').textContent=t.toFixed(2);
+
+function calcRowAmount(id){
+  const r = rows.find(x => x.id === id); 
+  if(!r) return;
+  const qty = parseFloat(r.qty) || 0;
+  const rate = parseFloat(r.rate) || 0;
+  r.amount = (qty > 0 && rate > 0) ? (qty * rate).toFixed(2) : '';
+  const el = document.getElementById('amt-' + id); 
+  if(el) el.value = r.amount;
+  calcTotal();
 }
+
+function calcTotal(){
+  const t = rows.reduce((s, r) => s + (parseFloat(r.amount) || 0), 0);
+  document.getElementById('grand-total').textContent = t.toFixed(2);
+}
+
 function esc(str){
   return (str || '').toString().replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }
+
 function renderRows(){
-  const tbody=document.getElementById('item-body'); tbody.innerHTML='';
-  rows.forEach((r,i)=>{
-    const tr=document.createElement('tr');
-    tr.innerHTML=`
+  const tbody = document.getElementById('item-body'); 
+  tbody.innerHTML = '';
+  rows.forEach((r, i) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
       <td style="font-size:12px;color:#6b7280;">${i+1}</td>
       <td class="desc-cell">
         <input type="text" class="bill-input" value="${esc(r.desc)}" placeholder="Item description"
@@ -680,16 +716,16 @@ function doPrint(){
   setTimeout(() => window.print(), 150);
 }
 
-/* ── Save / Update / GST ── */
+/* ── Save / Update / GST Logic Fixes ── */
 function getPayload(){
   return {
-    billNo:    document.getElementById('bill-no').value,
-    billDate:  document.getElementById('bill-date').value,
-    partyName: document.getElementById('party-name').value,
-    partyPhone:document.getElementById('party-phone').value,
-    partyAddr: document.getElementById('party-addr').value,
-    items:     rows.filter(r=>r.desc||r.qty||r.rate),
-    total:     document.getElementById('grand-total').textContent,
+    billNo:     document.getElementById('bill-no').value,
+    billDate:   document.getElementById('bill-date').value,
+    partyName:  document.getElementById('party-name').value,
+    partyPhone: document.getElementById('party-phone').value,
+    partyAddr:  document.getElementById('party-addr').value,
+    items:      rows.filter(r => r.desc || r.qty || r.rate),
+    total:      document.getElementById('grand-total').textContent,
   };
 }
 
@@ -700,34 +736,77 @@ function sendToGst(){
 }
 
 function saveBill(){
-  const p=getPayload();
-  const url =editingId?'/api/bills/'+editingId:'/api/bills';
-  const meth=editingId?'PUT':'POST';
-  fetch(url,{method:meth,headers:{'Content-Type':'application/json'},body:JSON.stringify(p)})
-    .then(r=>r.json())
-    .then(d=>showToast(d.ok?(editingId?'✓ Bill updated!':'✓ Bill saved!'):d.message,d.ok?'success':'error'))
-    .catch(()=>showToast('Could not save.','error'));
+  const payload = getPayload();
+  const activeItems = payload.items;
+  const totalAmt = parseFloat(payload.total) || 0;
+
+  if (!payload.partyName && !payload.billNo && activeItems.length === 0) {
+    showToast('Please enter bill details before saving.', 'error');
+    return;
+  }
+
+  let bills = getStoredBills();
+
+  const billObj = {
+    id: editingId || ('bill_' + Date.now()),
+    billNo: payload.billNo || String(bills.length + 1).padStart(2, '0'),
+    date: payload.billDate,
+    billDate: payload.billDate,
+    customerName: payload.partyName,
+    partyName: payload.partyName,
+    phone: payload.partyPhone,
+    partyPhone: payload.partyPhone,
+    address: payload.partyAddr,
+    partyAddr: payload.partyAddr,
+    items: activeItems,
+    itemsCount: activeItems.length,
+    amount: totalAmt,
+    totalAmount: totalAmt,
+    total: payload.total
+  };
+
+  if (editingId) {
+    const idx = bills.findIndex(b => String(b.id || b.billNo) === String(editingId));
+    if (idx !== -1) {
+      bills[idx] = billObj;
+    } else {
+      bills.unshift(billObj);
+    }
+    showToast('Bill updated successfully!', 'success');
+  } else {
+    bills.unshift(billObj);
+    editingId = billObj.id;
+    document.getElementById('edit-badge').classList.add('show');
+    document.getElementById('toolbar-title').textContent = 'Editing Bill';
+    document.getElementById('save-btn-label').textContent = 'Update Bill';
+    showToast('Bill saved successfully!', 'success');
+  }
+
+  localStorage.setItem('bills', JSON.stringify(bills));
 }
 
 function clearBill(){
   editingId = null;
-  document.getElementById('edit-badge').classList.remove('show');
-  document.getElementById('toolbar-title').textContent='New Bill';
-  document.getElementById('save-btn-label').textContent='Save Bill';
   document.getElementById('bill-no').value = '';
   document.getElementById('party-name').value = '';
   document.getElementById('party-phone').value = '';
   document.getElementById('party-addr').value = '';
-  rows = [];
+  document.getElementById('edit-badge').classList.remove('show');
+  document.getElementById('toolbar-title').textContent = 'New Bill';
+  document.getElementById('save-btn-label').textContent = 'Save Bill';
+  
   initBlank();
-  showToast('Cleared bill', 'info');
+  window.history.replaceState({}, document.title, window.location.pathname);
+  showToast('Form cleared', 'info');
 }
 
-function showToast(msg, type='info'){
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = `toast toast-${type} show`;
-  setTimeout(() => t.classList.remove('show'), 3000);
+function showToast(msg, type = 'success') {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.className = `toast toast-${type} show`;
+  setTimeout(() => {
+    toast.classList.remove('show');
+  }, 3000);
 }
 </script>
 </body>
