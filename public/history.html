@@ -8,289 +8,308 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 *{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Inter',Arial,sans-serif;background:#f1f5f9;min-height:100vh;color:#0f172a;}
+body{font-family:'Inter',Arial,sans-serif;background:#eef2f7;min-height:100vh;color:#111;}
 
-/* ── Navigation Bar ── */
-.topnav{background:#0f2847;padding:0 28px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 10px rgba(0,0,0,.15);}
-.nav-brand{display:flex;align-items:center;gap:12px;}
-.brand-logo{background:rgba(255,255,255,.15);width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;}
-.nav-title{font-size:16px;font-weight:800;color:#fff;letter-spacing:.5px;}
-.nav-title span{font-weight:300;opacity:.65;font-size:13px;margin-left:6px;}
-.nav-links{display:flex;align-items:center;gap:6px;}
-.nav-link, .nav-link:visited{padding:8px 16px;border-radius:6px;font-size:13px;font-weight:600;color:rgba(255,255,255,.75)!important;text-decoration:none!important;transition:all .2s ease;}
-.nav-link:hover{background:rgba(255,255,255,.1);color:#fff!important;}
-.nav-link.active{background:rgba(255,255,255,.18);color:#fff!important;box-shadow:0 1px 3px rgba(0,0,0,.2);}
-.nav-user{display:flex;align-items:center;gap:12px;}
-.user-pill{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.1);padding:5px 12px 5px 6px;border-radius:20px;color:#fff;font-size:13px;font-weight:500;}
-.avatar{width:24px;height:24px;background:#3b82f6;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;}
-.btn-signout{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;padding:6px 14px;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;transition:background .2s;}
-.btn-signout:hover{background:rgba(255,255,255,.2);}
+/* ── NAV BAR ── */
+.topnav{background:#0f2847;padding:0 24px;height:58px;display:flex;align-items:center;
+  justify-content:space-between;position:sticky;top:0;z-index:100;
+  box-shadow:0 2px 10px rgba(0,0,0,.2);}
+.nav-brand{display:flex;align-items:center;gap:10px;}
+.nav-logo{width:30px;height:30px;background:rgba(255,255,255,.15);border-radius:6px;
+  display:flex;align-items:center;justify-content:center;}
+.nav-logo svg{width:18px;height:18px;}
+.nav-title{font-size:15px;font-weight:700;color:#fff;letter-spacing:.3px;}
+.nav-title span{font-weight:400;opacity:.7;font-size:12.5px;margin-left:4px;}
+.nav-links{display:flex;gap:4px;}
+.nav-link{padding:6px 14px;border-radius:6px;font-size:12.5px;font-weight:500;
+  color:rgba(255,255,255,.75);text-decoration:none;transition:all .15s;}
+.nav-link:hover{background:rgba(255,255,255,.1);color:#fff;}
+.nav-link.active{background:rgba(255,255,255,.18);color:#fff;}
+.nav-right{display:flex;align-items:center;gap:12px;}
+.nav-user{font-size:12.5px;color:rgba(255,255,255,.8);display:flex;align-items:center;gap:6px;}
+.user-avatar{width:26px;height:26px;border-radius:50%;background:#0284c7;
+  display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;}
+.btn-logout{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);
+  color:#fff;padding:5px 12px;border-radius:5px;font-size:12px;cursor:pointer;}
 
-/* ── Content Layout ── */
-.container{max-width:1140px;margin:24px auto;padding:0 20px;}
+.container{max-width:1050px;margin:24px auto;padding:0 16px;}
 
-/* ── Stats Row ── */
-.stats-grid{display:grid;grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));gap:16px;margin-bottom:24px;}
-.stat-card{background:#fff;border-radius:12px;padding:18px 20px;box-shadow:0 1px 3px rgba(0,0,0,.05);border:1px solid #e2e8f0;}
-.stat-label{font-size:12px;font-weight:600;color:#64748b;margin-bottom:6px;}
-.stat-value{font-size:24px;font-weight:800;color:#0f2847;}
-.stat-sub{font-size:11px;color:#94a3b8;margin-top:4px;}
+/* Metric Cards */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:14px;margin-bottom:20px;}
+.stat-card{background:#fff;padding:16px;border-radius:10px;box-shadow:0 1px 4px rgba(0,0,0,.06);}
+.stat-label{font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;}
+.stat-value{font-size:20px;font-weight:800;color:#0f2847;margin-top:4px;}
 
-/* ── Search & Filter Card ── */
-.filter-card{background:#fff;border-radius:12px;padding:18px 20px;margin-bottom:20px;box-shadow:0 1px 3px rgba(0,0,0,.05);border:1px solid #e2e8f0;display:flex;flex-direction:column;gap:14px;}
-.search-type-group{display:flex;align-items:center;gap:8px;}
-.type-btn{padding:8px 16px;border-radius:20px;font-size:13px;font-weight:600;border:1px solid #cbd5e1;background:#f8fafc;color:#475569;cursor:pointer;transition:all .15s;}
-.type-btn.active{background:#0f2847;color:#fff;border-color:#0f2847;}
+/* Main Card */
+.card{background:#fff;border-radius:12px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,.06);}
 
-.search-row{display:flex;gap:12px;align-items:center;}
-.search-input-wrap{flex:1;position:relative;}
-.search-input{width:100%;padding:10px 16px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:14px;outline:none;}
+/* Filter Controls Header */
+.filter-bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:16px;}
+.filter-btn{padding:7px 14px;border-radius:20px;border:1px solid #cbd5e1;background:#fff;
+  font-size:12.5px;font-weight:600;color:#475569;cursor:pointer;transition:all .15s;}
+.filter-btn.active{background:#0f2847;color:#fff;border-color:#0f2847;}
+
+.search-row{display:flex;gap:10px;margin-bottom:18px;}
+.search-input{flex:1;padding:9px 14px;border:1px solid #cbd5e1;border-radius:8px;font-size:13px;outline:none;}
 .search-input:focus{border-color:#0f2847;}
-.sort-select{padding:10px 14px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:13px;font-weight:600;background:#fff;outline:none;}
-.btn-new-bill{background:#0f2847;color:#fff;padding:10px 18px;border-radius:8px;font-weight:600;font-size:13px;text-decoration:none;display:inline-flex;align-items:center;gap:6px;}
 
-/* ── Bill Card List ── */
-.bill-list{display:flex;flex-direction:column;gap:12px;}
-.bill-item-card{background:#fff;border-radius:10px;padding:16px 20px;border:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;box-shadow:0 1px 2px rgba(0,0,0,.04);transition:transform .15s, box-shadow .15s;}
-.bill-item-card:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.06);}
-.bill-id-tag{background:#0f2847;color:#fff;font-weight:700;padding:6px 12px;border-radius:6px;font-size:13px;}
-.bill-meta{display:flex;align-items:center;gap:16px;font-size:13px;color:#64748b;margin-top:4px;}
-.bill-customer{font-size:15px;font-weight:700;color:#0f172a;}
-.bill-amount{font-size:18px;font-weight:800;color:#16a34a;text-align:right;}
-.bill-date-sub{font-size:11px;color:#94a3b8;text-align:right;}
+/* Bills List Cards */
+.bill-card{background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:14px 18px;
+  margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;}
+.bill-badge{background:#0f2847;color:#fff;font-weight:800;padding:4px 10px;border-radius:6px;font-size:13px;}
+.bill-title{font-size:15px;font-weight:700;color:#0f2847;}
+.bill-sub{font-size:12px;color:#64748b;margin-top:3px;display:flex;gap:12px;}
 
-/* ── EDIT & DELETE BUTTON STYLES ── */
-.bill-right-group{display:flex;align-items:center;gap:18px;}
-.action-btns{display:flex;gap:8px;}
-.btn-edit{background:#f1f5f9;border:1px solid #cbd5e1;color:#334155;padding:6px 12px;border-radius:6px;font-weight:600;font-size:12px;cursor:pointer;transition:all .15s;}
-.btn-edit:hover{background:#e2e8f0;color:#0f172a;}
-.btn-delete{background:#fef2f2;border:1px solid #fca5a5;color:#dc2626;padding:6px 12px;border-radius:6px;font-weight:600;font-size:12px;cursor:pointer;transition:all .15s;}
-.btn-delete:hover{background:#fee2e2;}
+/* Register Summary Table */
+.summary-table{width:100%;border-collapse:collapse;margin-top:10px;}
+.summary-table th{background:#f1f5f9;border:1px solid #cbd5e1;padding:10px;font-size:12.5px;
+  font-weight:700;color:#0f2847;text-align:left;}
+.summary-table td{border:1px solid #cbd5e1;padding:8px 10px;font-size:13px;}
+.editable-bill-input{border:1px dashed #94a3b8;padding:4px 8px;border-radius:4px;
+  font-weight:700;font-size:13px;width:100%;max-width:120px;outline:none;}
+.editable-bill-input:focus{border:1px solid #0f2847;background:#f0f9ff;}
+
+.action-btn{padding:5px 12px;border-radius:5px;font-size:12px;font-weight:600;border:none;cursor:pointer;}
+.btn-edit{background:#e0f2fe;color:#0284c7;margin-right:4px;}
+.btn-edit:hover{background:#bae6fd;}
+.btn-del{background:#fee2e2;color:#dc2626;}
+.btn-del:hover{background:#fca5a5;}
 </style>
 </head>
 <body>
 
 <nav class="topnav">
   <div class="nav-brand">
-    <div class="brand-logo">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+    <div class="nav-logo">
+      <svg viewBox="0 0 40 40" fill="none">
+        <rect x="4" y="4" width="14" height="14" rx="2" fill="white"/>
+        <rect x="22" y="4" width="14" height="14" rx="2" fill="white" opacity=".5"/>
+        <rect x="4" y="22" width="14" height="14" rx="2" fill="white" opacity=".5"/>
+        <rect x="22" y="22" width="14" height="14" rx="2" fill="white"/>
+      </svg>
     </div>
-    <div class="nav-title">SHIV SHAKTI TILES <span>Billing</span></div>
+    <div class="nav-title">SHIV SHAKTI TILES <span>Bill History</span></div>
   </div>
   <div class="nav-links">
     <a href="index.html" class="nav-link">New Bill</a>
-    <a href="gst-bill.html" class="nav-link">GST Invoice</a>
-    <a href="gst-history.html" class="nav-link">GST Bill History</a>
     <a href="history.html" class="nav-link active">Bill History</a>
   </div>
-  <div class="nav-user">
-    <div class="user-pill"><span class="avatar">A</span> Admin</div>
-    <button class="btn-signout" onclick="location.href='index.html'">Sign Out</button>
+  <div class="nav-right">
+    <div class="nav-user"><div class="user-avatar">A</div><span>Admin</span></div>
+    <button class="btn-logout" onclick="location.href='login.html'">Sign Out</button>
   </div>
 </nav>
 
 <div class="container">
+
   <div class="stats-grid">
     <div class="stat-card">
       <div class="stat-label">Total Bills</div>
-      <div class="stat-value" id="stat-total-bills">0</div>
-      <div class="stat-sub">All time</div>
+      <div class="stat-value" id="statTotalBills">0</div>
     </div>
     <div class="stat-card">
       <div class="stat-label">Total Revenue</div>
-      <div class="stat-value" id="stat-total-rev">₹0.00</div>
-      <div class="stat-sub">Sum of all bills</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">This Month</div>
-      <div class="stat-value" id="stat-month-bills">0</div>
-      <div class="stat-sub">Current month bills</div>
+      <div class="stat-value" id="statRevenue">₹ 0.00</div>
     </div>
     <div class="stat-card">
       <div class="stat-label">Latest Bill</div>
-      <div class="stat-value" id="stat-latest-id">#--</div>
-      <div class="stat-sub" id="stat-latest-date">N/A</div>
+      <div class="stat-value" id="statLatest">-</div>
     </div>
   </div>
 
-  <div class="filter-card">
-    <div class="search-type-group">
-      <span style="font-size:13px;font-weight:700;color:#64748b;margin-right:8px;">🔍 Search by :</span>
-      <button class="type-btn active" onclick="setSearchType('customer', this)">👤 Customer Name</button>
-      <button class="type-btn" onclick="setSearchType('phone', this)">📞 Phone Number</button>
-      <button class="type-btn" onclick="setSearchType('billNo', this)">🧾 Bill No.</button>
+  <div class="card">
+    <div class="filter-bar">
+      <span style="font-size:13px; font-weight:600; color:#64748b; margin-right:4px;">Search / View by:</span>
+      <button class="filter-btn active" id="btnFilterCust" onclick="setMode('cust')">👤 Customer Name</button>
+      <button class="filter-btn" id="btnFilterPhone" onclick="setMode('phone')">📞 Phone Number</button>
+      <button class="filter-btn" id="btnFilterInv" onclick="setMode('inv')">📄 Invoice No.</button>
+      <button class="filter-btn" id="btnFilterSummary" onclick="setMode('summary')" style="background:#0284c7; color:#fff; border-color:#0284c7;">📖 Summary Bill History</button>
     </div>
 
-    <div class="search-row">
-      <div class="search-input-wrap">
-        <input type="text" id="main-search-input" class="search-input" placeholder="Search by customer name..." oninput="applyFilters()">
-      </div>
-      <select class="sort-select" id="sort-select" onchange="applyFilters()">
-        <option value="newest">Newest first</option>
-        <option value="oldest">Oldest first</option>
-        <option value="highest">Highest amount</option>
-      </select>
-      <a href="index.html" class="btn-new-bill">＋ New Bill</a>
+    <div class="search-row" id="searchContainer">
+      <input type="text" id="searchInput" class="search-input" placeholder="Search by customer name..." oninput="filterData()">
+      <button class="action-btn" style="background:#0f2847; color:#fff; padding:0 18px;" onclick="location.href='index.html'">+ New Bill</button>
     </div>
-  </div>
 
-  <div class="bill-list" id="bill-cards-container">
-    <!-- Rendered dynamically -->
+    <div id="standardView"></div>
+
+    <div id="summaryView" style="display:none;">
+      <table class="summary-table">
+        <thead>
+          <tr>
+            <th style="width:120px;">Date</th>
+            <th style="width:140px;">Challan No.</th>
+            <th>Party Name</th>
+            <th style="width:150px;">Bill No</th>
+          </tr>
+        </thead>
+        <tbody id="summaryTbody"></tbody>
+      </table>
+    </div>
+
   </div>
 </div>
 
 <script>
-let searchType = 'customer';
+let bills = [];
+let currentMode = 'cust';
 
-// Fetch saved bills from localStorage or initialize with sample data if empty
-function getStoredBills() {
-  const stored = localStorage.getItem("bills");
-  if (stored) {
-    try {
-      return JSON.parse(stored);
-    } catch(e) {
-      return [];
-    }
+window.addEventListener('DOMContentLoaded', loadHistory);
+
+async function loadHistory() {
+  try {
+    const res = await fetch('/api/bills');
+    bills = await res.json();
+    updateMetrics();
+    render();
+  } catch (err) {
+    console.error('Failed to fetch bill history:', err);
   }
-  
-  // Initial fallback sample data
-  const defaultBills = [
-    {
-      id: 'bill_1700000000000',
-      billNo: '01',
-      customerName: 'kinjal patel',
-      date: '24 / 07 / 2026',
-      phone: '9016994085',
-      items: new Array(28),
-      address: 'soma talav',
-      totalAmount: 70.00
-    }
-  ];
-  localStorage.setItem("bills", JSON.stringify(defaultBills));
-  return defaultBills;
 }
 
-function updateStats(bills) {
-  const totalBills = bills.length;
-  const totalRev = bills.reduce((sum, b) => sum + (parseFloat(b.totalAmount || b.amount || 0)), 0);
-
-  document.getElementById('stat-total-bills').textContent = totalBills;
-  document.getElementById('stat-total-rev').textContent = `₹${totalRev.toFixed(2)}`;
-  document.getElementById('stat-month-bills').textContent = totalBills;
-
-  if (bills.length > 0) {
-    const latest = bills[bills.length - 1];
-    document.getElementById('stat-latest-id').textContent = `#${String(latest.billNo || '01').padStart(2, '0')}`;
-    document.getElementById('stat-latest-date').textContent = latest.date || '';
+function render() {
+  if (currentMode === 'summary') {
+    renderSummaryTable();
   } else {
-    document.getElementById('stat-latest-id').textContent = '#--';
-    document.getElementById('stat-latest-date').textContent = 'N/A';
+    filterData();
   }
 }
 
-function setSearchType(type, btn) {
-  searchType = type;
-  document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  const input = document.getElementById('main-search-input');
-  input.placeholder = `Search by ${type === 'customer' ? 'customer name' : type === 'phone' ? 'phone number' : 'bill number'}...`;
-  applyFilters();
+function updateMetrics() {
+  document.getElementById('statTotalBills').textContent = bills.length;
+  let totalRev = 0;
+  bills.forEach(b => totalRev += parseFloat(b.grandTotal || 0));
+  document.getElementById('statRevenue').textContent = `₹ ${totalRev.toFixed(2)}`;
+  document.getElementById('statLatest').textContent = bills.length > 0 ? (bills[0].billNo || '#1') : '-';
 }
 
-function renderBills(list) {
-  const container = document.getElementById('bill-cards-container');
+function setMode(mode) {
+  currentMode = mode;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+
+  if (mode === 'cust') document.getElementById('btnFilterCust').classList.add('active');
+  if (mode === 'phone') document.getElementById('btnFilterPhone').classList.add('active');
+  if (mode === 'inv') document.getElementById('btnFilterInv').classList.add('active');
+  if (mode === 'summary') document.getElementById('btnFilterSummary').classList.add('active');
+
+  const searchInput = document.getElementById('searchInput');
+  if (mode === 'cust') searchInput.placeholder = 'Search by customer name...';
+  if (mode === 'phone') searchInput.placeholder = 'Search by phone number...';
+  if (mode === 'inv') searchInput.placeholder = 'Search by invoice/challan number...';
+
+  if (mode === 'summary') {
+    document.getElementById('searchContainer').style.display = 'none';
+    document.getElementById('standardView').style.display = 'none';
+    document.getElementById('summaryView').style.display = 'block';
+    renderSummaryTable();
+  } else {
+    document.getElementById('searchContainer').style.display = 'flex';
+    document.getElementById('standardView').style.display = 'block';
+    document.getElementById('summaryView').style.display = 'none';
+    filterData();
+  }
+}
+
+function filterData() {
+  const q = document.getElementById('searchInput').value.toLowerCase().trim();
+  const filtered = bills.filter(b => {
+    if (currentMode === 'cust') return (b.custName || '').toLowerCase().includes(q);
+    if (currentMode === 'phone') return (b.custPhone || '').toLowerCase().includes(q);
+    if (currentMode === 'inv') return (b.billNo || '').toLowerCase().includes(q);
+    return true;
+  });
+  renderStandardList(filtered);
+}
+
+function renderStandardList(data) {
+  const container = document.getElementById('standardView');
   container.innerHTML = '';
 
-  if (!list || list.length === 0) {
-    container.innerHTML = `<div style="text-align:center;padding:40px;color:#64748b;background:#fff;border-radius:10px;border:1px solid #e2e8f0;">No matching bills found.</div>`;
+  if (data.length === 0) {
+    container.innerHTML = `<div style="text-align:center; padding:30px; color:#64748b;">No bills found in database.</div>`;
     return;
   }
 
-  list.forEach(b => {
-    const billId = b.id || b.billNo;
-    const itemsCount = b.items ? b.items.length : (b.itemsCount || 0);
-    const amount = parseFloat(b.totalAmount || b.amount || 0);
-
+  data.forEach((b) => {
     const card = document.createElement('div');
-    card.className = 'bill-item-card';
+    card.className = 'bill-card';
     card.innerHTML = `
-      <div style="display:flex;align-items:center;gap:16px;">
-        <div class="bill-id-tag">#${String(b.billNo || '01').padStart(2, '0')}</div>
+      <div style="display:flex; align-items:center; gap:14px;">
+        <div class="bill-badge">${b.billNo || '#'}</div>
         <div>
-          <div class="bill-customer">${esc(b.customerName || 'Customer')}</div>
-          <div class="bill-meta">
-            <span>📅 ${b.date || ''}</span>
-            <span>📞 ${b.phone || 'N/A'}</span>
-            <span>📦 ${itemsCount} items</span>
-            <span>📍 ${esc(b.address || 'N/A')}</span>
+          <div class="bill-title">${b.custName || 'Cash Customer'}</div>
+          <div class="bill-sub">
+            <span>📅 ${b.date || '-'}</span>
+            <span>📞 ${b.custPhone || 'N/A'}</span>
+            <span>📦 ${b.items ? b.items.length : 0} items</span>
           </div>
         </div>
       </div>
-      
-      <div class="bill-right-group">
-        <div>
-          <div class="bill-amount">₹ ${amount.toFixed(2)}</div>
-          <div class="bill-date-sub">${b.date || ''}</div>
-        </div>
-        
-        <!-- RESTORED EDIT & DELETE BUTTONS -->
-        <div class="action-btns">
-          <button type="button" class="btn-edit" onclick="editBill('${billId}')">✏️ Edit</button>
-          <button type="button" class="btn-delete" onclick="deleteBill('${billId}')">🗑️ Delete</button>
-        </div>
+      <div style="display:flex; align-items:center; gap:12px;">
+        <div style="font-size:16px; font-weight:800; color:#16a34a;">₹ ${b.grandTotal || '0.00'}</div>
+        <button class="action-btn btn-edit" onclick="editBill('${b._id}')">Edit</button>
+        <button class="action-btn btn-del" onclick="deleteBill('${b._id}')">Delete</button>
       </div>
     `;
     container.appendChild(card);
   });
 }
 
-function applyFilters() {
-  const query = document.getElementById('main-search-input').value.toLowerCase();
-  const sort = document.getElementById('sort-select').value;
-  const allBills = getStoredBills();
+function renderSummaryTable() {
+  const tbody = document.getElementById('summaryTbody');
+  tbody.innerHTML = '';
 
-  updateStats(allBills);
-
-  let filtered = allBills.filter(b => {
-    const name = (b.customerName || '').toLowerCase();
-    const phone = b.phone || '';
-    const billNo = String(b.billNo || '').toLowerCase();
-
-    if (searchType === 'customer') return name.includes(query);
-    if (searchType === 'phone') return phone.includes(query);
-    if (searchType === 'billNo') return billNo.includes(query);
-    return true;
-  });
-
-  if (sort === 'newest') {
-    filtered = filtered.reverse();
-  } else if (sort === 'highest') {
-    filtered.sort((a,b) => parseFloat(b.totalAmount || b.amount || 0) - parseFloat(a.totalAmount || a.amount || 0));
-  } else if (sort === 'oldest') {
-    // Keeps original order
+  if (bills.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:20px; color:#64748b;">No entries available.</td></tr>`;
+    return;
   }
 
-  renderBills(filtered);
+  bills.forEach((b) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td style="font-weight:600;">${b.date || '-'}</td>
+      <td style="font-weight:700; color:#0f2847;">${b.billNo || 'N/A'}</td>
+      <td style="font-weight:600;">${b.custName || 'Cash Customer'}</td>
+      <td>
+        <input type="text" class="editable-bill-input" value="${b.registerBillNo \vert{}\vert{} ''}" placeholder="e.g. 705" onchange="updateRegisterBillNo('${b._id}', this.value)">
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
 }
 
-function deleteBill(id) {
-  if (confirm("Are you sure you want to delete this bill?")) {
-    let bills = getStoredBills();
-    bills = bills.filter(b => String(b.id || b.billNo) !== String(id));
-    localStorage.setItem("bills", JSON.stringify(bills));
-    applyFilters();
+async function updateRegisterBillNo(id, val) {
+  try {
+    await fetch(`/api/bills/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ registerBillNo: val })
+    });
+    const idx = bills.findIndex(b => b._id === id);
+    if (idx !== -1) bills[idx].registerBillNo = val;
+  } catch (err) {
+    console.error('Failed to update register bill no:', err);
   }
 }
 
 function editBill(id) {
-  window.location.href = `index.html?edit=${id}`;
+  window.location.href = `index.html?id=${id}`;
 }
 
-function esc(s){ return String(s||'').replace(/"/g,'&quot;'); }
-
-window.addEventListener('DOMContentLoaded', () => {
-  applyFilters();
-});
+async function deleteBill(id) {
+  if (confirm('Are you sure you want to delete this bill permanently from MongoDB?')) {
+    try {
+      const res = await fetch(`/api/bills/${id}`, { method: 'DELETE' });
+      if (res.ok) {
+        await loadHistory();
+      } else {
+        alert('Failed to delete bill.');
+      }
+    } catch (err) {
+      console.error('Delete error:', err);
+    }
+  }
+}
 </script>
 </body>
 </html>
