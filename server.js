@@ -10,12 +10,20 @@ const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/shiv_s
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Connect to MongoDB
+// Connect to MongoDB with connection event monitoring
 mongoose.connect(MONGODB_URI)
-  .then(() => console.log('MongoDB connected successfully.'))
-  .catch((err) => console.error('MongoDB connection error:', err));
+  .then(() => console.log('✅ Connected to MongoDB successfully.'))
+  .catch((err) => console.error('❌ MongoDB initial connection error:', err));
 
-// Bill Schema & Model
+mongoose.connection.on('error', (err) => {
+  console.error('⚠️ MongoDB connection error:', err);
+});
+
+mongoose.connection.on('disconnected', () => {
+  console.warn('⚠️ MongoDB connection lost. Attempting to reconnect...');
+});
+
+// Schemas & Models
 const itemSchema = new mongoose.Schema({
   desc: { type: String, default: '' },
   qty: { type: mongoose.Schema.Types.Mixed, default: '' },
@@ -37,6 +45,12 @@ const billSchema = new mongoose.Schema({
 
 const Bill = mongoose.model('Bill', billSchema);
 
+// ── HEALTH CHECK ──
+app.get('/health', (req, res) => {
+  const dbState = mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected';
+  res.status(200).json({ status: 'OK', database: dbState });
+});
+
 // ── API ROUTES ──
 
 // Fetch all bills
@@ -45,6 +59,7 @@ app.get('/api/bills', async (req, res) => {
     const bills = await Bill.find().sort({ createdAt: -1 });
     res.json(bills);
   } catch (err) {
+    console.error('Error fetching bills:', err);
     res.status(500).json({ error: 'Failed to fetch bills' });
   }
 });
@@ -56,6 +71,7 @@ app.get('/api/bills/:id', async (req, res) => {
     if (!bill) return res.status(404).json({ error: 'Bill not found' });
     res.json(bill);
   } catch (err) {
+    console.error(`Error fetching bill ${req.params.id}:`, err);
     res.status(500).json({ error: 'Error fetching bill' });
   }
 });
@@ -67,6 +83,7 @@ app.post('/api/bills', async (req, res) => {
     const savedBill = await newBill.save();
     res.status(201).json(savedBill);
   } catch (err) {
+    console.error('Error creating bill:', err);
     res.status(500).json({ error: 'Failed to save bill' });
   }
 });
@@ -77,11 +94,12 @@ app.put('/api/bills/:id', async (req, res) => {
     const updatedBill = await Bill.findByIdAndUpdate(
       req.params.id,
       { $set: req.body },
-      { new: true }
+      { new: true, runValidators: true }
     );
     if (!updatedBill) return res.status(404).json({ error: 'Bill not found' });
     res.json(updatedBill);
   } catch (err) {
+    console.error(`Error updating bill ${req.params.id}:`, err);
     res.status(500).json({ error: 'Failed to update bill' });
   }
 });
@@ -93,15 +111,28 @@ app.delete('/api/bills/:id', async (req, res) => {
     if (!deletedBill) return res.status(404).json({ error: 'Bill not found' });
     res.json({ message: 'Bill deleted successfully' });
   } catch (err) {
+    console.error(`Error deleting bill ${req.params.id}:`, err);
     res.status(500).json({ error: 'Failed to delete bill' });
   }
 });
 
-// Serve frontend HTML
+// Fallback route to serve main page
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-app.listen(PORT, () => {
-  console.log(`Shiv Shakti Tiles Billing App running on http://localhost:${PORT}`);
+// Start Server
+const server = app.listen(PORT, () => {
+  console.log(`🚀 Shiv Shakti Tiles Billing App running on port ${PORT}`);
+});
+
+// Graceful Shutdown for Cloud Deployments (Render / Docker)
+process.on('SIGTERM', () => {
+  console.log('SIGTERM signal received: closing HTTP server');
+  server.close(() => {
+    mongoose.connection.close(false, () => {
+      console.log('MongoDB connection closed.');
+      process.exit(0);
+    });
+  });
 });
