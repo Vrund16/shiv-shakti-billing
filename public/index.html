@@ -441,6 +441,7 @@ input[type="number"] {
 const MIN_ROWS = 13;
 let rows      = [];
 let editingId = null;
+let toastTimer = null;
 
 /* ── Storage Helper ── */
 function getStoredBills() {
@@ -716,73 +717,57 @@ function doPrint(){
   setTimeout(() => window.print(), 150);
 }
 
-/* ── Save / Update / GST Logic Fixes ── */
+/* ── Save / Update / GST Logic ── */
 function getPayload(){
+  const validItems = rows.filter(r => (r.desc && r.desc.trim()) || r.qty || r.rate || r.amount);
+  const grandTotal = rows.reduce((s, r) => s + (parseFloat(r.amount) || 0), 0).toFixed(2);
+  
   return {
-    billNo:     document.getElementById('bill-no').value,
-    billDate:   document.getElementById('bill-date').value,
-    partyName:  document.getElementById('party-name').value,
-    partyPhone: document.getElementById('party-phone').value,
-    partyAddr:  document.getElementById('party-addr').value,
-    items:      rows.filter(r => r.desc || r.qty || r.rate),
-    total:      document.getElementById('grand-total').textContent,
+    id: editingId || Date.now(),
+    billNo: document.getElementById('bill-no').value.trim(),
+    billDate: document.getElementById('bill-date').value.trim(),
+    partyName: document.getElementById('party-name').value.trim(),
+    partyPhone: document.getElementById('party-phone').value.trim(),
+    partyAddr: document.getElementById('party-addr').value.trim(),
+    items: validItems,
+    totalAmount: grandTotal,
+    updatedAt: new Date().toISOString()
   };
-}
-
-function sendToGst(){
-  const payload = getPayload();
-  localStorage.setItem('currentGstBill', JSON.stringify(payload));
-  window.location.href = 'gst-bill.html';
 }
 
 function saveBill(){
   const payload = getPayload();
-  const activeItems = payload.items;
-  const totalAmt = parseFloat(payload.total) || 0;
-
-  if (!payload.partyName && !payload.billNo && activeItems.length === 0) {
-    showToast('Please enter bill details before saving.', 'error');
+  
+  if(!payload.partyName && !payload.billNo) {
+    showToast('Please enter Party Name or Bill Number', 'error');
     return;
   }
 
   let bills = getStoredBills();
-
-  const billObj = {
-    id: editingId || ('bill_' + Date.now()),
-    billNo: payload.billNo || String(bills.length + 1).padStart(2, '0'),
-    date: payload.billDate,
-    billDate: payload.billDate,
-    customerName: payload.partyName,
-    partyName: payload.partyName,
-    phone: payload.partyPhone,
-    partyPhone: payload.partyPhone,
-    address: payload.partyAddr,
-    partyAddr: payload.partyAddr,
-    items: activeItems,
-    itemsCount: activeItems.length,
-    amount: totalAmt,
-    totalAmount: totalAmt,
-    total: payload.total
-  };
-
-  if (editingId) {
+  
+  if(editingId) {
     const idx = bills.findIndex(b => String(b.id || b.billNo) === String(editingId));
-    if (idx !== -1) {
-      bills[idx] = billObj;
+    if(idx !== -1) {
+      bills[idx] = payload;
     } else {
-      bills.unshift(billObj);
+      bills.push(payload);
     }
     showToast('Bill updated successfully!', 'success');
   } else {
-    bills.unshift(billObj);
-    editingId = billObj.id;
-    document.getElementById('edit-badge').classList.add('show');
-    document.getElementById('toolbar-title').textContent = 'Editing Bill';
-    document.getElementById('save-btn-label').textContent = 'Update Bill';
+    bills.push(payload);
     showToast('Bill saved successfully!', 'success');
   }
 
   localStorage.setItem('bills', JSON.stringify(bills));
+}
+
+function sendToGst(){
+  const payload = getPayload();
+  sessionStorage.setItem('gstBillDraft', JSON.stringify(payload));
+  showToast('Redirecting to GST Invoice...', 'info');
+  setTimeout(() => {
+    window.location.href = 'gst-bill.html';
+  }, 600);
 }
 
 function clearBill(){
@@ -795,16 +780,24 @@ function clearBill(){
   document.getElementById('toolbar-title').textContent = 'New Bill';
   document.getElementById('save-btn-label').textContent = 'Save Bill';
   
+  if (window.history.pushState) {
+    const newurl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+    window.history.pushState({path: newurl}, '', newurl);
+  }
+  
   initBlank();
-  window.history.replaceState({}, document.title, window.location.pathname);
   showToast('Form cleared', 'info');
 }
 
-function showToast(msg, type = 'success') {
+function showToast(message, type = 'info'){
   const toast = document.getElementById('toast');
-  toast.textContent = msg;
+  if(!toast) return;
+
+  toast.textContent = message;
   toast.className = `toast toast-${type} show`;
-  setTimeout(() => {
+
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => {
     toast.classList.remove('show');
   }, 3000);
 }
