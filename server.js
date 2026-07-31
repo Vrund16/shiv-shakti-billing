@@ -1,77 +1,76 @@
 const express = require('express');
-const mongoose = require('mongoose');
 const path = require('path');
+const mongoose = require('mongoose');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/shiv_shakti_tiles';
 
-// Middleware
+// Body parser middleware (REQUIRED for form submissions)
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Serve static files from 'public' directory
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Connect to MongoDB with connection event monitoring
-mongoose.connect(MONGODB_URI)
-  .then(() => console.log('✅ Connected to MongoDB successfully.'))
-  .catch((err) => console.error('❌ MongoDB initial connection error:', err));
+// MongoDB Connection (Use your connection string or environment variable)
+const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/shiv_shakti_billing';
+mongoose.connect(MONGO_URI)
+  .then(() => console.log('MongoDB connected successfully'))
+  .catch(err => console.error('MongoDB connection error:', err));
 
-mongoose.connection.on('error', (err) => {
-  console.error('⚠️ MongoDB connection error:', err);
-});
-
-mongoose.connection.on('disconnected', () => {
-  console.warn('⚠️ MongoDB connection lost. Attempting to reconnect...');
-});
-
-// Schemas & Models
-const itemSchema = new mongoose.Schema({
-  desc: { type: String, default: '' },
-  qty: { type: mongoose.Schema.Types.Mixed, default: '' },
-  rate: { type: mongoose.Schema.Types.Mixed, default: '' }
-}, { _id: false });
-
+// Bill Schema & Model
 const billSchema = new mongoose.Schema({
-  billNo: { type: String, default: '' },
-  date: { type: String, default: '' },
-  custName: { type: String, default: '' },
-  custPhone: { type: String, default: '' },
-  custAddress: { type: String, default: '' },
-  items: [itemSchema],
-  isGstApplied: { type: Boolean, default: false },
-  gstAmt: { type: String, default: '0.00' },
-  grandTotal: { type: String, default: '0.00' },
-  registerBillNo: { type: String, default: '' }
-}, { timestamps: true });
+  billNo: String,
+  date: String,
+  custName: String,
+  custPhone: String,
+  custAddress: String,
+  items: Array,
+  isGstApplied: Boolean,
+  gstAmt: String,
+  grandTotal: String,
+  createdAt: { type: Date, default: Date.now }
+});
 
 const Bill = mongoose.model('Bill', billSchema);
 
-// ── HEALTH CHECK ──
-app.get('/health', (req, res) => {
-  const dbState = mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected';
-  res.status(200).json({ status: 'OK', database: dbState });
+/* ── AUTHENTICATION ROUTES ── */
+
+// Serve Login Page
+app.get('/login', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'login.html'));
 });
 
-// ── API ROUTES ──
+// Handle Login POST (Form submission fallback & direct post)
+app.post('/login', (req, res) => {
+  // Accepts any login attempt for admin access and redirects to main app
+  res.redirect('/index.html');
+});
 
-// Fetch all bills
+// Handle API Login (JSON submission)
+app.post('/api/login', (req, res) => {
+  res.json({ success: true, redirect: '/index.html' });
+});
+
+/* ── BILL API ROUTES ── */
+
+// Get all bills
 app.get('/api/bills', async (req, res) => {
   try {
     const bills = await Bill.find().sort({ createdAt: -1 });
     res.json(bills);
   } catch (err) {
-    console.error('Error fetching bills:', err);
     res.status(500).json({ error: 'Failed to fetch bills' });
   }
 });
 
-// Fetch single bill by ID
+// Get single bill by ID
 app.get('/api/bills/:id', async (req, res) => {
   try {
     const bill = await Bill.findById(req.params.id);
     if (!bill) return res.status(404).json({ error: 'Bill not found' });
     res.json(bill);
   } catch (err) {
-    console.error(`Error fetching bill ${req.params.id}:`, err);
     res.status(500).json({ error: 'Error fetching bill' });
   }
 });
@@ -80,59 +79,38 @@ app.get('/api/bills/:id', async (req, res) => {
 app.post('/api/bills', async (req, res) => {
   try {
     const newBill = new Bill(req.body);
-    const savedBill = await newBill.save();
-    res.status(201).json(savedBill);
+    const saved = await newBill.save();
+    res.status(201).json(saved);
   } catch (err) {
-    console.error('Error creating bill:', err);
     res.status(500).json({ error: 'Failed to save bill' });
   }
 });
 
-// Update existing bill by ID
+// Update bill
 app.put('/api/bills/:id', async (req, res) => {
   try {
-    const updatedBill = await Bill.findByIdAndUpdate(
-      req.params.id,
-      { $set: req.body },
-      { new: true, runValidators: true }
-    );
-    if (!updatedBill) return res.status(404).json({ error: 'Bill not found' });
-    res.json(updatedBill);
+    const updated = await Bill.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    res.json(updated);
   } catch (err) {
-    console.error(`Error updating bill ${req.params.id}:`, err);
     res.status(500).json({ error: 'Failed to update bill' });
   }
 });
 
-// Delete bill by ID
+// Delete bill
 app.delete('/api/bills/:id', async (req, res) => {
   try {
-    const deletedBill = await Bill.findByIdAndDelete(req.params.id);
-    if (!deletedBill) return res.status(404).json({ error: 'Bill not found' });
+    await Bill.findByIdAndDelete(req.params.id);
     res.json({ message: 'Bill deleted successfully' });
   } catch (err) {
-    console.error(`Error deleting bill ${req.params.id}:`, err);
     res.status(500).json({ error: 'Failed to delete bill' });
   }
 });
 
-// Fallback route to serve main page
+// Fallback route for single page app navigation
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Start Server
-const server = app.listen(PORT, () => {
-  console.log(`🚀 Shiv Shakti Tiles Billing App running on port ${PORT}`);
-});
-
-// Graceful Shutdown for Cloud Deployments (Render / Docker)
-process.on('SIGTERM', () => {
-  console.log('SIGTERM signal received: closing HTTP server');
-  server.close(() => {
-    mongoose.connection.close(false, () => {
-      console.log('MongoDB connection closed.');
-      process.exit(0);
-    });
-  });
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
