@@ -42,7 +42,7 @@ body{font-family:'Inter','Segoe UI',sans-serif;min-height:100vh;display:flex;bac
   transition:border-color .2s,box-shadow .2s;}
 .form-input:focus{border-color:#1a3a5c;background:#fff;box-shadow:0 0 0 3px rgba(26,58,92,.08);}
 .toggle-pass{position:absolute;right:14px;top:50%;transform:translateY(-50%);
-  background:none;border:none;cursor:pointer;color:#9ca3af;padding:0;}
+  background:none;border:none;cursor:pointer;color:#9ca3af;padding:0;display:flex;align-items:center;justify-content:center;}
 
 .error-box{display:none;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;
   padding:11px 14px;font-size:13px;color:#dc2626;margin-bottom:18px;align-items:center;gap:8px;}
@@ -50,8 +50,9 @@ body{font-family:'Inter','Segoe UI',sans-serif;min-height:100vh;display:flex;bac
 
 .btn-signin{width:100%;padding:13px;background:#1a3a5c;color:#fff;border:none;border-radius:10px;
   font-size:15px;font-weight:600;font-family:inherit;cursor:pointer;margin-top:6px;
-  transition:background .2s;}
+  transition:background .2s, opacity .2s;}
 .btn-signin:hover{background:#0f2847;}
+.btn-signin:disabled{opacity:0.7;cursor:not-allowed;}
 
 .login-footer{margin-top:32px;padding-top:24px;border-top:1px solid #f3f4f6;
   font-size:12px;color:#9ca3af;text-align:center;line-height:1.7;}
@@ -98,10 +99,10 @@ body{font-family:'Inter','Segoe UI',sans-serif;min-height:100vh;display:flex;bac
       <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/>
       <line x1="12" y1="16" x2="12.01" y2="16"/>
     </svg>
-    Incorrect username or password. Please try again.
+    <span id="err-text">Incorrect username or password. Please try again.</span>
   </div>
 
-  <form method="POST" action="/login">
+  <form id="loginForm" method="POST" action="/login" onsubmit="handleLogin(event)">
     <div class="form-group">
       <label class="form-label" for="username">Username</label>
       <div class="input-wrap">
@@ -126,15 +127,15 @@ body{font-family:'Inter','Segoe UI',sans-serif;min-height:100vh;display:flex;bac
         </span>
         <input type="password" id="password" name="password" class="form-input"
           placeholder="Enter your password" autocomplete="current-password" required>
-        <button type="button" class="toggle-pass" onclick="togglePass()">
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <button type="button" class="toggle-pass" onclick="togglePass()" aria-label="Toggle password visibility">
+          <svg id="eye-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
             <circle cx="12" cy="12" r="3"/>
           </svg>
         </button>
       </div>
     </div>
-    <button type="submit" class="btn-signin">Sign In →</button>
+    <button type="submit" id="btnSubmit" class="btn-signin">Sign In →</button>
   </form>
 
   <div class="login-footer">
@@ -144,11 +145,58 @@ body{font-family:'Inter','Segoe UI',sans-serif;min-height:100vh;display:flex;bac
 </div>
 
 <script>
-  if(location.search.includes('error=1'))
+  if (location.search.includes('error=1')) {
     document.getElementById('err-box').classList.add('show');
-  function togglePass(){
-    const i=document.getElementById('password');
-    i.type=i.type==='password'?'text':'password';
+  }
+
+  function togglePass() {
+    const pwdInput = document.getElementById('password');
+    const eyeIcon = document.getElementById('eye-icon');
+    
+    if (pwdInput.type === 'password') {
+      pwdInput.type = 'text';
+      eyeIcon.innerHTML = `<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>`;
+    } else {
+      pwdInput.type = 'password';
+      eyeIcon.innerHTML = `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>`;
+    }
+  }
+
+  async function handleLogin(e) {
+    e.preventDefault();
+    
+    const errBox = document.getElementById('err-box');
+    const errText = document.getElementById('err-text');
+    const btnSubmit = document.getElementById('btnSubmit');
+    const form = document.getElementById('loginForm');
+
+    errBox.classList.remove('show');
+    btnSubmit.disabled = true;
+    btnSubmit.textContent = 'Signing in...';
+
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+
+    try {
+      const response = await fetch('/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+
+      if (response.ok || response.redirected) {
+        window.location.href = response.url || '/index.html';
+      } else {
+        const data = await response.json().catch(() => ({}));
+        errText.textContent = data.message || 'Incorrect username or password. Please try again.';
+        errBox.classList.add('show');
+        btnSubmit.disabled = false;
+        btnSubmit.textContent = 'Sign In →';
+      }
+    } catch (err) {
+      // Direct form submit fallback if fetch fails
+      form.submit();
+    }
   }
 </script>
 </body>
