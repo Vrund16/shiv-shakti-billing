@@ -104,7 +104,7 @@ input[type="number"] {
   </div>
   <div class="nav-user">
     <div class="user-pill"><span class="avatar">A</span> Admin</div>
-    <button class="btn-signout" onclick="location.href='index.html'">Sign Out</button>
+    <button class="btn-signout" onclick="signOut()">Sign Out</button>
   </div>
 </nav>
 
@@ -301,15 +301,22 @@ window.addEventListener('DOMContentLoaded', () => {
   document.getElementById('inv-order-date').value = dStr;
   document.getElementById('inv-del-date').value = dStr;
 
-  const localData = localStorage.getItem('currentGstBill');
-  const sessionData = sessionStorage.getItem('gstTransferBill');
+  // Retrieve transferred bill data from any storage option
+  const rawTransfer = sessionStorage.getItem('gstTransferBill') || 
+                      localStorage.getItem('gstTransferBill') || 
+                      localStorage.getItem('currentGstBill');
 
-  if (localData) {
-    localStorage.removeItem('currentGstBill');
-    loadFromMainBill(JSON.parse(localData));
-  } else if (sessionData) {
-    sessionStorage.removeItem('gstTransferBill');
-    loadFromMainBill(JSON.parse(sessionData));
+  if (rawTransfer) {
+    try {
+      const data = JSON.parse(rawTransfer);
+      sessionStorage.removeItem('gstTransferBill');
+      localStorage.removeItem('gstTransferBill');
+      localStorage.removeItem('currentGstBill');
+      loadFromMainBill(data);
+    } catch(e) {
+      console.error('Error parsing transfer data:', e);
+      addItemRow();
+    }
   } else {
     addItemRow();
   }
@@ -318,42 +325,53 @@ window.addEventListener('DOMContentLoaded', () => {
 function loadFromMainBill(data) {
   if (!data) return;
 
-  if (data.invNo || data.billNo) document.getElementById('inv-no').value = data.invNo || data.billNo || '';
-  if (data.invDate || data.billDate) document.getElementById('inv-date').value = data.invDate || data.billDate || '';
-  if (data.delNote !== undefined) document.getElementById('inv-del-note').value = data.delNote;
-  if (data.paymentTerms !== undefined) document.getElementById('inv-payment-terms').value = data.paymentTerms;
-  if (data.supplierRef !== undefined) document.getElementById('inv-supplier-ref').value = data.supplierRef;
-  if (data.otherRef !== undefined) document.getElementById('inv-other-ref').value = data.otherRef;
-  if (data.orderNo !== undefined) document.getElementById('inv-order-no').value = data.orderNo;
-  if (data.orderDate !== undefined) document.getElementById('inv-order-date').value = data.orderDate;
-  if (data.despatchNo !== undefined) document.getElementById('inv-despatch-no').value = data.despatchNo;
-  if (data.delDate !== undefined) document.getElementById('inv-del-date').value = data.delDate;
+  // Map Common Invoice No
+  const invNum = data.invNo || data.billNo || data.invoiceNo || data.billNumber || '';
+  if (invNum) document.getElementById('inv-no').value = invNum;
 
-  const buyer = data.buyerName || data.partyName || '';
-  const addr = data.buyerAddr || data.buyerAddress || data.partyAddr || '';
-  const phone = data.partyPhone || '';
+  // Map Date
+  const invDt = data.invDate || data.billDate || data.date || '';
+  if (invDt) document.getElementById('inv-date').value = invDt;
+
+  if (data.delNote || data.deliveryNote) document.getElementById('inv-del-note').value = data.delNote || data.deliveryNote;
+  if (data.paymentTerms || data.termsOfPayment) document.getElementById('inv-payment-terms').value = data.paymentTerms || data.termsOfPayment;
+  if (data.supplierRef) document.getElementById('inv-supplier-ref').value = data.supplierRef;
+  if (data.otherRef) document.getElementById('inv-other-ref').value = data.otherRef;
+  if (data.orderNo) document.getElementById('inv-order-no').value = data.orderNo;
+  if (data.orderDate) document.getElementById('inv-order-date').value = data.orderDate;
+  if (data.despatchNo) document.getElementById('inv-despatch-no').value = data.despatchNo;
+  if (data.delDate) document.getElementById('inv-del-date').value = data.delDate;
+
+  // Map Buyer/Customer Information
+  const buyer = data.buyerName || data.partyName || data.customerName || data.clientName || '';
+  const addr = data.buyerAddr || data.buyerAddress || data.partyAddr || data.address || '';
+  const phone = data.partyPhone || data.phone || '';
+  const gst = data.buyerGst || data.partyGst || data.gstin || data.gstNo || '';
+  const pin = data.buyerPin || data.partyPin || data.pincode || data.pin || '';
 
   document.getElementById('buyer-name').value = buyer;
   document.getElementById('buyer-addr').value = addr + (phone && !addr.includes(phone) ? ` (Ph: ${phone})` : '');
-  if (data.buyerPin) document.getElementById('buyer-pin').value = data.buyerPin;
-  if (data.buyerGst) document.getElementById('buyer-gst').value = data.buyerGst;
+  if (pin) document.getElementById('buyer-pin').value = pin;
+  if (gst) document.getElementById('buyer-gst').value = gst;
 
+  // Map Consignee Information
   document.getElementById('consignee-name').value = data.consigneeName || buyer;
   document.getElementById('consignee-addr').value = data.consigneeAddr || data.consigneeAddress || addr;
-  if (data.consigneePin) document.getElementById('consignee-pin').value = data.consigneePin;
-  if (data.consigneeGst) document.getElementById('consignee-gst').value = data.consigneeGst;
+  if (data.consigneePin || pin) document.getElementById('consignee-pin').value = data.consigneePin || pin;
+  if (data.consigneeGst || gst) document.getElementById('consignee-gst').value = data.consigneeGst || gst;
 
   if (data.gstRate !== undefined) document.getElementById('gst-rate-input').value = data.gstRate;
 
-  if (data.items && data.items.length) {
+  // Map Common Item Fields: Description, Quantity, Rate, Unit, Amount
+  if (data.items && Array.isArray(data.items) && data.items.length > 0) {
     items = data.items.map(it => {
-      const q = parseFloat(it.qty) || 0;
-      const r = parseFloat(it.rate) || 0;
+      const q = parseFloat(it.qty || it.quantity) || 0;
+      const r = parseFloat(it.rate || it.price) || 0;
       const a = (it.amount !== undefined && it.amount !== null) ? parseFloat(it.amount) : (q * r);
       return {
-        desc: it.desc || it.name || '',
+        desc: it.desc || it.itemDescription || it.description || it.name || it.particulars || '',
         qty: q,
-        unit: it.unit || 'SQFT',
+        unit: it.unit || it.per || 'SQFT',
         rate: r,
         amount: a
       };
@@ -506,7 +524,6 @@ function saveGstBill() {
     window.location.href = 'gst-history.html';
   };
 
-  // Attempt API save, fall back gracefully to LocalStorage if API fails or isn't present
   fetch('/api/gst-bills', {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
@@ -517,7 +534,6 @@ function saveGstBill() {
     return res.json();
   })
   .then(() => {
-    // Keep local storage synced
     let existing = [];
     try { existing = JSON.parse(localStorage.getItem('savedGstBills') || '[]'); } catch(e){}
     const idx = existing.findIndex(b => b.invNo === payload.invNo);
@@ -530,6 +546,12 @@ function saveGstBill() {
   .catch(() => {
     saveToLocal();
   });
+}
+
+function signOut() {
+  sessionStorage.clear();
+  localStorage.removeItem('userToken');
+  window.location.href = 'login.html';
 }
 
 function numberToWords(num) {
