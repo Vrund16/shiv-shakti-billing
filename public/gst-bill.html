@@ -112,15 +112,15 @@ input[type="number"] { -moz-appearance: textfield; }
   box-shadow:0 4px 12px rgba(0,0,0,.15);display:none;z-index:9999;}
 .toast.show{display:block;}
 
-/* ── PRINT STYLES (REMOVES BROWSER HEADER/FOOTER DATES & URLS) ── */
+/* ── PRINT STYLES ── */
 @page {
   size: auto;
-  margin: 0mm; /* Disables browser header (date/title) and footer (URL) */
+  margin: 0mm;
 }
 @media print {
   body {
     background: #fff;
-    padding: 10mm; /* Safe print margins */
+    padding: 10mm;
   }
   .topnav, .toolbar-card, .add-line-btn, .del-btn, .toast {
     display: none !important;
@@ -182,7 +182,7 @@ input[type="number"] { -moz-appearance: textfield; }
       <span style="color:#6b7280; font-size:12px;">(Default 18%)</span>
     </div>
     <div class="toolbar-right">
-      <button class="action-btn btn-save" onclick="saveGstInvoice()">
+      <button class="action-btn btn-save" id="btn-save-invoice" onclick="saveGstInvoice()">
         💾 Save to GST History
       </button>
       <button class="action-btn btn-print" onclick="window.print()">
@@ -216,28 +216,29 @@ input[type="number"] { -moz-appearance: textfield; }
             <tr>
               <td style="width:50%; border-top:none; border-left:none;">
                 <span class="meta-label">Invoice No.</span>
-                <input type="text" id="inv-no" class="inv-input inv-input-bold" value="56778">
+                <!-- Kept completely blank for manual entry -->
+                <input type="text" id="inv-no" class="inv-input inv-input-bold" value="" placeholder="Enter Inv No.">
               </td>
               <td style="width:50%; border-top:none; border-right:none;">
                 <span class="meta-label">Dated</span>
-                <input type="text" id="inv-date" class="inv-input inv-input-bold" value="30 / 07 / 2026">
+                <input type="text" id="inv-date" class="inv-input inv-input-bold">
               </td>
             </tr>
             <tr>
-              <td style="border-left:none;"><span class="meta-label">Delivery Note</span><input type="text" class="inv-input"></td>
-              <td style="border-right:none;"><span class="meta-label">Mode/Terms of Payment</span><input type="text" class="inv-input"></td>
+              <td style="border-left:none;"><span class="meta-label">Delivery Note</span><input type="text" id="del-note" class="inv-input"></td>
+              <td style="border-right:none;"><span class="meta-label">Mode/Terms of Payment</span><input type="text" id="pay-mode" class="inv-input"></td>
             </tr>
             <tr>
-              <td style="border-left:none;"><span class="meta-label">Supplier's Ref</span><input type="text" class="inv-input"></td>
-              <td style="border-right:none;"><span class="meta-label">Other Reference(s)</span><input type="text" class="inv-input"></td>
+              <td style="border-left:none;"><span class="meta-label">Supplier's Ref</span><input type="text" id="supp-ref" class="inv-input"></td>
+              <td style="border-right:none;"><span class="meta-label">Other Reference(s)</span><input type="text" id="other-ref" class="inv-input"></td>
             </tr>
             <tr>
-              <td style="border-left:none;"><span class="meta-label">Buyer's Order No.</span><input type="text" class="inv-input"></td>
-              <td style="border-right:none;"><span class="meta-label">Dated</span><input type="text" class="inv-input" value="30 / 07 / 2026"></td>
+              <td style="border-left:none;"><span class="meta-label">Buyer's Order No.</span><input type="text" id="buyer-ord" class="inv-input"></td>
+              <td style="border-right:none;"><span class="meta-label">Dated</span><input type="text" id="order-date" class="inv-input"></td>
             </tr>
             <tr>
-              <td style="border-left:none; border-bottom:none;"><span class="meta-label">Despatch Doc No.</span><input type="text" class="inv-input"></td>
-              <td style="border-right:none; border-bottom:none;"><span class="meta-label">Delivery Note Date</span><input type="text" class="inv-input" value="30 / 07 / 2026"></td>
+              <td style="border-left:none; border-bottom:none;"><span class="meta-label">Despatch Doc No.</span><input type="text" id="despatch-no" class="inv-input"></td>
+              <td style="border-right:none; border-bottom:none;"><span class="meta-label">Delivery Note Date</span><input type="text" id="delivery-date" class="inv-input"></td>
             </tr>
           </table>
         </td>
@@ -371,10 +372,65 @@ input[type="number"] { -moz-appearance: textfield; }
 let items = [
   { desc: '', qty: 1, rate: 0, per: 'SQFT', disc: '' }
 ];
+let editingRecordId = null;
+
+// Get formatted today's date DD / MM / YYYY
+function getTodayDateFormatted() {
+  const d = new Date();
+  const day = String(d.getDate()).padStart(2, '0');
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const year = d.getFullYear();
+  return `${day} / ${month} / ${year}`;
+}
 
 window.addEventListener('DOMContentLoaded', () => {
+  // Set dynamic latest date on load
+  const todayFormatted = getTodayDateFormatted();
+  document.getElementById('inv-date').value = todayFormatted;
+  document.getElementById('order-date').value = todayFormatted;
+  document.getElementById('delivery-date').value = todayFormatted;
+
+  // Check if editing existing bill
+  checkEditMode();
+
   renderRows();
 });
+
+function checkEditMode() {
+  const editDataRaw = localStorage.getItem('editGstInvoice');
+  if (editDataRaw) {
+    try {
+      const inv = JSON.parse(editDataRaw);
+      editingRecordId = inv.id || null;
+
+      // Fill in all editable fields
+      document.getElementById('inv-no').value = inv.invNo || '';
+      if (inv.invDate) document.getElementById('inv-date').value = inv.invDate;
+      if (inv.buyerName) document.getElementById('buy-name').value = inv.buyerName;
+      if (inv.buyerAddr) document.getElementById('buy-addr').value = inv.buyerAddr;
+      if (inv.buyerPin) document.getElementById('buy-pin').value = inv.buyerPin;
+      if (inv.buyerGst) document.getElementById('buy-gst').value = inv.buyerGst;
+
+      if (inv.conName) document.getElementById('con-name').value = inv.conName;
+      if (inv.conAddr) document.getElementById('con-addr').value = inv.conAddr;
+      if (inv.conPin) document.getElementById('con-pin').value = inv.conPin;
+      if (inv.conGst) document.getElementById('con-gst').value = inv.conGst;
+
+      if (inv.gstRate) document.getElementById('gst-rate').value = inv.gstRate;
+
+      if (inv.items && inv.items.length > 0) {
+        items = inv.items;
+      }
+
+      document.getElementById('btn-save-invoice').textContent = '💾 Update GST Invoice';
+      
+      // Clear edit buffer
+      localStorage.removeItem('editGstInvoice');
+    } catch(e) {
+      console.error('Error loading edit invoice', e);
+    }
+  }
+}
 
 function renderRows() {
   const tbody = document.getElementById('item-rows');
@@ -384,11 +440,11 @@ function renderRows() {
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td style="text-align:center;">${idx + 1}</td>
-      <td><input type="text" class="inv-input" value="${item.desc}" oninput="items[${idx}].desc=this.value" placeholder="Item description"></td>
+      <td><input type="text" class="inv-input" value="${item.desc || ''}" oninput="items[${idx}].desc=this.value" placeholder="Item description"></td>
       <td><input type="number" class="inv-input" style="text-align:center;" value="${item.qty}" oninput="items[${idx}].qty=parseFloat(this.value)||0; calcAll()"></td>
       <td><input type="number" class="inv-input" style="text-align:right;" value="${item.rate}" oninput="items[${idx}].rate=parseFloat(this.value)||0; calcAll()"></td>
-      <td><input type="text" class="inv-input" style="text-align:center;" value="${item.per}" oninput="items[${idx}].per=this.value"></td>
-      <td><input type="text" class="inv-input" style="text-align:center;" value="${item.disc}" oninput="items[${idx}].disc=this.value; calcAll()" placeholder="-"></td>
+      <td><input type="text" class="inv-input" style="text-align:center;" value="${item.per || 'SQFT'}" oninput="items[${idx}].per=this.value"></td>
+      <td><input type="text" class="inv-input" style="text-align:center;" value="${item.disc || ''}" oninput="items[${idx}].disc=this.value; calcAll()" placeholder="-"></td>
       <td style="text-align:right; font-weight:600;" id="amt-${idx}">0.00</td>
       <td style="text-align:center;"><button class="del-btn" onclick="deleteItem(${idx})">&times;</button></td>
     `;
@@ -444,14 +500,12 @@ function calcAll() {
   const grandTotalRounded = Math.round(rawGrandTotal);
   const roundOff = grandTotalRounded - rawGrandTotal;
 
-  // DOM Updates
   document.getElementById('cgst-val').textContent = cgst.toFixed(2);
   document.getElementById('sgst-val').textContent = sgst.toFixed(2);
   document.getElementById('round-val').textContent = roundOff.toFixed(2);
   document.getElementById('tot-qty').textContent = totalQty;
   document.getElementById('tot-amt').textContent = '₹ ' + grandTotalRounded.toFixed(2);
 
-  // Tax Table
   document.getElementById('taxable-val').textContent = subtotal.toFixed(2);
   document.getElementById('cgst-rate-lbl').textContent = halfRate + '%';
   document.getElementById('cgst-amt-lbl').textContent = cgst.toFixed(2);
@@ -459,7 +513,6 @@ function calcAll() {
   document.getElementById('sgst-amt-lbl').textContent = sgst.toFixed(2);
   document.getElementById('tax-tot-lbl').textContent = totalTax.toFixed(2);
 
-  // Words
   document.getElementById('amt-words').textContent = getAmountInWords(grandTotalRounded);
   document.getElementById('tax-words').textContent = getAmountInWords(totalTax);
 }
@@ -498,33 +551,51 @@ function getAmountInWords(amount) {
   return words;
 }
 
-/* ── SAVE TO GST HISTORY FIX ── */
+/* ── SAVE / UPDATE INVOICE LOGIC ── */
 function saveGstInvoice() {
-  const invNo = document.getElementById('inv-no').value.trim() || 'N/A';
-  const invDate = document.getElementById('inv-date').value.trim() || new Date().toLocaleDateString('en-GB');
+  const invNo = document.getElementById('inv-no').value.trim();
+  const invDate = document.getElementById('inv-date').value.trim();
   const buyerName = document.getElementById('buy-name').value.trim() || document.getElementById('con-name').value.trim() || 'Cash Customer';
+  const buyerAddr = document.getElementById('buy-addr').value.trim();
+  const buyerPin = document.getElementById('buy-pin').value.trim();
   const buyerGst = document.getElementById('buy-gst').value.trim() || document.getElementById('con-gst').value.trim() || '-';
+  
+  const conName = document.getElementById('con-name').value.trim();
+  const conAddr = document.getElementById('con-addr').value.trim();
+  const conPin = document.getElementById('con-pin').value.trim();
+  const conGst = document.getElementById('con-gst').value.trim();
+  
+  const gstRate = document.getElementById('gst-rate').value;
   const grandTotal = document.getElementById('tot-amt').textContent.replace('₹', '').trim();
 
-  const invoiceRecord = {
-    id: Date.now(),
-    invNo: invNo,
-    invDate: invDate,
-    buyerName: buyerName,
-    buyerGst: buyerGst,
-    grandTotal: grandTotal,
-    items: items,
-    savedAt: new Date().toISOString()
-  };
-
-  // Save to unified local storage keys
   let history = JSON.parse(localStorage.getItem('gstInvoices') || '[]');
-  history.unshift(invoiceRecord); // Add new bill to top
-  
-  localStorage.setItem('gstInvoices', JSON.stringify(history));
-  localStorage.setItem('gstBills', JSON.stringify(history)); // fallback sync
 
-  showToast('GST Invoice saved to history!');
+  if (editingRecordId) {
+    // Update existing invoice record
+    const index = history.findIndex(x => x.id === editingRecordId);
+    if (index !== -1) {
+      history[index] = {
+        id: editingRecordId,
+        invNo, invDate, buyerName, buyerAddr, buyerPin, buyerGst,
+        conName, conAddr, conPin, conGst, gstRate, items, grandTotal,
+        updatedAt: new Date().toISOString()
+      };
+      showToast('GST Invoice updated successfully!');
+    }
+  } else {
+    // Create new invoice record
+    const invoiceRecord = {
+      id: Date.now(),
+      invNo, invDate, buyerName, buyerAddr, buyerPin, buyerGst,
+      conName, conAddr, conPin, conGst, gstRate, items, grandTotal,
+      savedAt: new Date().toISOString()
+    };
+    history.unshift(invoiceRecord);
+    showToast('GST Invoice saved to history!');
+  }
+
+  localStorage.setItem('gstInvoices', JSON.stringify(history));
+  localStorage.setItem('gstBills', JSON.stringify(history));
 }
 
 function showToast(msg) {
