@@ -55,7 +55,7 @@ input[type="number"] { -moz-appearance: textfield; }
 .btn-print{background:#0f2847;color:#fff;}
 .btn-print:hover{background:#1e3a8a;}
 
-/* ── CHALLAN SHEET (PHOTO 2 LAYOUT) ── */
+/* ── CHALLAN SHEET ── */
 .challan-box{background:#fff;border:1px solid #d1d5db;box-shadow:0 2px 10px rgba(0,0,0,.06);
   padding:28px;color:#000;font-size:12px;position:relative;}
 .sub-title{text-align:center;font-size:12.5px;font-weight:600;color:#333;margin-bottom:2px;}
@@ -76,7 +76,7 @@ input[type="number"] { -moz-appearance: textfield; }
 .cust-row{display:flex;align-items:center;margin-bottom:4px;}
 .cust-label{width:130px;font-weight:700;font-size:11.5px;color:#1e293b;}
 
-/* ── TABLE (PHOTO 2 EXACT LOOK - 10 ROWS) ── */
+/* ── TABLE ── */
 .items-table{width:100%;border-collapse:collapse;margin-bottom:0;}
 .items-table th{background:#0f2847;color:#fff;padding:7px 8px;font-size:11.5px;font-weight:700;}
 .items-table td{border:1px solid #e2e8f0;padding:4px 6px;vertical-align:middle;height:28px;}
@@ -94,7 +94,7 @@ input[type="number"] { -moz-appearance: textfield; }
   border-radius:4px;font-size:11.5px;font-weight:600;cursor:pointer;color:#334155;}
 .add-row-btn:hover{background:#e2e8f0;}
 
-/* ── BOTTOM FOOTER GRID (PHOTO 2 LOOK) ── */
+/* ── BOTTOM FOOTER ── */
 .bottom-grid{display:grid;grid-template-columns:1fr 1.2fr 1fr;gap:12px;margin-top:20px;align-items:end;}
 .terms-box{font-size:10px;line-height:1.45;color:#334155;}
 .terms-title{font-weight:700;margin-bottom:2px;}
@@ -106,13 +106,11 @@ input[type="number"] { -moz-appearance: textfield; }
 .signature-box{text-align:right;font-size:11px;font-weight:700;color:#0f2847;}
 .sig-line{margin-top:35px;border-top:1px solid #0f2847;display:inline-block;width:130px;text-align:center;padding-top:2px;}
 
-/* Toast */
 .toast{position:fixed;bottom:20px;right:20px;background:#0f2847;color:#fff;
   padding:10px 18px;border-radius:6px;font-size:12.5px;font-weight:600;
   box-shadow:0 4px 12px rgba(0,0,0,.15);display:none;z-index:9999;}
 .toast.show{display:block;}
 
-/* ── PRINT STYLES ── */
 @media print {
   body{background:#fff;padding:0;}
   .topnav, .toolbar-card, .add-row-btn, .del-row-btn, .gst-toggle-btn, .toast{display:none !important;}
@@ -153,13 +151,12 @@ input[type="number"] { -moz-appearance: textfield; }
     </div>
     <div class="toolbar-right">
       <button class="action-btn btn-clear" onclick="clearForm()">🔄 Clear / New</button>
-      <button class="action-btn btn-save" onclick="saveBill()">💾 Save to MongoDB</button>
+      <button class="action-btn btn-save" onclick="saveBill()">💾 Save Bill</button>
       <button class="action-btn btn-print" onclick="window.print()">🖨️ Print Bill PDF</button>
     </div>
   </div>
 
   <div class="challan-box" id="challan-sheet">
-    
     <div class="contacts">
       M.: 94280 73316<br>
       M.: 98240 49919
@@ -243,14 +240,12 @@ input[type="number"] { -moz-appearance: textfield; }
         <div class="sig-line">માલ લેનારની સહી</div>
       </div>
     </div>
-
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-// Exactly 10 default rows initialized
 let items = Array.from({ length: 10 }, () => ({ desc: '', qty: '', rate: '' }));
 let isGstApplied = false;
 let currentEditingId = null;
@@ -461,7 +456,7 @@ async function saveBill() {
       const saved = await res.json();
       currentEditingId = saved._id;
       document.getElementById('formTitle').textContent = `Editing Bill (${saved.billNo})`;
-      showToast('Bill saved successfully to MongoDB!');
+      showToast('Bill saved successfully!');
     } else {
       alert('Error saving bill to database.');
     }
