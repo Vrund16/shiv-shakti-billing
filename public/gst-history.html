@@ -67,7 +67,7 @@ body{font-family:'Inter',Arial,sans-serif;background:#eef2f7;min-height:100vh;co
   </div>
   <div class="nav-user">
     <div class="user-pill"><span class="avatar">A</span> Admin</div>
-    <button class="btn-signout" onclick="location.href='index.html'">Sign Out</button>
+    <button class="btn-signout" onclick="signOut()">Sign Out</button>
   </div>
 </nav>
 
@@ -113,7 +113,6 @@ function fetchGstHistory() {
     .then(data => {
       if (Array.isArray(data) && data.length > 0) {
         allGstBills = data;
-        // Keep LocalStorage synced with backend data
         localStorage.setItem('savedGstBills', JSON.stringify(allGstBills));
       } else {
         loadFromLocalStorage();
@@ -121,7 +120,6 @@ function fetchGstHistory() {
       renderTable(allGstBills);
     })
     .catch(() => {
-      // Fallback to local storage when server API is not active
       loadFromLocalStorage();
       renderTable(allGstBills);
     });
@@ -146,7 +144,6 @@ function renderTable(bills) {
   }
 
   bills.forEach((b) => {
-    // Map index relative to the full array to handle search filters correctly
     const realIndex = allGstBills.indexOf(b);
     const tr = document.createElement('tr');
     tr.innerHTML = `
@@ -190,13 +187,18 @@ function deleteGstBill(index) {
     allGstBills.splice(index, 1);
     localStorage.setItem('savedGstBills', JSON.stringify(allGstBills));
 
-    // Try deleting from API if applicable
     if (billToDelete && billToDelete.invNo) {
       fetch(`/api/gst-bills/${encodeURIComponent(billToDelete.invNo)}`, { method: 'DELETE' }).catch(() => {});
     }
 
     filterGstBills();
   }
+}
+
+function signOut() {
+  sessionStorage.clear();
+  localStorage.removeItem('userToken');
+  window.location.href = 'login.html';
 }
 
 function esc(s){ return String(s||'').replace(/"/g,'&quot;'); }
