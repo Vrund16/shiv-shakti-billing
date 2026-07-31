@@ -1,137 +1,107 @@
 const express = require('express');
-const session = require('express-session');
-const path    = require('path');
-const fs      = require('fs');
+const mongoose = require('mongoose');
+const path = require('path');
 
-const app  = express();
-const PORT = process.env.PORT || 4000;
+const app = express();
+const PORT = process.env.PORT || 3000;
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/shiv_shakti_tiles';
 
-// ─── ALLOWED USERS ──────────────────────────────────────────────────────────
-const USERS = {
-  'suresh': { password: 'suresh123',  name: 'Suresh Patel' },
-  'vishnu': { password: 'vishnu123',  name: 'Vishnu Patel' },
-  'admin':  { password: 'shivshakti', name: 'Admin'        },
-};
-
-app.use(express.urlencoded({ extended: true }));
+// Middleware
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public'), { index: false }));
+app.use(express.static(path.join(__dirname, 'public')));
 
-app.use(session({
-  secret: 'shivshakti-secret-2024',
-  resave: false,
-  saveUninitialized: false,
-  cookie: { maxAge: 24 * 60 * 60 * 1000 }
-}));
+// Connect to MongoDB
+mongoose.connect(MONGODB_URI)
+  .then(() => console.log('MongoDB connected successfully.'))
+  .catch((err) => console.error('MongoDB connection error:', err));
 
-function requireLogin(req, res, next) {
-  if (req.session && req.session.user) return next();
-  res.redirect('/login');
-}
+// Bill Schema & Model
+const itemSchema = new mongoose.Schema({
+  desc: { type: String, default: '' },
+  qty: { type: SchemaTypes.Mixed, default: '' },
+  rate: { type: SchemaTypes.Mixed, default: '' }
+}, { _id: false });
 
-// ── Page routes ──────────────────────────────────────────────────────────────
-app.get('/login', (req, res) => {
-  if (req.session && req.session.user) return res.redirect('/');
-  res.sendFile(path.join(__dirname, 'public', 'login.html'));
-});
+const billSchema = new mongoose.Schema({
+  billNo: { type: String, default: '' },
+  date: { type: String, default: '' },
+  custName: { type: String, default: '' },
+  custPhone: { type: String, default: '' },
+  custAddress: { type: String, default: '' },
+  items: [itemSchema],
+  isGstApplied: { type: Boolean, default: false },
+  gstAmt: { type: String, default: '0.00' },
+  grandTotal: { type: String, default: '0.00' },
+  registerBillNo: { type: String, default: '' }
+}, { timestamps: true });
 
-app.post('/login', (req, res) => {
-  const { username, password } = req.body;
-  const key  = (username || '').toLowerCase().trim();
-  const user = USERS[key];
-  if (user && user.password === password) {
-    req.session.user = { username: key, name: user.name };
-    return res.redirect('/');
+const Bill = mongoose.model('Bill', billSchema);
+
+// ── API ROUTES ──
+
+// Fetch all bills
+app.get('/api/bills', async (req, res) => {
+  try {
+    const bills = await Bill.find().sort({ createdAt: -1 });
+    res.json(bills);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch bills' });
   }
-  res.redirect('/login?error=1');
 });
 
-app.get('/logout',      (req, res) => { req.session.destroy(); res.redirect('/login'); });
-app.get('/',            requireLogin, (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
-app.get('/gst-bill',    requireLogin, (req, res) => res.sendFile(path.join(__dirname, 'public', 'gst-bill.html')));
-app.get('/gst-history', requireLogin, (req, res) => res.sendFile(path.join(__dirname, 'public', 'gst-history.html')));
-app.get('/history',     requireLogin, (req, res) => res.sendFile(path.join(__dirname, 'public', 'history.html')));
-
-// ── API ──────────────────────────────────────────────────────────────────────
-app.get('/api/me', requireLogin, (req, res) =>
-  res.json({ name: req.session.user.name, username: req.session.user.username }));
-
-app.get('/api/ping', requireLogin, (req, res) => res.json({ ok: true }));
-
-// ── Standard Bills Data ──────────────────────────────────────────────────────
-const DATA_DIR      = path.join(__dirname, 'data');
-const DATA_FILE     = path.join(DATA_DIR, 'bills.json');
-const DATA_FILE_GST = path.join(DATA_DIR, 'gst_bills.json');
-
-if (!fs.existsSync(DATA_DIR))      fs.mkdirSync(DATA_DIR, { recursive: true });
-if (!fs.existsSync(DATA_FILE))     fs.writeFileSync(DATA_FILE, '[]');
-if (!fs.existsSync(DATA_FILE_GST)) fs.writeFileSync(DATA_FILE_GST, '[]');
-
-const readBills  = ()      => JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
-const writeBills = (bills) => fs.writeFileSync(DATA_FILE, JSON.stringify(bills, null, 2));
-
-const readGstBills  = ()      => JSON.parse(fs.readFileSync(DATA_FILE_GST, 'utf8'));
-const writeGstBills = (bills) => fs.writeFileSync(DATA_FILE_GST, JSON.stringify(bills, null, 2));
-
-// Standard Bills Routes
-app.get('/api/bills', requireLogin, (req, res) => {
-  try { res.json({ ok: true, bills: readBills() }); }
-  catch(e) { res.status(500).json({ ok: false, message: 'Could not read bills.' }); }
-});
-
-app.post('/api/bills', requireLogin, (req, res) => {
+// Fetch single bill by ID
+app.get('/api/bills/:id', async (req, res) => {
   try {
-    const bills = readBills();
-    const bill  = {
-      ...req.body,
-      id: 'BILL-' + Date.now(),
-      savedBy: req.session.user.username,
-      savedByName: req.session.user.name,
-      savedAt: new Date().toISOString()
-    };
-    bills.unshift(bill);
-    writeBills(bills);
-    res.json({ ok: true, message: 'Bill saved.', bill });
-  } catch(e) { res.status(500).json({ ok: false, message: 'Could not save bill.' }); }
+    const bill = await Bill.findById(req.params.id);
+    if (!bill) return res.status(404).json({ error: 'Bill not found' });
+    res.json(bill);
+  } catch (err) {
+    res.status(500).json({ error: 'Error fetching bill' });
+  }
 });
 
-app.delete('/api/bills/:id', requireLogin, (req, res) => {
+// Create new bill
+app.post('/api/bills', async (req, res) => {
   try {
-    writeBills(readBills().filter(b => b.id !== req.params.id));
-    res.json({ ok: true, message: 'Bill deleted.' });
-  } catch(e) { res.status(500).json({ ok: false, message: 'Could not delete bill.' }); }
+    const newBill = new Bill(req.body);
+    const savedBill = await newBill.save();
+    res.status(201).json(savedBill);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to save bill' });
+  }
 });
 
-// GST Bills Routes
-app.get('/api/gst-bills', requireLogin, (req, res) => {
-  try { res.json({ ok: true, bills: readGstBills() }); }
-  catch(e) { res.status(500).json({ ok: false, message: 'Could not read GST bills.' }); }
-});
-
-app.post('/api/gst-bills', requireLogin, (req, res) => {
+// Update existing bill by ID
+app.put('/api/bills/:id', async (req, res) => {
   try {
-    const bills = readGstBills();
-    const bill  = {
-      ...req.body,
-      id: 'GST-' + Date.now(),
-      savedBy: req.session.user.username,
-      savedByName: req.session.user.name,
-      savedAt: new Date().toISOString()
-    };
-    bills.unshift(bill);
-    writeGstBills(bills);
-    res.json({ ok: true, message: 'GST Bill saved.', bill });
-  } catch(e) { res.status(500).json({ ok: false, message: 'Could not save GST bill.' }); }
+    const updatedBill = await Bill.findByIdAndUpdate(
+      req.params.id,
+      { $set: req.body },
+      { new: true }
+    );
+    if (!updatedBill) return res.status(404).json({ error: 'Bill not found' });
+    res.json(updatedBill);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to update bill' });
+  }
 });
 
-app.delete('/api/gst-bills/:id', requireLogin, (req, res) => {
+// Delete bill by ID
+app.delete('/api/bills/:id', async (req, res) => {
   try {
-    writeGstBills(readGstBills().filter(b => b.id !== req.params.id));
-    res.json({ ok: true, message: 'GST Bill deleted.' });
-  } catch(e) { res.status(500).json({ ok: false, message: 'Could not delete GST bill.' }); }
+    const deletedBill = await Bill.findByIdAndDelete(req.params.id);
+    if (!deletedBill) return res.status(404).json({ error: 'Bill not found' });
+    res.json({ message: 'Bill deleted successfully' });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to delete bill' });
+  }
 });
 
-// ── Start Server ─────────────────────────────────────────────────────────────
+// Serve frontend HTML
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
 app.listen(PORT, () => {
-  console.log(`\n✅ Server running at: http://localhost:${PORT}`);
+  console.log(`Shiv Shakti Tiles Billing App running on http://localhost:${PORT}`);
 });
