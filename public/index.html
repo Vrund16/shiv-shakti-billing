@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Shiv Shakti Tiles – New Bill / Challan</title>
+<title>Shiv Shakti Tiles – Billing</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
@@ -38,7 +38,7 @@ input[type="number"] { -moz-appearance: textfield; }
 .btn-logout:hover{background:rgba(255,255,255,.2);}
 
 /* ── CONTAINER ── */
-.page{padding:20px;max-width:980px;margin:0 auto;}
+.page{padding:20px;max-width:920px;margin:0 auto;}
 
 /* ── TOOLBAR ── */
 .toolbar-card{background:#fff;border-radius:8px;padding:12px 20px;margin-bottom:16px;
@@ -55,58 +55,56 @@ input[type="number"] { -moz-appearance: textfield; }
 .btn-print{background:#0f2847;color:#fff;}
 .btn-print:hover{background:#1e3a8a;}
 
-/* ── CHALLAN SHEET ── */
-.challan-box{background:#fff;border:1px solid #1e293b;box-shadow:0 2px 10px rgba(0,0,0,.08);
-  padding:24px;color:#000;font-size:12px;}
-.sub-title{text-align:center;font-size:13px;font-weight:600;color:#333;margin-bottom:2px;}
-.main-title{text-align:center;font-size:22px;font-weight:800;letter-spacing:.5px;color:#000;}
-.guj-title{text-align:center;font-size:16px;font-weight:700;margin-bottom:4px;}
-.shop-addr{text-align:center;font-size:11px;color:#333;margin-bottom:12px;}
-.contacts{position:absolute;right:36px;top:36px;text-align:right;font-size:11.5px;font-weight:700;}
+/* ── CHALLAN SHEET (PHOTO 2 LAYOUT) ── */
+.challan-box{background:#fff;border:1px solid #d1d5db;box-shadow:0 2px 10px rgba(0,0,0,.06);
+  padding:28px;color:#000;font-size:12px;position:relative;}
+.sub-title{text-align:center;font-size:12.5px;font-weight:600;color:#333;margin-bottom:2px;}
+.main-title{text-align:center;font-size:20px;font-weight:800;letter-spacing:.5px;color:#0f2847;}
+.guj-title{text-align:center;font-size:15px;font-weight:700;margin-bottom:4px;color:#1e293b;}
+.shop-addr{text-align:center;font-size:10.5px;color:#475569;margin-bottom:12px;}
+.contacts{position:absolute;right:28px;top:28px;text-align:right;font-size:11px;font-weight:700;color:#0f2847;line-height:1.4;}
 
-.meta-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;
-  border-top:2px solid #000;border-bottom:1px dashed #9ca3af;margin-bottom:12px;}
+.meta-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;
+  border-top:1.5px solid #0f2847;border-bottom:1px solid #e2e8f0;margin-bottom:10px;}
 .field-group{display:flex;align-items:center;gap:6px;}
-.field-label{font-weight:700;font-size:12px;}
-.clean-input{border:none;border-bottom:1px dotted #6b7280;outline:none;padding:2px 4px;
-  font-size:12px;font-family:inherit;background:transparent;}
-.clean-input:focus{border-bottom-color:#000;background:#f0f9ff;}
+.field-label{font-weight:700;font-size:11.5px;}
+.clean-input{border:none;border-bottom:1px dotted #94a3b8;outline:none;padding:2px 4px;
+  font-size:12px;font-family:inherit;background:transparent;color:#000;}
+.clean-input:focus{border-bottom-color:#0f2847;background:#f0f9ff;}
 
-.cust-info-box{background:#f9fafb;border:1px solid #e5e7eb;padding:10px 14px;
-  border-radius:4px;margin-bottom:14px;}
-.cust-row{display:flex;align-items:center;margin-bottom:6px;}
-.cust-row:last-child{margin-bottom:0;}
-.cust-label{width:130px;font-weight:700;font-size:12px;}
+.cust-info-box{margin-bottom:12px;}
+.cust-row{display:flex;align-items:center;margin-bottom:4px;}
+.cust-label{width:130px;font-weight:700;font-size:11.5px;color:#1e293b;}
 
-/* Items Table */
-.items-table{width:100%;border-collapse:collapse;margin-bottom:10px;}
-.items-table th{background:#0f2847;color:#fff;padding:8px;font-size:11.5px;font-weight:700;}
-.items-table td{border:1px solid #cbd5e1;padding:4px 6px;vertical-align:middle;}
-.del-row-btn{color:#dc2626;background:none;border:none;font-weight:bold;cursor:pointer;
-  font-size:14px;padding:0 4px;}
+/* ── TABLE (PHOTO 2 EXACT LOOK - 10 ROWS) ── */
+.items-table{width:100%;border-collapse:collapse;margin-bottom:0;}
+.items-table th{background:#0f2847;color:#fff;padding:7px 8px;font-size:11.5px;font-weight:700;}
+.items-table td{border:1px solid #e2e8f0;padding:4px 6px;vertical-align:middle;height:28px;}
+.del-row-btn{color:#ef4444;background:none;border:none;font-weight:bold;cursor:pointer;
+  font-size:14px;padding:0 4px;line-height:1;}
+.del-row-btn:hover{color:#dc2626;}
 
 .table-summary-bar{display:flex;justify-content:space-between;align-items:center;
-  background:#0f2847;color:#fff;padding:8px 12px;font-weight:700;font-size:13px;}
-.gst-toggle-btn{background:#e0f2fe;color:#0369a1;border:none;padding:5px 12px;
-  border-radius:4px;font-size:11.5px;font-weight:700;cursor:pointer;transition:all .15s;}
+  background:#0f2847;color:#fff;padding:8px 16px;font-weight:700;font-size:13px;}
+.gst-toggle-btn{background:#e0f2fe;color:#0369a1;border:none;padding:4px 10px;
+  border-radius:4px;font-size:11px;font-weight:700;cursor:pointer;transition:all .15s;}
 .gst-toggle-btn.active{background:#16a34a;color:#fff;}
 
-.add-row-btn{margin-top:8px;padding:6px 12px;background:#f3f4f6;border:1px solid #d1d5db;
-  border-radius:4px;font-size:11.5px;font-weight:600;cursor:pointer;}
-.add-row-btn:hover{background:#e5e7eb;}
+.add-row-btn{margin-top:10px;padding:5px 12px;background:#f8fafc;border:1px solid #cbd5e1;
+  border-radius:4px;font-size:11.5px;font-weight:600;cursor:pointer;color:#334155;}
+.add-row-btn:hover{background:#e2e8f0;}
 
-/* Bottom Footer Grid */
-.bottom-grid{display:grid;grid-template-columns:1fr 1.3fr 1fr;gap:12px;margin-top:18px;
-  align-items:end;}
-.terms-box{font-size:10px;line-height:1.4;color:#333;}
+/* ── BOTTOM FOOTER GRID (PHOTO 2 LOOK) ── */
+.bottom-grid{display:grid;grid-template-columns:1fr 1.2fr 1fr;gap:12px;margin-top:20px;align-items:end;}
+.terms-box{font-size:10px;line-height:1.45;color:#334155;}
 .terms-title{font-weight:700;margin-bottom:2px;}
 
-.bank-details-box{border:1px solid #000;padding:8px 10px;border-radius:4px;
-  background:#fff;font-size:10.5px;line-height:1.45;}
-.bank-title{font-weight:800;font-size:11px;text-decoration:underline;margin-bottom:4px;}
+.bank-details-box{border:1px solid #cbd5e1;padding:8px 10px;border-radius:4px;
+  background:#fafafa;font-size:10.5px;line-height:1.45;}
+.bank-title{font-weight:800;font-size:11px;color:#0f2847;margin-bottom:3px;text-decoration:underline;}
 
-.signature-box{text-align:right;font-size:11px;font-weight:700;}
-.sig-line{margin-top:35px;border-top:1px solid #000;display:inline-block;width:130px;text-align:center;padding-top:2px;}
+.signature-box{text-align:right;font-size:11px;font-weight:700;color:#0f2847;}
+.sig-line{margin-top:35px;border-top:1px solid #0f2847;display:inline-block;width:130px;text-align:center;padding-top:2px;}
 
 /* Toast */
 .toast{position:fixed;bottom:20px;right:20px;background:#0f2847;color:#fff;
@@ -119,7 +117,7 @@ input[type="number"] { -moz-appearance: textfield; }
   body{background:#fff;padding:0;}
   .topnav, .toolbar-card, .add-row-btn, .del-row-btn, .gst-toggle-btn, .toast{display:none !important;}
   .page{max-width:100%;padding:0;margin:0;}
-  .challan-box{border:none;box-shadow:none;padding:10mm;}
+  .challan-box{border:none;box-shadow:none;padding:5mm;}
   .clean-input{border-bottom:none !important;}
 }
 </style>
@@ -160,7 +158,7 @@ input[type="number"] { -moz-appearance: textfield; }
     </div>
   </div>
 
-  <div class="challan-box" id="challan-sheet" style="position:relative;">
+  <div class="challan-box" id="challan-sheet">
     
     <div class="contacts">
       M.: 94280 73316<br>
@@ -203,27 +201,27 @@ input[type="number"] { -moz-appearance: textfield; }
         <tr>
           <th style="width:40px; text-align:center;">Sr. No.</th>
           <th style="text-align:left;">Particulars</th>
-          <th style="width:80px; text-align:center;">Qty.</th>
-          <th style="width:100px; text-align:right;">Rate</th>
-          <th style="width:110px; text-align:right;">Amount</th>
-          <th style="width:30px;" class="del-row-btn"></th>
+          <th style="width:70px; text-align:center;">Qty.</th>
+          <th style="width:90px; text-align:right;">Rate</th>
+          <th style="width:100px; text-align:right;">Amount</th>
+          <th style="width:28px;" class="del-row-btn"></th>
         </tr>
       </thead>
       <tbody id="itemsBody"></tbody>
     </table>
 
-    <button class="add-row-btn" onclick="addRow()">+ Add item row</button>
-
-    <div class="table-summary-bar" style="margin-top:12px;">
-      <div style="display:flex; align-items:center; gap:12px;">
+    <div class="table-summary-bar">
+      <div style="display:flex; align-items:center; gap:10px;">
         <button class="gst-toggle-btn" id="gstToggleBtn" onclick="toggleGst()">+ Add GST (18%)</button>
-        <span id="gstAmountLabel" style="font-size:12px; color:#bae6fd; display:none;">GST (18%): ₹ 0.00</span>
+        <span id="gstAmountLabel" style="font-size:11.5px; color:#bae6fd; display:none;">GST (18%): ₹ 0.00</span>
       </div>
       <div>
-        <span style="letter-spacing:1px; margin-right:8px;">TOTAL</span>
-        <span id="grandTotalDisplay" style="font-size:16px;">₹ 0.00</span>
+        <span style="letter-spacing:1px; margin-right:8px; font-size:12px;">TOTAL</span>
+        <span id="grandTotalDisplay" style="font-size:15px; font-weight:800;">₹ 0.00</span>
       </div>
     </div>
+
+    <button class="add-row-btn" onclick="addRow()">+ Add item row</button>
 
     <div class="bottom-grid">
       <div class="terms-box">
@@ -241,7 +239,7 @@ input[type="number"] { -moz-appearance: textfield; }
       </div>
 
       <div class="signature-box">
-        <div style="margin-bottom:20px;">સહી</div>
+        <div style="margin-bottom:15px;">સહી</div>
         <div class="sig-line">માલ લેનારની સહી</div>
       </div>
     </div>
@@ -252,7 +250,8 @@ input[type="number"] { -moz-appearance: textfield; }
 <div class="toast" id="toast"></div>
 
 <script>
-let items = [];
+// Exactly 10 default rows initialized
+let items = Array.from({ length: 10 }, () => ({ desc: '', qty: '', rate: '' }));
 let isGstApplied = false;
 let currentEditingId = null;
 
@@ -261,12 +260,11 @@ function getTodayFormatted() {
   const day = String(d.getDate()).padStart(2, '0');
   const month = String(d.getMonth() + 1).padStart(2, '0');
   const year = d.getFullYear();
-  return `${day} / ${month} /${year}`;
+  return `${day} / ${month} / ${year}`;
 }
 
 window.addEventListener('DOMContentLoaded', () => {
   document.getElementById('billDate').value = getTodayFormatted();
-  items = Array.from({ length: 10 }, () => ({ desc: '', qty: '', rate: '' }));
   renderTable();
   checkEditState();
 });
@@ -282,16 +280,29 @@ function renderTable() {
 
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td style="text-align:center; font-weight:600; color:#475569;">${index + 1}</td>
-      <td><input type="text" class="clean-input" value="${item.desc \vert{}\vert{} ''}" oninput="items[${index}].desc=this.value" placeholder="Item description" style="width:100%;"></td>
-      <td><input type="number" class="clean-input" value="${item.qty \vert{}\vert{} ''}" oninput="items[${index}].qty=this.value; calculateTotal();" placeholder="0" style="width:100%; text-align:center;"></td>
-      <td><input type="number" class="clean-input" value="${item.rate \vert{}\vert{} ''}" oninput="items[${index}].rate=this.value; calculateTotal();" placeholder="0.00" style="width:100%; text-align:right;"></td>
-      <td style="text-align:right; font-weight:600;" id="amt-${index}">${amt > 0 ? amt.toFixed(2) : '0.00'}</td>
-      <td style="text-align:center;"><button class="del-row-btn" onclick="removeRow(${index})">&times;</button></td>
+      <td style="text-align:center; font-weight:600; color:#64748b; font-size:11px;">${index + 1}</td>
+      <td><input type="text" class="clean-input" value="${item.desc || ''}" oninput="updateItem(${index}, 'desc', this.value)" placeholder="item description" style="width:100%; font-size:11.5px;"></td>
+      <td><input type="number" class="clean-input" value="${item.qty || ''}" oninput="updateItem(${index}, 'qty', this.value)" placeholder="0" style="width:100%; text-align:center; font-size:11.5px;"></td>
+      <td><input type="number" class="clean-input" value="${item.rate || ''}" oninput="updateItem(${index}, 'rate', this.value)" placeholder="0.00" style="width:100%; text-align:right; font-size:11.5px;"></td>
+      <td style="text-align:right; font-weight:600; font-size:11.5px; color:#1e293b;" id="amt-${index}">${amt > 0 ? amt.toFixed(2) : '0.00'}</td>
+      <td style="text-align:center;"><button class="del-row-btn" onclick="removeRow(${index})" title="Remove row">&times;</button></td>
     `;
     tbody.appendChild(tr);
   });
 
+  calculateTotal();
+}
+
+function updateItem(index, field, val) {
+  items[index][field] = val;
+  const qty = parseFloat(items[index].qty) || 0;
+  const rate = parseFloat(items[index].rate) || 0;
+  const lineAmt = qty * rate;
+
+  const amtEl = document.getElementById(`amt-${index}`);
+  if (amtEl) {
+    amtEl.textContent = lineAmt > 0 ? lineAmt.toFixed(2) : '0.00';
+  }
   calculateTotal();
 }
 
@@ -324,14 +335,10 @@ function toggleGst() {
 
 function calculateTotal() {
   let subtotal = 0;
-  items.forEach((item, index) => {
+  items.forEach((item) => {
     const qty = parseFloat(item.qty) || 0;
     const rate = parseFloat(item.rate) || 0;
-    const lineAmt = qty * rate;
-    subtotal += lineAmt;
-    
-    const amtEl = document.getElementById(`amt-${index}`);
-    if (amtEl) amtEl.textContent = lineAmt > 0 ? lineAmt.toFixed(2) : '0.00';
+    subtotal += (qty * rate);
   });
 
   let grandTotal = subtotal;
@@ -350,7 +357,7 @@ function calculateTotal() {
 }
 
 function clearForm() {
-  if (confirm('Are you sure you want to clear fields for a new bill?')) {
+  if (confirm('Are you sure you want to clear all fields for a new bill?')) {
     currentEditingId = null;
     document.getElementById('formTitle').textContent = 'New Bill';
     document.getElementById('billNo').value = '';
@@ -359,8 +366,9 @@ function clearForm() {
     document.getElementById('custPhone').value = '';
     document.getElementById('custAddress').value = '';
     isGstApplied = false;
-    document.getElementById('gstToggleBtn').classList.remove('active');
-    document.getElementById('gstToggleBtn').textContent = '+ Add GST (18%)';
+    const btn = document.getElementById('gstToggleBtn');
+    btn.classList.remove('active');
+    btn.textContent = '+ Add GST (18%)';
     items = Array.from({ length: 10 }, () => ({ desc: '', qty: '', rate: '' }));
     window.history.replaceState({}, document.title, window.location.pathname);
     renderTable();
@@ -399,7 +407,7 @@ async function checkEditState() {
 
       renderTable();
     } catch(e) {
-      console.error('Error fetching edit bill:', e);
+      console.error('Error loading bill for editing:', e);
     }
   }
 }
@@ -436,14 +444,12 @@ async function saveBill() {
   try {
     let res;
     if (currentEditingId) {
-      // Update existing record in MongoDB
       res = await fetch(`/api/bills/${currentEditingId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
     } else {
-      // Insert new record in MongoDB
       res = await fetch('/api/bills', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -461,7 +467,7 @@ async function saveBill() {
     }
   } catch (err) {
     console.error('Save error:', err);
-    alert('Failed to connect to the server.');
+    alert('Failed to connect to server.');
   }
 }
 
