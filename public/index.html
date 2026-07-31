@@ -459,7 +459,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
   if (editId) {
     const bills = getStoredBills();
-    const found = bills.find(b => String(b.id || b.billNo) === String(editId));
+    const found = bills.find(b => String(b.id) === String(editId) || String(b.billNo) === String(editId));
     if (found) {
       loadBillForEdit(found);
       return;
@@ -495,8 +495,8 @@ function loadBillForEdit(bill){
   editingId = bill.id || bill.billNo;
   document.getElementById('bill-no').value    = bill.billNo    || '';
   document.getElementById('bill-date').value  = bill.billDate  || bill.date || '';
-  document.getElementById('party-name').value = bill.partyName || bill.customerName || '';
-  document.getElementById('party-phone').value= bill.partyPhone|| bill.phone || '';
+  document.getElementById('party-name').value = bill.partyName || bill.customerName || bill.name || '';
+  document.getElementById('party-phone').value= bill.partyPhone|| bill.phone || bill.mobile || '';
   document.getElementById('party-addr').value = bill.partyAddr || bill.address || '';
   
   rows = (bill.items || []).map(it => ({ ...it, id: Date.now() + Math.random() }));
@@ -722,15 +722,34 @@ function getPayload(){
   const validItems = rows.filter(r => (r.desc && r.desc.trim()) || r.qty || r.rate || r.amount);
   const grandTotal = rows.reduce((s, r) => s + (parseFloat(r.amount) || 0), 0).toFixed(2);
   
+  const billNo    = document.getElementById('bill-no').value.trim();
+  const billDate  = document.getElementById('bill-date').value.trim();
+  const partyName = document.getElementById('party-name').value.trim();
+  const partyPhone= document.getElementById('party-phone').value.trim();
+  const partyAddr = document.getElementById('party-addr').value.trim();
+
   return {
     id: editingId || Date.now(),
-    billNo: document.getElementById('bill-no').value.trim(),
-    billDate: document.getElementById('bill-date').value.trim(),
-    partyName: document.getElementById('party-name').value.trim(),
-    partyPhone: document.getElementById('party-phone').value.trim(),
-    partyAddr: document.getElementById('party-addr').value.trim(),
+    // Primary index keys
+    billNo: billNo,
+    billDate: billDate,
+    partyName: partyName,
+    partyPhone: partyPhone,
+    partyAddr: partyAddr,
+    
+    // Alias keys for history.html compatibility
+    customerName: partyName,
+    name: partyName,
+    phone: partyPhone,
+    mobile: partyPhone,
+    date: billDate,
+    address: partyAddr,
+    
+    // Items and totals
     items: validItems,
     totalAmount: grandTotal,
+    total: grandTotal,
+    amount: grandTotal,
     updatedAt: new Date().toISOString()
   };
 }
@@ -746,7 +765,7 @@ function saveBill(){
   let bills = getStoredBills();
   
   if(editingId) {
-    const idx = bills.findIndex(b => String(b.id || b.billNo) === String(editingId));
+    const idx = bills.findIndex(b => String(b.id) === String(editingId) || String(b.billNo) === String(editingId));
     if(idx !== -1) {
       bills[idx] = payload;
     } else {
