@@ -3,46 +3,53 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Shiv Shakti Tiles – GST History</title>
+<title>Shiv Shakti Tiles – GST Bill History</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 *{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Inter','Segoe UI',sans-serif;background:#eef2f7;min-height:100vh;color:#1a1a2e;}
+body{font-family:'Inter',Arial,sans-serif;background:#eef2f7;min-height:100vh;color:#111;}
 
-.topnav{background:#0f2847;padding:0 28px;height:58px;display:flex;align-items:center;
-  justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.25);}
-.nav-brand{display:flex;align-items:center;gap:12px;}
-.nav-logo{width:34px;height:34px;background:rgba(255,255,255,.12);border-radius:8px;
+/* NAV BAR */
+.topnav{background:#0f2847;padding:0 24px;height:58px;display:flex;align-items:center;
+  justify-content:space-between;position:sticky;top:0;z-index:100;
+  box-shadow:0 2px 10px rgba(0,0,0,.2);}
+.nav-brand{display:flex;align-items:center;gap:10px;}
+.nav-logo{width:30px;height:30px;background:rgba(255,255,255,.15);border-radius:6px;
   display:flex;align-items:center;justify-content:center;}
-.nav-title{font-size:15px;font-weight:700;color:#fff;letter-spacing:.4px;}
-.nav-title span{font-weight:300;opacity:.6;font-size:13px;margin-left:6px;}
+.nav-logo svg{width:18px;height:18px;}
+.nav-title{font-size:15px;font-weight:700;color:#fff;letter-spacing:.3px;}
 .nav-links{display:flex;gap:4px;}
-.nav-link{padding:6px 16px;border-radius:6px;font-size:13px;font-weight:500;
-  color:rgba(255,255,255,.7);text-decoration:none;transition:all .15s;}
+.nav-link{padding:6px 14px;border-radius:6px;font-size:12.5px;font-weight:500;
+  color:rgba(255,255,255,.75);text-decoration:none;transition:all .15s;}
 .nav-link:hover{background:rgba(255,255,255,.1);color:#fff;}
-.nav-link.active{background:rgba(255,255,255,.15);color:#fff;}
+.nav-link.active{background:rgba(255,255,255,.18);color:#fff;}
+.nav-right{display:flex;align-items:center;gap:12px;}
+.nav-user{font-size:12.5px;color:rgba(255,255,255,.8);display:flex;align-items:center;gap:6px;}
+.user-avatar{width:26px;height:26px;border-radius:50%;background:#0284c7;
+  display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;}
+.btn-logout{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);
+  color:#fff;padding:5px 12px;border-radius:5px;font-size:12px;cursor:pointer;}
 
-.page{padding:24px 20px 60px;max-width:1000px;margin:0 auto;}
-
-.card{background:#fff;border-radius:12px;padding:20px;box-shadow:0 2px 12px rgba(0,0,0,.06);margin-bottom:20px;}
-.card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px;}
+/* CONTENT */
+.container{max-width:1050px;margin:24px auto;padding:0 16px;}
+.card{background:#fff;border-radius:12px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,.06);}
+.card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:12px;}
 .card-title{font-size:18px;font-weight:700;color:#0f2847;}
-
-.search-input{padding:8px 14px;border:1px solid #cbd5e1;border-radius:8px;font-size:13px;outline:none;width:240px;}
+.actions{display:flex;gap:10px;align-items:center;}
+.search-input{padding:7px 12px;border:1px solid #d1d5db;border-radius:6px;font-size:13px;width:240px;outline:none;}
 .search-input:focus{border-color:#0f2847;}
+.btn-clear{background:#ef4444;color:#fff;border:none;padding:7px 14px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;}
+.btn-clear:hover{background:#dc2626;}
 
-.history-table{width:100%;border-collapse:collapse;font-size:13px;}
-.history-table th{background:#f8fafc;color:#374151;font-weight:600;padding:10px 12px;text-align:left;border-bottom:2px solid #e5e7eb;}
-.history-table td{padding:12px;border-bottom:1px solid #e5e7eb;vertical-align:middle;}
-.history-table tr:hover td{background:#f8fafc;}
-
-.btn-sm{padding:5px 10px;border-radius:6px;font-size:12px;font-weight:600;border:none;cursor:pointer;margin-right:4px;}
-.btn-edit{background:#0284c7;color:#fff;}
-.btn-del{background:#dc2626;color:#fff;}
-.btn-clear-all{background:#ef4444;color:#fff;padding:8px 14px;border-radius:6px;border:none;cursor:pointer;font-size:12px;font-weight:600;}
-
-.empty-state{text-align:center;padding:40px 20px;color:#6b7280;font-size:14px;}
+/* TABLE */
+.history-table{width:100%;border-collapse:collapse;margin-top:8px;}
+.history-table th{background:#f8fafc;padding:10px 12px;text-align:left;font-size:12px;font-weight:700;color:#475569;border-bottom:2px solid #e2e8f0;}
+.history-table td{padding:12px;font-size:13px;color:#1e293b;border-bottom:1px solid #f1f5f9;vertical-align:middle;}
+.history-table tr:hover{background:#f8fafc;}
+.empty-msg{text-align:center;padding:40px;color:#64748b;font-size:14px;}
+.btn-del-row{background:#fee2e2;color:#dc2626;border:none;padding:5px 10px;border-radius:4px;font-size:12px;font-weight:600;cursor:pointer;}
+.btn-del-row:hover{background:#fca5a5;}
 </style>
 </head>
 <body>
@@ -50,11 +57,11 @@ body{font-family:'Inter','Segoe UI',sans-serif;background:#eef2f7;min-height:100
 <nav class="topnav">
   <div class="nav-brand">
     <div class="nav-logo">
-      <svg viewBox="0 0 40 40" fill="none" width="20" height="20">
-        <rect x="4" y="4" width="14" height="14" rx="2" fill="white" opacity=".9"/>
+      <svg viewBox="0 0 40 40" fill="none">
+        <rect x="4" y="4" width="14" height="14" rx="2" fill="white"/>
         <rect x="22" y="4" width="14" height="14" rx="2" fill="white" opacity=".5"/>
         <rect x="4" y="22" width="14" height="14" rx="2" fill="white" opacity=".5"/>
-        <rect x="22" y="22" width="14" height="14" rx="2" fill="white" opacity=".9"/>
+        <rect x="22" y="22" width="14" height="14" rx="2" fill="white"/>
       </svg>
     </div>
     <div class="nav-title">SHIV SHAKTI TILES <span>GST History</span></div>
@@ -65,109 +72,113 @@ body{font-family:'Inter','Segoe UI',sans-serif;background:#eef2f7;min-height:100
     <a href="gst-history.html" class="nav-link active">GST Bill History</a>
     <a href="history.html" class="nav-link">Bill History</a>
   </div>
+  <div class="nav-right">
+    <div class="nav-user"><div class="user-avatar">A</div><span>Admin</span></div>
+    <button class="btn-logout" onclick="location.href='index.html'">Sign Out</button>
+  </div>
 </nav>
 
-<div class="page">
+<div class="container">
   <div class="card">
     <div class="card-header">
       <div class="card-title">Saved GST Invoices</div>
-      <div style="display:flex;gap:10px;">
-        <input type="text" id="search-input" class="search-input" placeholder="Search by name, GSTIN or invoice..." oninput="renderHistory()">
-        <button class="btn-clear-all" onclick="clearAllGst()">Clear All History</button>
+      <div class="actions">
+        <input type="text" id="searchInput" class="search-input" placeholder="Search by name, GSTIN or invoice..." oninput="filterHistory()">
+        <button class="btn-clear" onclick="clearAllHistory()">Clear All History</button>
       </div>
     </div>
 
-    <div style="overflow-x:auto;">
-      <table class="history-table">
-        <thead>
-          <tr>
-            <th>Inv No.</th>
-            <th>Date</th>
-            <th>Customer / Firm</th>
-            <th>Party GSTIN</th>
-            <th>Grand Total</th>
-            <th style="text-align:right;">Actions</th>
-          </tr>
-        </thead>
-        <tbody id="history-body"></tbody>
-      </table>
-    </div>
-    <div id="empty-state" class="empty-state" style="display:none;">No GST invoices saved yet.</div>
+    <table class="history-table">
+      <thead>
+        <tr>
+          <th>Inv No.</th>
+          <th>Date</th>
+          <th>Customer / Firm</th>
+          <th>Party GSTIN</th>
+          <th>Grand Total</th>
+          <th style="text-align:right;">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="historyTbody">
+        <!-- JS rendered -->
+      </tbody>
+    </table>
   </div>
 </div>
 
 <script>
-function getGstBills() {
-  const stored = localStorage.getItem('gst_bills') || localStorage.getItem('gstBills');
-  if (stored) {
-    try {
-      const parsed = JSON.parse(stored);
-      return Array.isArray(parsed) ? parsed : [parsed];
-    } catch(e) { return []; }
+let allInvoices = [];
+
+window.addEventListener('DOMContentLoaded', loadHistory);
+
+function loadHistory() {
+  // Read from primary storage key, fallback to secondary key if present
+  const stored1 = localStorage.getItem('gstInvoices');
+  const stored2 = localStorage.getItem('gstBills');
+
+  if (stored1) {
+    allInvoices = JSON.parse(stored1);
+  } else if (stored2) {
+    allInvoices = JSON.parse(stored2);
+  } else {
+    allInvoices = [];
   }
-  return [];
+
+  renderTable(allInvoices);
 }
 
-function renderHistory() {
-  const bills = getGstBills();
-  const query = (document.getElementById('search-input').value || '').toLowerCase();
-  const tbody = document.getElementById('history-body');
-  const emptyState = document.getElementById('empty-state');
-
-  const filtered = bills.filter(b => {
-    const inv = (b.invoiceNo || b.billNo || '').toLowerCase();
-    const name = (b.partyName || b.customerName || '').toLowerCase();
-    const gstin = (b.partyGstin || b.customerGstin || '').toLowerCase();
-    return inv.includes(query) || name.includes(query) || gstin.includes(query);
-  });
-
+function renderTable(data) {
+  const tbody = document.getElementById('historyTbody');
   tbody.innerHTML = '';
 
-  if (filtered.length === 0) {
-    emptyState.style.display = 'block';
+  if (!data || data.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="6" class="empty-msg">No GST invoices saved yet.</td></tr>`;
     return;
   }
-  emptyState.style.display = 'none';
 
-  filtered.forEach(b => {
+  data.forEach((inv, index) => {
     const tr = document.createElement('tr');
-    const total = b.grandTotal || b.totalAmount || b.total || '0.00';
     tr.innerHTML = `
-      <td><strong>${b.invoiceNo || b.billNo || 'N/A'}</strong></td>
-      <td>${b.invoiceDate || b.date || 'N/A'}</td>
-      <td>${b.partyName || b.customerName || 'Customer'}</td>
-      <td>${b.partyGstin || b.customerGstin || 'N/A'}</td>
-      <td><strong>₹ ${total}</strong></td>
+      <td style="font-weight:700;">${inv.invNo || 'N/A'}</td>
+      <td>${inv.invDate || '-'}</td>
+      <td style="font-weight:600;">${inv.buyerName || 'Cash Customer'}</td>
+      <td>${inv.buyerGst || '-'}</td>
+      <td style="font-weight:700;">₹ ${inv.grandTotal || '0.00'}</td>
       <td style="text-align:right;">
-        <button class="btn-sm btn-edit" onclick="editBill('${b.id || b.invoiceNo}')">View / Edit</button>
-        <button class="btn-sm btn-del" onclick="deleteBill('${b.id || b.invoiceNo}')">Delete</button>
+        <button class="btn-del-row" onclick="deleteRecord(${index})">Delete</button>
       </td>
     `;
     tbody.appendChild(tr);
   });
 }
 
-function editBill(id) {
-  window.location.href = `gst-bill.html?edit=${encodeURIComponent(id)}`;
+function filterHistory() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  const filtered = allInvoices.filter(inv => 
+    (inv.invNo && inv.invNo.toLowerCase().includes(q)) ||
+    (inv.buyerName && inv.buyerName.toLowerCase().includes(q)) ||
+    (inv.buyerGst && inv.buyerGst.toLowerCase().includes(q))
+  );
+  renderTable(filtered);
 }
 
-function deleteBill(id) {
-  if (!confirm('Are you sure you want to delete this GST invoice?')) return;
-  let bills = getGstBills();
-  bills = bills.filter(b => String(b.id) !== String(id) && String(b.invoiceNo) !== String(id));
-  localStorage.setItem('gst_bills', JSON.stringify(bills));
-  localStorage.setItem('gstBills', JSON.stringify(bills));
-  renderHistory();
+function deleteRecord(idx) {
+  if (confirm('Are you sure you want to delete this invoice record?')) {
+    allInvoices.splice(idx, 1);
+    localStorage.setItem('gstInvoices', JSON.stringify(allInvoices));
+    localStorage.setItem('gstBills', JSON.stringify(allInvoices));
+    renderTable(allInvoices);
+  }
 }
 
-function clearAllGst() {
-  if (!confirm('Warning: This will permanently delete ALL saved GST invoices. Continue?')) return;
-  localStorage.removeItem('gst_bills');
-  localStorage.removeItem('gstBills');
-  renderHistory();
+function clearAllHistory() {
+  if (confirm('Are you sure you want to delete ALL saved GST invoices?')) {
+    allInvoices = [];
+    localStorage.removeItem('gstInvoices');
+    localStorage.removeItem('gstBills');
+    renderTable([]);
+  }
 }
-
-document.addEventListener('DOMContentLoaded', renderHistory);
 </script>
 </body>
 </html>
