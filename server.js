@@ -18,8 +18,8 @@ mongoose.connect(MONGODB_URI)
 // Bill Schema & Model
 const itemSchema = new mongoose.Schema({
   desc: { type: String, default: '' },
-  qty: { type: SchemaTypes.Mixed, default: '' },
-  rate: { type: SchemaTypes.Mixed, default: '' }
+  qty: { type: mongoose.Schema.Types.Mixed, default: '' },
+  rate: { type: mongoose.Schema.Types.Mixed, default: '' }
 }, { _id: false });
 
 const billSchema = new mongoose.Schema({
