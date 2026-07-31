@@ -14,7 +14,7 @@ input[type="number"]::-webkit-outer-spin-button,
 input[type="number"]::-webkit-inner-spin-button {-webkit-appearance:none;margin:0;}
 input[type="number"]{-moz-appearance:textfield;}
 
-/* NAV */
+/* ── NAV BAR ── */
 .topnav{background:#0f2847;padding:0 28px;height:58px;display:flex;align-items:center;
   justify-content:space-between;position:sticky;top:0;z-index:100;
   box-shadow:0 2px 12px rgba(0,0,0,.25);}
@@ -38,10 +38,10 @@ input[type="number"]{-moz-appearance:textfield;}
   font-family:inherit;cursor:pointer;transition:background .2s;}
 .btn-logout:hover{background:rgba(255,255,255,.2);}
 
-/* PAGE */
-.page{padding:24px 20px 60px;max-width:960px;margin:0 auto;}
+/* ── PAGE LAYOUT ── */
+.page{padding:24px 20px 60px;max-width:920px;margin:0 auto;}
 
-/* TOOLBAR */
+/* ── TOOLBAR ── */
 .toolbar-card{background:#fff;border-radius:12px;padding:14px 20px;margin-bottom:20px;
   display:flex;align-items:center;justify-content:space-between;
   box-shadow:0 1px 6px rgba(0,0,0,.07);flex-wrap:wrap;gap:12px;}
@@ -56,7 +56,6 @@ input[type="number"]{-moz-appearance:textfield;}
 .btn-save:hover{background:#047857;}
 .btn-print{background:#1a3a5c;color:#fff;}
 .btn-print:hover{background:#0f2847;}
-.action-btn svg{width:15px;height:15px;flex-shrink:0;}
 
 .edit-badge{display:none;background:#fef3c7;border:1px solid #fcd34d;border-radius:8px;
   padding:8px 14px;margin-bottom:14px;font-size:13px;color:#92400e;
@@ -65,71 +64,67 @@ input[type="number"]{-moz-appearance:textfield;}
 .edit-badge button{background:#92400e;color:#fff;border:none;border-radius:5px;
   padding:4px 12px;font-size:12px;cursor:pointer;font-family:inherit;}
 
-/* BILL PAPER */
-.bill-paper{background:#fff;border-radius:14px;
-  box-shadow:0 4px 24px rgba(0,0,0,.10),0 1px 4px rgba(0,0,0,.06);overflow:hidden;}
-.bill-paper-inner{padding:28px 30px 32px;}
+/* ── BILL PAPER ── */
+.bill-paper{background:#fff;border-radius:12px;
+  box-shadow:0 4px 24px rgba(0,0,0,.08);overflow:hidden;}
+.bill-paper-inner{padding:30px 36px 36px;}
 
-/* Header */
-.bill-header{padding-bottom:12px;border-bottom:3px double #1a3a5c;margin-bottom:12px;position:relative;}
-.bill-header-phones{position:absolute;top:28px;right:0;display:flex;flex-direction:column;
-  align-items:flex-end;gap:4px;}
-.bill-header-phones span{font-size:14px;font-weight:700;color:#0f2847;white-space:nowrap;}
-.bill-invoice-top{text-align:center;font-size:16px;font-weight:800;color:#0f2847;
-  letter-spacing:1px;margin-bottom:4px;text-transform:uppercase;}
-.shop-en{font-size:22px;font-weight:800;color:#0f2847;letter-spacing:2px;text-align:center;}
-.shop-gu{font-size:15px;font-weight:600;color:#1a3a5c;margin-top:3px;text-align:center;}
-.shop-addr{font-size:11.5px;color:#4b5563;margin-top:6px;line-height:1.6;text-align:center;}
+/* ── HEADER ── */
+.bill-header{position:relative;text-align:center;padding-bottom:12px;
+  border-bottom:2px solid #334155;margin-bottom:16px;}
+.bill-header-phones{position:absolute;right:0;top:10px;text-align:right;
+  font-size:12.5px;font-weight:700;color:#0f2847;line-height:1.4;}
+.bill-invoice-top{font-size:14px;font-weight:800;color:#0f2847;
+  letter-spacing:1px;margin-bottom:2px;text-transform:uppercase;}
+.shop-en{font-size:20px;font-weight:800;color:#0f2847;letter-spacing:1.5px;}
+.shop-gu{font-size:14px;font-weight:700;color:#1a3a5c;margin-top:2px;}
+.shop-addr{font-size:11px;color:#64748b;margin-top:6px;}
 
-/* Grid Meta */
-.bill-meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0;font-size:12.5px;}
-.meta-block{background:#f8fafc;border:1px solid #e5e7eb;border-radius:8px;padding:10px 14px;}
-.meta-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
-.meta-row:last-child{margin-bottom:0;}
-.meta-key{font-weight:700;color:#374151;min-width:110px;white-space:nowrap;}
+/* ── META / CUSTOMER GRID (Clean dashed rows) ── */
+.bill-meta-grid{display:grid;grid-template-columns:1fr 1fr;column-gap:40px;row-gap:8px;
+  margin:18px 0 22px;font-size:12.5px;}
+.meta-col{display:flex;flex-direction:column;gap:8px;}
+.meta-row{display:flex;align-items:center;gap:8px;}
+.meta-key{font-weight:700;color:#334155;width:110px;flex-shrink:0;}
 
-/* Inputs */
-.bill-input{border:none;border-bottom:1.5px dashed #cbd5e1;background:transparent;color:#111;
-  font-family:'Inter',Arial,sans-serif;font-size:inherit;outline:none;padding:2px 5px;width:100%;
+/* Input fields with clean dashed underlines */
+.bill-input{border:none;border-bottom:1.5px dashed #cbd5e1;background:transparent;color:#0f172a;
+  font-family:'Inter',Arial,sans-serif;font-size:12.5px;outline:none;padding:2px 4px;width:100%;
   transition:border-color .2s,background .2s;}
-.bill-input:focus{border-bottom-color:#1a3a5c;background:#eff6ff;border-radius:3px 3px 0 0;}
-.bill-input::placeholder{color:#c0c9d4;font-style:italic;}
+.bill-input:focus{border-bottom-color:#0f2847;background:#eff6ff;border-radius:3px 3px 0 0;}
+.bill-input::placeholder{color:#94a3b8;font-style:italic;}
 
-/* Table */
-.table-responsive{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;margin-top:14px;}
-.items-table{width:100%;border-collapse:collapse;font-size:12px;min-width:700px;}
+/* ── TABLE ── */
+.table-responsive{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;margin-top:10px;}
+.items-table{width:100%;border-collapse:collapse;font-size:11.5px;}
 .items-table thead tr{background:#0f2847;}
-.items-table th{color:#fff;font-weight:600;font-size:11.5px;padding:8px 6px;text-align:center;
-  border:1px solid #1a3a5c;letter-spacing:.3px;}
-.items-table td{border:1px solid #e5e7eb;padding:4px 5px;vertical-align:middle;text-align:center;}
+.items-table th{color:#fff;font-weight:600;padding:8px 4px;text-align:center;
+  border:1px solid #1a3a5c;font-size:11px;letter-spacing:.2px;}
+.items-table td{border:1px solid #e2e8f0;padding:4px;text-align:center;vertical-align:middle;}
 .items-table tbody tr:nth-child(even) td{background:#fafbfc;}
 .items-table tbody tr:hover td{background:#f0f5ff!important;}
 
-.total-row td{background:#0f2847!important;color:#fff!important;font-weight:700;
-  font-size:13px;border:1px solid #1a3a5c!important;padding:8px;}
 .no-border-td{border:none!important;background:transparent!important;}
-.del-btn{background:none;border:none;cursor:pointer;color:#dc2626;font-size:16px;line-height:1;padding:0 2px;}
+.del-btn{background:none;border:none;cursor:pointer;color:#ef4444;font-size:15px;
+  font-weight:700;line-height:1;padding:0 4px;}
 
-.add-row-wrap{margin-top:8px;}
-.add-row-btn{font-size:12.5px;color:#1a3a5c;font-weight:600;cursor:pointer;background:none;
-  border:none;font-family:inherit;display:inline-flex;align-items:center;gap:5px;padding:5px 2px;}
-.add-row-btn:hover{color:#0f2847;text-decoration:underline;}
+.add-row-wrap{margin-top:10px;}
+.add-row-btn{font-size:12.5px;color:#0f2847;font-weight:600;cursor:pointer;background:none;
+  border:none;font-family:inherit;display:inline-flex;align-items:center;gap:4px;}
+.add-row-btn:hover{text-decoration:underline;}
 
-/* Tax summary */
-.tax-summary-box{display:flex;justify-content:space-between;margin-top:16px;gap:20px;font-size:12px;}
-.notes-block{max-width:55%;color:#4b5563;line-height:1.6;}
-.totals-block{width:280px;background:#f8fafc;border:1px solid #e5e7eb;border-radius:8px;padding:10px 14px;}
-.totals-row{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px dashed #e5e7eb;}
-.totals-row.grand{border-bottom:none;border-top:2px solid #0f2847;margin-top:4px;padding-top:6px;
+/* ── TAX SUMMARY / FOOTER ── */
+.tax-summary-box{display:flex;justify-content:space-between;align-items:flex-start;
+  margin-top:22px;font-size:12px;gap:20px;}
+.notes-block{color:#475569;font-size:11.5px;line-height:1.6;}
+.notes-block strong{color:#0f2847;font-size:12px;}
+
+.totals-block{width:260px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:10px 14px;}
+.totals-row{display:flex;justify-content:space-between;padding:3px 0;color:#334155;font-size:12px;}
+.totals-row.grand{border-top:1.5px solid #0f2847;margin-top:6px;padding-top:6px;
   font-weight:800;font-size:14px;color:#0f2847;}
 
-/* Footer */
-.gstin-strip{background:#f8fafc;border-top:1px solid #e5e7eb;margin-top:20px;padding:10px 30px;
-  display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;font-size:12.5px;
-  font-weight:600;color:#374151;}
-.gstin-strip strong{color:#0f2847;font-weight:800;}
-
-/* Toast */
+/* ── TOAST NOTIFICATION ── */
 .toast{position:fixed;bottom:28px;right:28px;padding:13px 22px;border-radius:10px;
   font-size:13px;font-weight:600;font-family:inherit;box-shadow:0 8px 24px rgba(0,0,0,.2);
   opacity:0;pointer-events:none;transform:translateY(8px);
@@ -150,6 +145,7 @@ input[type="number"]{-moz-appearance:textfield;}
 </head>
 <body>
 
+<!-- ═══ NAVIGATION ═══ -->
 <nav class="topnav">
   <div class="nav-brand">
     <div class="nav-logo">
@@ -174,8 +170,10 @@ input[type="number"]{-moz-appearance:textfield;}
   </div>
 </nav>
 
+<!-- ═══ MAIN PAGE ═══ -->
 <div class="page">
 
+  <!-- Action Toolbar -->
   <div class="toolbar-card">
     <div class="toolbar-left">
       <strong id="toolbar-title">GST Tax Invoice</strong> &nbsp;·&nbsp; Create and save GST invoices
@@ -194,13 +192,15 @@ input[type="number"]{-moz-appearance:textfield;}
     <button onclick="clearBill()">Cancel Edit</button>
   </div>
 
+  <!-- Bill Document Paper -->
   <div class="bill-paper">
     <div class="bill-paper-inner">
 
+      <!-- Header -->
       <div class="bill-header">
         <div class="bill-header-phones">
-          <span>M. : 94280 73316</span>
-          <span>M. : 98240 49919</span>
+          <div>M. : 94280 73316</div>
+          <div>M. : 98240 49919</div>
         </div>
         <div class="bill-invoice-top">TAX INVOICE</div>
         <div class="shop-en">SHIV SHAKTI TILES</div>
@@ -210,8 +210,9 @@ input[type="number"]{-moz-appearance:textfield;}
         </div>
       </div>
 
+      <!-- Customer / Meta Grid (Original Layout) -->
       <div class="bill-meta-grid">
-        <div class="meta-block">
+        <div class="meta-col">
           <div class="meta-row">
             <span class="meta-key">Invoice No. :</span>
             <input type="text" class="bill-input" id="invoice-no" placeholder="GST-101">
@@ -230,7 +231,7 @@ input[type="number"]{-moz-appearance:textfield;}
           </div>
         </div>
 
-        <div class="meta-block">
+        <div class="meta-col">
           <div class="meta-row">
             <span class="meta-key">Billed To :</span>
             <input type="text" class="bill-input" id="party-name" placeholder="Customer / Firm Name">
@@ -250,6 +251,7 @@ input[type="number"]{-moz-appearance:textfield;}
         </div>
       </div>
 
+      <!-- Items Table -->
       <div class="table-responsive">
         <table class="items-table">
           <thead>
@@ -276,6 +278,7 @@ input[type="number"]{-moz-appearance:textfield;}
         <button class="add-row-btn" onclick="addRow()">+ Add Row</button>
       </div>
 
+      <!-- Tax Summary & Notes -->
       <div class="tax-summary-box">
         <div class="notes-block">
           <strong>Terms & Conditions:</strong><br>
@@ -303,11 +306,6 @@ input[type="number"]{-moz-appearance:textfield;}
       </div>
 
     </div>
-
-    <div class="gstin-strip">
-      <span><strong>GSTIN No. :</strong> 24ACCFS8163L1ZR</span>
-      <span>sureshpatel@sungranites.in | vishnupatel@sungranites.in</span>
-    </div>
   </div>
 
 </div>
@@ -319,7 +317,7 @@ const MIN_ROWS = 6;
 let rows = [];
 let editingId = null;
 
-/* ── Retrieve All GST Bills ── */
+/* ── Fetch Saved Bills Array ── */
 function getStoredGstBills() {
   const stored = localStorage.getItem('gst_bills') || localStorage.getItem('gstBills');
   if (stored) {
@@ -332,7 +330,7 @@ function getStoredGstBills() {
 }
 
 window.addEventListener('DOMContentLoaded', () => {
-  // 1. Check URL Edit Param
+  // 1. Check Edit Param in URL
   const urlParams = new URLSearchParams(window.location.search);
   const editId = urlParams.get('edit');
 
@@ -485,7 +483,7 @@ function renderRows() {
   rows.forEach((r, i) => {
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td style="color:#6b7280;">${i+1}</td>
+      <td style="color:#64748b;">${i+1}</td>
       <td style="text-align:left;">
         <input type="text" class="bill-input" value="${r.desc}" placeholder="Item description"
           oninput="rows.find(x=>x.id===${r.id}).desc=this.value">
@@ -546,7 +544,7 @@ function getPayload() {
     partyGstin: gstin,
     partyPhone: phone,
     partyAddr: addr,
-    // Aliases for compatibility
+    // Field aliases for seamless history compatibility
     billNo: invNo,
     date: invDate,
     customerName: party,
@@ -564,7 +562,7 @@ function getPayload() {
   };
 }
 
-/* ── SAVE GST BILL (FIXED) ── */
+/* ── SAVE TO GST HISTORY ── */
 function saveGstBill() {
   const payload = getPayload();
 
@@ -573,7 +571,6 @@ function saveGstBill() {
     return;
   }
 
-  // Fetch existing bills array
   let bills = getStoredGstBills();
 
   if (editingId) {
@@ -585,12 +582,11 @@ function saveGstBill() {
     }
     showToast('GST Bill updated in history!', 'success');
   } else {
-    // Append new bill to existing bills array
     bills.push(payload);
     showToast('GST Bill saved to history!', 'success');
   }
 
-  // Save back to BOTH storage key names for complete history page compatibility
+  // Save to both key aliases so history page always retrieves the full array
   localStorage.setItem('gst_bills', JSON.stringify(bills));
   localStorage.setItem('gstBills', JSON.stringify(bills));
 }
@@ -602,6 +598,7 @@ function clearBill() {
   document.getElementById('party-gstin').value = '';
   document.getElementById('party-phone').value = '';
   document.getElementById('party-addr').value = '';
+  document.getElementById('vehicle-no').value = '';
   document.getElementById('edit-badge').classList.remove('show');
   document.getElementById('toolbar-title').textContent = 'GST Tax Invoice';
   document.getElementById('save-btn-label').textContent = 'Save to GST History';
