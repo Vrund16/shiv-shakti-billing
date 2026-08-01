@@ -4,9 +4,13 @@ const cors = require('cors');
 const path = require('path');
 
 const app = express();
+
 app.use(express.json());
 app.use(cors());
+
+// Serve static files from both public directory and root directory
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(__dirname));
 
 // Connect MongoDB (Ensure MONGO_URI environment variable is set on Render)
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/shiv_shakti_tiles';
@@ -30,6 +34,11 @@ const billSchema = new mongoose.Schema({
 });
 
 const Bill = mongoose.model('Bill', billSchema);
+
+// HTML Fallback Routes
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
 
 // GET all bills (Newest first)
 app.get('/api/bills', async (req, res) => {
@@ -99,5 +108,6 @@ app.delete('/api/bills/:id', async (req, res) => {
   }
 });
 
+// Bind server to '0.0.0.0' for Render
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, '0.0.0.0', () => console.log(`Server running on port ${PORT}`));
