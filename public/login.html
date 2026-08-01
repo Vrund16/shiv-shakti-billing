@@ -102,7 +102,7 @@ body{font-family:'Inter','Segoe UI',sans-serif;min-height:100vh;display:flex;bac
     <span id="err-text">Incorrect username or password. Please try again.</span>
   </div>
 
-  <form id="loginForm" method="POST" action="/login" onsubmit="handleLogin(event)">
+  <form id="loginForm" onsubmit="handleLogin(event)">
     <div class="form-group">
       <label class="form-label" for="username">Username</label>
       <div class="input-wrap">
@@ -162,40 +162,30 @@ body{font-family:'Inter','Segoe UI',sans-serif;min-height:100vh;display:flex;bac
     }
   }
 
-  async function handleLogin(e) {
+  function handleLogin(e) {
     e.preventDefault();
     
     const errBox = document.getElementById('err-box');
     const errText = document.getElementById('err-text');
     const btnSubmit = document.getElementById('btnSubmit');
-    const form = document.getElementById('loginForm');
 
     errBox.classList.remove('show');
     btnSubmit.disabled = true;
     btnSubmit.textContent = 'Signing in...';
 
-    const username = document.getElementById('username').value;
-    const password = document.getElementById('password').value;
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value.trim();
 
-    try {
-      const response = await fetch('/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
-      });
-
-      if (response.ok || response.redirected) {
-        window.location.href = response.url || '/index.html';
-      } else {
-        const data = await response.json().catch(() => ({}));
-        errText.textContent = data.message || 'Incorrect username or password. Please try again.';
-        errBox.classList.add('show');
-        btnSubmit.disabled = false;
-        btnSubmit.textContent = 'Sign In →';
-      }
-    } catch (err) {
-      // Direct form submit fallback if fetch fails
-      form.submit();
+    // Validates 'Admin' or 'admin' and password 'shivshakti'
+    if ((username.toLowerCase() === 'admin') && password === 'shivshakti') {
+      localStorage.setItem('isLoggedIn', 'true');
+      localStorage.setItem('user', 'Admin');
+      window.location.href = 'index.html';
+    } else {
+      errText.textContent = 'Incorrect username or password. Please try again.';
+      errBox.classList.add('show');
+      btnSubmit.disabled = false;
+      btnSubmit.textContent = 'Sign In →';
     }
   }
 </script>
