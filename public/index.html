@@ -170,7 +170,7 @@ input[type="number"] { -moz-appearance: textfield; }
     <div class="meta-row">
       <div class="field-group">
         <span class="field-label">No. :</span>
-        <input type="text" id="billNo" class="clean-input" placeholder="Bill number" style="width:140px; font-weight:700;">
+        <input type="text" id="billNo" class="clean-input" placeholder="Chalan / Bill No" style="width:140px; font-weight:700;">
       </div>
       <div class="field-group">
         <span class="field-label">તા. :</span>
@@ -249,13 +249,14 @@ input[type="number"] { -moz-appearance: textfield; }
 let items = Array.from({ length: 10 }, () => ({ desc: '', qty: '', rate: '' }));
 let isGstApplied = false;
 let currentEditingId = null;
+let currentOfficialBillNo = '';
 
 function getTodayFormatted() {
   const d = new Date();
   const day = String(d.getDate()).padStart(2, '0');
   const month = String(d.getMonth() + 1).padStart(2, '0');
   const year = d.getFullYear();
-  return `${day} / ${month} / ${year}`;
+  return `${day}/${month}/${year}`;
 }
 
 window.addEventListener('DOMContentLoaded', () => {
@@ -354,6 +355,7 @@ function calculateTotal() {
 function clearForm() {
   if (confirm('Are you sure you want to clear all fields for a new bill?')) {
     currentEditingId = null;
+    currentOfficialBillNo = '';
     document.getElementById('formTitle').textContent = 'New Bill';
     document.getElementById('billNo').value = '';
     document.getElementById('billDate').value = getTodayFormatted();
@@ -381,6 +383,7 @@ async function checkEditState() {
       const b = await res.json();
       
       currentEditingId = b._id;
+      currentOfficialBillNo = b.officialBillNo || '';
       document.getElementById('formTitle').textContent = `Editing Bill (${b.billNo || 'Draft'})`;
       document.getElementById('billNo').value = b.billNo || '';
       document.getElementById('billDate').value = b.date || getTodayFormatted();
@@ -415,7 +418,13 @@ async function saveBill() {
   const custAddress = document.getElementById('custAddress').value.trim();
 
   let subtotal = 0;
-  const validItems = items.filter(i => (i.desc && i.desc.trim() !== '') || (parseFloat(i.qty) > 0));
+  const validItems = items
+    .filter(i => (i.desc && i.desc.trim() !== '') || (parseFloat(i.qty) > 0))
+    .map(i => ({
+      desc: (i.desc || '').trim(),
+      qty: i.qty ? String(i.qty) : '0',
+      rate: i.rate ? String(i.rate) : '0'
+    }));
   
   items.forEach(i => {
     subtotal += (parseFloat(i.qty) || 0) * (parseFloat(i.rate) || 0);
@@ -425,8 +434,9 @@ async function saveBill() {
   const grandTotal = subtotal + gstAmt;
 
   const payload = {
-    billNo: billNo || '#Draft',
-    date,
+    billNo: billNo || 'N/A',
+    officialBillNo: currentOfficialBillNo || '',
+    date: date || getTodayFormatted(),
     custName,
     custPhone,
     custAddress,
@@ -455,14 +465,17 @@ async function saveBill() {
     if (res.ok) {
       const saved = await res.json();
       currentEditingId = saved._id;
+      if (saved.officialBillNo) currentOfficialBillNo = saved.officialBillNo;
       document.getElementById('formTitle').textContent = `Editing Bill (${saved.billNo})`;
       showToast('Bill saved successfully!');
     } else {
-      alert('Error saving bill to database.');
+      const errText = await res.text();
+      console.error('Server save error:', errText);
+      alert('Error saving bill to database: ' + (errText || 'Server error'));
     }
   } catch (err) {
-    console.error('Save error:', err);
-    alert('Failed to connect to server.');
+    console.error('Save connection error:', err);
+    alert('Failed to connect to server. Please verify backend is running.');
   }
 }
 
