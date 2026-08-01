@@ -1,60 +1,37 @@
 const express = require('express');
-const path = require('path');
 const mongoose = require('mongoose');
+const cors = require('cors');
+const path = require('path');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
-
-// Body parser middleware (REQUIRED for form submissions)
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-// Serve static files from 'public' directory
+app.use(cors());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// MongoDB Connection (Use your connection string or environment variable)
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/shiv_shakti_billing';
+// Connect MongoDB (Ensure MONGO_URI environment variable is set on Render)
+const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/shiv_shakti_tiles';
 mongoose.connect(MONGO_URI)
-  .then(() => console.log('MongoDB connected successfully'))
-  .catch(err => console.error('MongoDB connection error:', err));
+  .then(() => console.log('MongoDB Connected Successfully'))
+  .catch(err => console.error('MongoDB Connection Error:', err));
 
-// Bill Schema & Model
+// Flexible Schema to avoid strict validation save errors
 const billSchema = new mongoose.Schema({
-  billNo: String,
-  date: String,
-  custName: String,
-  custPhone: String,
-  custAddress: String,
+  billNo: { type: String, default: '' },         // Challan / Invoice No from Main Page
+  officialBillNo: { type: String, default: '' }, // Editable Bill No in Summary Register
+  date: { type: String, default: '' },
+  custName: { type: String, default: '' },
+  custPhone: { type: String, default: '' },
+  custAddress: { type: String, default: '' },
   items: Array,
-  isGstApplied: Boolean,
-  gstAmt: String,
-  grandTotal: String,
+  isGstApplied: { type: Boolean, default: false },
+  gstAmt: { type: String, default: '0.00' },
+  grandTotal: { type: String, default: '0.00' },
   createdAt: { type: Date, default: Date.now }
 });
 
 const Bill = mongoose.model('Bill', billSchema);
 
-/* ── AUTHENTICATION ROUTES ── */
-
-// Serve Login Page
-app.get('/login', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'login.html'));
-});
-
-// Handle Login POST (Form submission fallback & direct post)
-app.post('/login', (req, res) => {
-  // Accepts any login attempt for admin access and redirects to main app
-  res.redirect('/index.html');
-});
-
-// Handle API Login (JSON submission)
-app.post('/api/login', (req, res) => {
-  res.json({ success: true, redirect: '/index.html' });
-});
-
-/* ── BILL API ROUTES ── */
-
-// Get all bills
+// GET all bills (Newest first)
 app.get('/api/bills', async (req, res) => {
   try {
     const bills = await Bill.find().sort({ createdAt: -1 });
@@ -64,29 +41,30 @@ app.get('/api/bills', async (req, res) => {
   }
 });
 
-// Get single bill by ID
+// GET single bill
 app.get('/api/bills/:id', async (req, res) => {
   try {
     const bill = await Bill.findById(req.params.id);
     if (!bill) return res.status(404).json({ error: 'Bill not found' });
     res.json(bill);
   } catch (err) {
-    res.status(500).json({ error: 'Error fetching bill' });
+    res.status(500).json({ error: 'Failed to fetch bill' });
   }
 });
 
-// Create new bill
+// POST save new bill
 app.post('/api/bills', async (req, res) => {
   try {
     const newBill = new Bill(req.body);
     const saved = await newBill.save();
     res.status(201).json(saved);
   } catch (err) {
-    res.status(500).json({ error: 'Failed to save bill' });
+    console.error('Error saving bill:', err);
+    res.status(500).json({ error: 'Failed to save bill to database' });
   }
 });
 
-// Update bill
+// PUT update full bill
 app.put('/api/bills/:id', async (req, res) => {
   try {
     const updated = await Bill.findByIdAndUpdate(req.params.id, req.body, { new: true });
@@ -96,7 +74,22 @@ app.put('/api/bills/:id', async (req, res) => {
   }
 });
 
-// Delete bill
+// PATCH update official bill number inline from Summary View
+app.patch('/api/bills/:id', async (req, res) => {
+  try {
+    const { officialBillNo } = req.body;
+    const updated = await Bill.findByIdAndUpdate(
+      req.params.id, 
+      { officialBillNo }, 
+      { new: true }
+    );
+    res.json(updated);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to update official bill number' });
+  }
+});
+
+// DELETE bill
 app.delete('/api/bills/:id', async (req, res) => {
   try {
     await Bill.findByIdAndDelete(req.params.id);
@@ -106,11 +99,5 @@ app.delete('/api/bills/:id', async (req, res) => {
   }
 });
 
-// Fallback route for single page app navigation
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
