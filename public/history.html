@@ -8,79 +8,81 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 *{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Inter',Arial,sans-serif;background:#eef2f7;min-height:100vh;color:#111;}
+body{font-family:'Inter',Arial,sans-serif;background:#f1f5f9;min-height:100vh;color:#0f172a;}
 
-/* ── NAV BAR ── */
-.topnav{background:#0f2847;padding:0 24px;height:58px;display:flex;align-items:center;
-  justify-content:space-between;position:sticky;top:0;z-index:100;
-  box-shadow:0 2px 10px rgba(0,0,0,.2);}
-.nav-brand{display:flex;align-items:center;gap:10px;}
-.nav-logo{width:30px;height:30px;background:rgba(255,255,255,.15);border-radius:6px;
-  display:flex;align-items:center;justify-content:center;}
-.nav-logo svg{width:18px;height:18px;}
-.nav-title{font-size:15px;font-weight:700;color:#fff;letter-spacing:.3px;}
-.nav-title span{font-weight:400;opacity:.7;font-size:12.5px;margin-left:4px;}
-.nav-links{display:flex;gap:4px;}
-.nav-link{padding:6px 14px;border-radius:6px;font-size:12.5px;font-weight:500;
+/* NAVBAR */
+.topnav{background:#0f2847;padding:0 24px;height:60px;display:flex;align-items:center;
+  justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.15);}
+.nav-brand{display:flex;align-items:center;gap:12px;}
+.nav-logo{width:34px;height:34px;background:rgba(255,255,255,.12);border-radius:8px;
+  display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,.15);}
+.nav-logo svg{width:20px;height:20px;}
+.nav-title{font-size:16px;font-weight:700;color:#fff;letter-spacing:.3px;}
+.nav-title span{font-weight:400;opacity:.7;font-size:13px;margin-left:6px;}
+.nav-links{display:flex;gap:6px;}
+.nav-link{padding:7px 16px;border-radius:6px;font-size:13px;font-weight:500;
   color:rgba(255,255,255,.75);text-decoration:none;transition:all .15s;}
 .nav-link:hover{background:rgba(255,255,255,.1);color:#fff;}
 .nav-link.active{background:rgba(255,255,255,.18);color:#fff;}
-.nav-right{display:flex;align-items:center;gap:12px;}
-.nav-user{font-size:12.5px;color:rgba(255,255,255,.8);display:flex;align-items:center;gap:6px;}
-.user-avatar{width:26px;height:26px;border-radius:50%;background:#0284c7;
-  display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;}
+.nav-right{display:flex;align-items:center;gap:14px;}
+.nav-user{font-size:13px;color:rgba(255,255,255,.85);display:flex;align-items:center;gap:8px;}
+.user-avatar{width:28px;height:28px;border-radius:50%;background:#1a3a5c;border:1px solid rgba(255,255,255,.3);
+  display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;}
 .btn-logout{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);
-  color:#fff;padding:5px 12px;border-radius:5px;font-size:12px;cursor:pointer;}
-.btn-logout:hover{background:rgba(255,255,255,.2);}
+  color:#fff;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;transition:all .15s;}
 
-/* ── CONTAINER ── */
-.page{padding:24px;max-width:1100px;margin:0 auto;}
+.page{padding:24px;max-width:1050px;margin:0 auto;}
 
-/* ── STATS CARDS ── */
+/* STATS METRICS */
 .stats-grid{display:grid;grid-template-columns:repeat(3, 1fr);gap:16px;margin-bottom:20px;}
-.stat-card{background:#fff;border-radius:8px;padding:18px 22px;
-  box-shadow:0 1px 4px rgba(0,0,0,.06);border:1px solid #e2e8f0;}
-.stat-title{font-size:11px;font-weight:700;color:#64748b;letter-spacing:.5px;margin-bottom:6px;text-transform:uppercase;}
-.stat-value{font-size:24px;font-weight:800;color:#0f2847;}
+.stat-card{background:#fff;border-radius:10px;padding:18px;border:1px solid #e2e8f0;
+  box-shadow:0 1px 3px rgba(0,0,0,.04);}
+.stat-label{font-size:11px;font-weight:700;color:#64748b;letter-spacing:.8px;text-transform:uppercase;margin-bottom:6px;}
+.stat-val{font-size:22px;font-weight:800;color:#0f2847;}
 
-/* ── CONTROLS CARD ── */
-.controls-card{background:#fff;border-radius:8px;padding:16px 20px;margin-bottom:20px;
-  box-shadow:0 1px 4px rgba(0,0,0,.06);border:1px solid #e2e8f0;}
-.filter-pills{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap;}
-.filter-label{font-size:12.5px;font-weight:600;color:#475569;}
-.pill-btn{padding:7px 16px;border-radius:20px;font-size:12px;font-weight:600;
-  border:1px solid #cbd5e1;background:#fff;color:#334155;cursor:pointer;transition:all .15s;}
-.pill-btn:hover{background:#f1f5f9;}
-.pill-btn.active{background:#0f2847;color:#fff;border-color:#0f2847;}
-.pill-btn.summary{background:#0284c7;color:#fff;border-color:#0284c7;}
+/* FILTER TABS */
+.filter-card{background:#fff;border-radius:12px;padding:18px 20px;margin-bottom:20px;
+  border:1px solid #e2e8f0;box-shadow:0 1px 3px rgba(0,0,0,.04);}
+.tab-row{display:flex;gap:8px;align-items:center;margin-bottom:14px;flex-wrap:wrap;}
+.tab-label{font-size:13px;font-weight:600;color:#475569;margin-right:6px;}
+.view-btn{padding:8px 16px;border-radius:20px;border:1px solid #cbd5e1;background:#fff;
+  font-size:13px;font-weight:600;color:#334155;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:6px;}
+.view-btn:hover{background:#f8fafc;}
+.view-btn.active{background:#1a3a5c;color:#fff;border-color:#1a3a5c;}
+.view-btn.btn-summary.active{background:#0284c7;border-color:#0284c7;color:#fff;}
 
-.search-row{display:flex;align-items:center;justify-content:space-between;gap:12px;}
-.search-input{flex:1;max-width:500px;padding:9px 14px;border:1px solid #cbd5e1;
-  border-radius:6px;font-size:13px;outline:none;}
-.search-input:focus{border-color:#0f2847;box-shadow:0 0 0 2px rgba(15, 40, 71, 0.1);}
-.btn-new-bill{background:#0f2847;color:#fff;padding:9px 18px;border-radius:6px;
-  font-size:13px;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:6px;}
-.btn-new-bill:hover{background:#1e3a8a;}
+.search-bar-row{display:flex;gap:12px;}
+.search-input{flex:1;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:8px;
+  font-size:13.5px;outline:none;transition:all .15s;}
+.search-input:focus{border-color:#1a3a5c;}
+.btn-new-bill{background:#0f2847;color:#fff;padding:10px 18px;border-radius:8px;
+  font-weight:700;font-size:13px;text-decoration:none;display:inline-flex;align-items:center;gap:6px;}
 
-/* ── TABLE ── */
-.table-card{background:#fff;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,.06);
-  border:1px solid #e2e8f0;overflow:hidden;}
-.bills-table{width:100%;border-collapse:collapse;text-align:left;}
-.bills-table th{background:#f8fafc;color:#475569;font-size:12px;font-weight:700;
-  padding:12px 16px;border-bottom:1px solid #e2e8f0;}
-.bills-table td{padding:12px 16px;border-bottom:1px solid #f1f5f9;font-size:13px;color:#1e293b;}
-.bills-table tr:hover{background:#f8fafc;}
-.badge-gst{background:#dcfce7;color:#15803d;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:700;}
+/* DATA TABLE */
+.table-card{background:#fff;border-radius:12px;border:1px solid #cbd5e1;overflow:hidden;
+  box-shadow:0 4px 12px rgba(0,0,0,.03);}
+.data-table{width:100%;border-collapse:collapse;}
+.data-table th{background:#0f2847;color:#fff;padding:12px 14px;font-size:12.5px;font-weight:700;text-align:left;}
+.data-table td{padding:10px 14px;border-bottom:1px solid #e2e8f0;font-size:13px;color:#0f172a;vertical-align:middle;}
+.data-table tr:hover td{background:#f8fafc;}
 
-/* Actions */
-.btn-action{padding:5px 10px;border-radius:4px;font-size:12px;font-weight:600;
-  cursor:pointer;border:none;margin-right:4px;transition:all .15s;}
-.btn-edit{background:#e0f2fe;color:#0369a1;}
-.btn-edit:hover{background:#bae6fd;}
-.btn-delete{background:#fee2e2;color:#dc2626;}
-.btn-delete:hover{background:#fca5a5;}
+/* SUMMARY REGISTER SPECIFIC STYLING (Notebook Reference) */
+.summary-table th{background:#1e293b;color:#f8fafc;border-right:1px solid #334155;}
+.summary-table td{border-right:1px solid #e2e8f0;}
+.editable-bill-input{padding:6px 10px;border:1.5px solid #cbd5e1;border-radius:6px;
+  font-size:13px;font-weight:700;color:#0f2847;width:120px;outline:none;background:#fafafa;transition:all .15s;}
+.editable-bill-input:focus{border-color:#0284c7;background:#fff;box-shadow:0 0 0 3px rgba(2,132,199,.15);}
+.saved-indicator{font-size:11px;color:#16a34a;font-weight:600;margin-left:6px;opacity:0;transition:opacity .2s;}
+.saved-indicator.show{opacity:1;}
 
-.no-data{padding:40px;text-align:center;color:#64748b;font-size:14px;}
+.action-link{color:#0284c7;font-weight:600;text-decoration:none;margin-right:10px;}
+.action-link:hover{text-decoration:underline;}
+.btn-del{color:#ef4444;background:none;border:none;cursor:pointer;font-weight:600;}
+
+.toast{position:fixed;bottom:24px;right:24px;background:#0f2847;color:#fff;
+  padding:12px 20px;border-radius:8px;font-size:13px;font-weight:600;
+  box-shadow:0 10px 20px rgba(0,0,0,.15);display:none;z-index:9999;}
+.toast.show{display:block;}
 </style>
 </head>
 <body>
@@ -108,199 +110,247 @@ body{font-family:'Inter',Arial,sans-serif;background:#eef2f7;min-height:100vh;co
 </nav>
 
 <div class="page">
-  <!-- Top Stats -->
+  <!-- STATS -->
   <div class="stats-grid">
     <div class="stat-card">
-      <div class="stat-title">Total Bills</div>
-      <div class="stat-value" id="totalBillsCount">0</div>
+      <div class="stat-label">Total Bills</div>
+      <div class="stat-val" id="totalBillsCount">0</div>
     </div>
     <div class="stat-card">
-      <div class="stat-title">Total Revenue</div>
-      <div class="stat-value" id="totalRevenueDisplay">₹ 0.00</div>
+      <div class="stat-label">Total Revenue</div>
+      <div class="stat-val" id="totalRevenue">₹ 0.00</div>
     </div>
     <div class="stat-card">
-      <div class="stat-title">Latest Bill</div>
-      <div class="stat-value" id="latestBillNo">-</div>
+      <div class="stat-label">Latest Bill</div>
+      <div class="stat-val" id="latestBillNo">-</div>
     </div>
   </div>
 
-  <!-- Search & Filters -->
-  <div class="controls-card">
-    <div class="filter-pills">
-      <span class="filter-label">Search / View by:</span>
-      <button class="pill-btn active" id="pill-name" onclick="setSearchFilter('name')">👤 Customer Name</button>
-      <button class="pill-btn" id="pill-phone" onclick="setSearchFilter('phone')">📞 Phone Number</button>
-      <button class="pill-btn" id="pill-inv" onclick="setSearchFilter('inv')">📄 Invoice No.</button>
-      <button class="pill-btn summary" onclick="resetSearch()">📖 Summary Bill History</button>
+  <!-- FILTERS & TABS -->
+  <div class="filter-card">
+    <div class="tab-row">
+      <span class="tab-label">Search / View by:</span>
+      <button class="view-btn active" id="btnByCust" onclick="setViewMode('cust')">👤 Customer Name</button>
+      <button class="view-btn" id="btnByPhone" onclick="setViewMode('phone')">📞 Phone Number</button>
+      <button class="view-btn" id="btnByChalan" onclick="setViewMode('chalan')">📄 Invoice No.</button>
+      <button class="view-btn btn-summary" id="btnSummary" onclick="setViewMode('summary')">📖 Summary Bill History</button>
     </div>
 
-    <div class="search-row">
-      <input type="text" id="searchInput" class="search-input" placeholder="Search by customer name..." oninput="filterBills()">
+    <div class="search-bar-row">
+      <input type="text" id="searchInput" class="search-input" placeholder="Search by customer name..." oninput="renderTable()">
       <a href="index.html" class="btn-new-bill">+ New Bill</a>
     </div>
   </div>
 
-  <!-- Table -->
+  <!-- TABLE CONTAINER -->
   <div class="table-card">
-    <table class="bills-table">
-      <thead>
-        <tr>
-          <th>Inv / Bill No.</th>
-          <th>Date</th>
-          <th>Customer Name</th>
-          <th>Phone</th>
-          <th>Total Amount</th>
-          <th style="text-align:right;">Actions</th>
-        </tr>
-      </thead>
-      <tbody id="billsTableBody">
-        <tr>
-          <td colspan="6" class="no-data">Loading saved bills...</td>
-        </tr>
-      </tbody>
+    <table class="data-table" id="billsTable">
+      <thead id="tableHead"></thead>
+      <tbody id="tableBody"></tbody>
     </table>
   </div>
 </div>
 
+<div class="toast" id="toast">Saved!</div>
+
 <script>
 let allBills = [];
-let activeFilter = 'name'; // 'name' | 'phone' | 'inv'
+let currentViewMode = 'summary'; // Default or active tab mode
 
 window.addEventListener('DOMContentLoaded', fetchBills);
 
 async function fetchBills() {
   try {
     const res = await fetch('/api/bills');
-    if (!res.ok) throw new Error('Failed to fetch bills');
-    
+    if (!res.ok) throw new Error('Failed to fetch');
     allBills = await res.json();
-    updateStats(allBills);
-    renderTable(allBills);
+    
+    // Sort bills: Latest dates first
+    allBills.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+
+    updateStats();
+    renderTable();
   } catch (err) {
-    console.error('Error fetching bills:', err);
-    document.getElementById('billsTableBody').innerHTML = `
-      <tr>
-        <td colspan="6" class="no-data" style="color:#ef4444;">
-          Failed to load bills. Please check server connection.
-        </td>
-      </tr>`;
+    console.error('Error loading bills:', err);
   }
 }
 
-function updateStats(bills) {
-  document.getElementById('totalBillsCount').textContent = bills.length;
-
-  let totalRev = 0;
-  bills.forEach(b => {
-    totalRev += parseFloat(b.grandTotal || 0);
-  });
-  document.getElementById('totalRevenueDisplay').textContent = `₹ ${totalRev.toFixed(2)}`;
-
-  if (bills.length > 0) {
-    document.getElementById('latestBillNo').textContent = bills[0].billNo || '#Draft';
-  } else {
-    document.getElementById('latestBillNo').textContent = '-';
-  }
-}
-
-function setSearchFilter(filterType) {
-  activeFilter = filterType;
+function updateStats() {
+  document.getElementById('totalBillsCount').textContent = allBills.length;
   
-  document.getElementById('pill-name').classList.remove('active');
-  document.getElementById('pill-phone').classList.remove('active');
-  document.getElementById('pill-inv').classList.remove('active');
+  let rev = 0;
+  allBills.forEach(b => rev += parseFloat(b.grandTotal) || 0);
+  document.getElementById('totalRevenue').textContent = `₹ ${rev.toFixed(2)}`;
 
-  const input = document.getElementById('searchInput');
-
-  if (filterType === 'name') {
-    document.getElementById('pill-name').classList.add('active');
-    input.placeholder = 'Search by customer name...';
-  } else if (filterType === 'phone') {
-    document.getElementById('pill-phone').classList.add('active');
-    input.placeholder = 'Search by phone number...';
-  } else if (filterType === 'inv') {
-    document.getElementById('pill-inv').classList.add('active');
-    input.placeholder = 'Search by invoice/bill number...';
-  }
-
-  filterBills();
+  document.getElementById('latestBillNo').textContent = allBills.length > 0 ? (allBills[0].billNo || '#1') : '-';
 }
 
-function resetSearch() {
-  document.getElementById('searchInput').value = '';
-  setSearchFilter('name');
-  renderTable(allBills);
-}
-
-function filterBills() {
-  const query = document.getElementById('searchInput').value.trim().toLowerCase();
+function setViewMode(mode) {
+  currentViewMode = mode;
   
-  if (!query) {
-    renderTable(allBills);
-    return;
+  document.querySelectorAll('.view-btn').forEach(btn => btn.classList.remove('active'));
+  
+  const searchInput = document.getElementById('searchInput');
+
+  if (mode === 'cust') {
+    document.getElementById('btnByCust').classList.add('active');
+    searchInput.placeholder = 'Search by customer name...';
+  } else if (mode === 'phone') {
+    document.getElementById('btnByPhone').classList.add('active');
+    searchInput.placeholder = 'Search by phone number...';
+  } else if (mode === 'chalan') {
+    document.getElementById('btnByChalan').classList.add('active');
+    searchInput.placeholder = 'Search by invoice / chalan no...';
+  } else if (mode === 'summary') {
+    document.getElementById('btnSummary').classList.add('active');
+    searchInput.placeholder = 'Filter summary register by party name or chalan no...';
   }
 
-  const filtered = allBills.filter(b => {
-    if (activeFilter === 'name') {
-      return (b.custName || '').toLowerCase().includes(query);
-    } else if (activeFilter === 'phone') {
-      return (b.custPhone || '').toLowerCase().includes(query);
-    } else if (activeFilter === 'inv') {
-      return (b.billNo || '').toLowerCase().includes(query);
+  renderTable();
+}
+
+function renderTable() {
+  const q = document.getElementById('searchInput').value.toLowerCase().trim();
+  const thead = document.getElementById('tableHead');
+  const tbody = document.getElementById('tableBody');
+  const table = document.getElementById('billsTable');
+
+  let filtered = allBills.filter(b => {
+    if (!q) return true;
+    if (currentViewMode === 'cust') return (b.custName || '').toLowerCase().includes(q);
+    if (currentViewMode === 'phone') return (b.custPhone || '').includes(q);
+    if (currentViewMode === 'chalan') return (b.billNo || '').toLowerCase().includes(q);
+    if (currentViewMode === 'summary') {
+      return (b.custName || '').toLowerCase().includes(q) || 
+             (b.billNo || '').toLowerCase().includes(q) ||
+             (b.officialBillNo || '').toLowerCase().includes(q);
     }
     return true;
   });
 
-  renderTable(filtered);
-}
+  tbody.innerHTML = '';
 
-function renderTable(bills) {
-  const tbody = document.getElementById('billsTableBody');
-  
-  if (!bills || bills.length === 0) {
-    tbody.innerHTML = `
+  // 📖 SUMMARY BILL HISTORY REGISTER VIEW (Matching notebook reference)
+  if (currentViewMode === 'summary') {
+    table.className = 'data-table summary-table';
+    thead.innerHTML = `
       <tr>
-        <td colspan="6" class="no-data">No bills found.</td>
-      </tr>`;
-    return;
-  }
+        <th style="width:130px;">Date</th>
+        <th style="width:130px;">Chalan No.</th>
+        <th>Party Name</th>
+        <th style="width:200px;">Bill No. (Editable)</th>
+        <th style="width:100px; text-align:center;">Action</th>
+      </tr>
+    `;
 
-  tbody.innerHTML = bills.map(b => `
-    <tr>
-      <td><strong>${b.billNo || '#Draft'}</strong></td>
-      <td>${b.date || '-'}</td>
-      <td><strong>${b.custName || 'Cash Customer'}</strong></td>
-      <td>${b.custPhone || '-'}</td>
-      <td>
-        <strong>₹ ${parseFloat(b.grandTotal || 0).toFixed(2)}</strong>
-        ${b.isGstApplied ? '<span class="badge-gst">GST</span>' : ''}
-      </td>
-      <td style="text-align:right;">
-        <button class="btn-action btn-edit" onclick="editBill('${b._id}')">✏️ View / Edit</button>
-        <button class="btn-action btn-delete" onclick="deleteBill('${b._id}')">🗑️ Delete</button>
-      </td>
-    </tr>
-  `).join('');
+    if (filtered.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#94a3b8; padding:24px;">No summary bills found. Create a bill on the main page to populate rows automatically.</td></tr>`;
+      return;
+    }
+
+    filtered.forEach(b => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td style="font-weight:600; color:#334155;">${b.date || formatDate(b.createdAt)}</td>
+        <td style="font-weight:700; color:#0f2847;">${b.billNo || '-'}</td>
+        <td style="font-weight:600;">${b.custName || 'Cash Customer'}</td>
+        <td>
+          <input type="text" class="editable-bill-input" value="${b.officialBillNo || ''}" 
+                 placeholder="Enter Bill No." 
+                 onchange="updateOfficialBillNo('${b._id}', this.value, this)">
+          <span class="saved-indicator" id="ind-${b._id}">✓ Saved</span>
+        </td>
+        <td style="text-align:center;">
+          <a href="index.html?id=${b._id}" class="action-link">Edit / View</a>
+          <button class="btn-del" onclick="deleteBill('${b._id}')">✕</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+  } else {
+    // STANDARD DETAILED BILL VIEW
+    table.className = 'data-table';
+    thead.innerHTML = `
+      <tr>
+        <th>Chalan / Invoice No.</th>
+        <th>Date</th>
+        <th>Customer Name</th>
+        <th>Phone</th>
+        <th style="text-align:right;">Amount (₹)</th>
+        <th style="text-align:center;">Actions</th>
+      </tr>
+    `;
+
+    if (filtered.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#94a3b8; padding:24px;">No bills found.</td></tr>`;
+      return;
+    }
+
+    filtered.forEach(b => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td style="font-weight:700; color:#0f2847;">${b.billNo || '-'}</td>
+        <td>${b.date || formatDate(b.createdAt)}</td>
+        <td style="font-weight:600;">${b.custName || 'Cash Customer'}</td>
+        <td>${b.custPhone || '-'}</td>
+        <td style="text-align:right; font-weight:700;">₹ ${parseFloat(b.grandTotal || 0).toFixed(2)}</td>
+        <td style="text-align:center;">
+          <a href="index.html?id=${b._id}" class="action-link">Edit / Print</a>
+          <button class="btn-del" onclick="deleteBill('${b._id}')">Delete</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
 }
 
-function editBill(id) {
-  window.location.href = `index.html?id=${id}`;
+// INLINE UPDATE EDITABLE BILL NO.
+async function updateOfficialBillNo(billId, newBillNo, inputEl) {
+  try {
+    const res = await fetch(`/api/bills/${billId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ officialBillNo: newBillNo })
+    });
+
+    if (res.ok) {
+      const targetBill = allBills.find(b => b._id === billId);
+      if (targetBill) targetBill.officialBillNo = newBillNo;
+
+      const ind = document.getElementById(`ind-${billId}`);
+      if (ind) {
+        ind.classList.add('show');
+        setTimeout(() => ind.classList.remove('show'), 2000);
+      }
+    } else {
+      alert('Failed to update Bill No.');
+    }
+  } catch (err) {
+    console.error('Update error:', err);
+    alert('Failed to connect to server.');
+  }
 }
 
 async function deleteBill(id) {
-  if (confirm('Are you sure you want to delete this bill? This action cannot be undone.')) {
+  if (confirm('Are you sure you want to delete this bill?')) {
     try {
       const res = await fetch(`/api/bills/${id}`, { method: 'DELETE' });
       if (res.ok) {
-        fetchBills();
-      } else {
-        alert('Failed to delete bill.');
+        allBills = allBills.filter(b => b._id !== id);
+        updateStats();
+        renderTable();
       }
     } catch (err) {
-      console.error('Delete error:', err);
-      alert('Error connecting to server.');
+      alert('Failed to delete bill.');
     }
   }
+}
+
+function formatDate(isoStr) {
+  if (!isoStr) return '-';
+  const d = new Date(isoStr);
+  return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
 }
 </script>
 </body>
