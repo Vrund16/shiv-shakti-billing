@@ -12,17 +12,20 @@ app.use(cors());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(__dirname));
 
-// Connect MongoDB
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/shiv_shakti_tiles';
-mongoose.connect(MONGO_URI)
-  .then(() => console.log('MongoDB Connected Successfully'))
-  .catch(err => console.error('MongoDB Connection Error:', err));
+// Supports MONGO_URI or MONGODB_URI automatically
+const MONGO_URI = process.env.MONGO_URI || process.env.MONGODB_URI || 'mongodb://localhost:27017/shiv_shakti_tiles';
 
-// Flexible Schema (strict: false guarantees no validation rejection)
+console.log('Attempting MongoDB connection...');
+
+mongoose.connect(MONGO_URI)
+  .then(() => console.log('✅ MongoDB Connected Successfully'))
+  .catch(err => console.error('❌ MongoDB Connection Error:', err.message));
+
+// Flexible Schema
 const billSchema = new mongoose.Schema({}, { strict: false, timestamps: true });
 const Bill = mongoose.model('Bill', billSchema);
 
-// HTML Fallback Routes
+// HTML Fallback Route
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
@@ -51,9 +54,11 @@ app.get('/api/bills/:id', async (req, res) => {
 // POST save new bill
 app.post('/api/bills', async (req, res) => {
   try {
-    // Check if Mongo is connected
+    // 0 = disconnected, 1 = connected, 2 = connecting, 3 = disconnecting
     if (mongoose.connection.readyState !== 1) {
-      return res.status(500).json({ error: 'Database not connected. Please check MONGO_URI.' });
+      return res.status(500).json({ 
+        error: `Database connection state is ${mongoose.connection.readyState} (Not Connected). Check password/URL on Render.` 
+      });
     }
     const newBill = new Bill(req.body);
     const saved = await newBill.save();
