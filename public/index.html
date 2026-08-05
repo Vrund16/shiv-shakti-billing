@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
 <script>
-  // Instant Auth Guard: Forces redirect to login.html before rendering page
   if (sessionStorage.getItem('isLoggedIn') !== 'true') {
     window.location.replace('login.html');
   }
@@ -119,12 +118,21 @@ input[type="number"] { -moz-appearance: textfield; }
   box-shadow:0 4px 12px rgba(0,0,0,.15);display:none;z-index:9999;}
 .toast.show{display:block;}
 
+/* ── PRINT STYLES ── */
+@page {
+  margin: 0; /* Removes browser default header (Date/Title) and footer (URL/Page Numbers) */
+}
+
 @media print {
-  body{background:#fff;padding:0;}
+  body{background:#fff;padding:0;margin:0;}
   .topnav, .toolbar-card, .add-row-btn, .del-row-btn, .gst-toggle-btn, .toast{display:none !important;}
   .page{max-width:100%;padding:0;margin:0;}
-  .challan-box{border:none;box-shadow:none;padding:5mm;}
+  .challan-box{border:none;box-shadow:none;padding:12mm 15mm !important;}
   .clean-input{border-bottom:none !important;}
+  /* Hide placeholders when printing unfilled inputs */
+  input::placeholder {
+    color: transparent !important;
+  }
 }
 </style>
 </head>
@@ -165,7 +173,6 @@ input[type="number"] { -moz-appearance: textfield; }
   </div>
 
   <div class="challan-box" id="challan-sheet">
-    <!-- Top Right Company Contacts Header -->
     <div class="contacts">
       <div class="phone-no">M.: 94280 73316</div>
       <div class="phone-no">M.: 98240 49919</div>
@@ -181,7 +188,7 @@ input[type="number"] { -moz-appearance: textfield; }
     <div class="meta-row">
       <div class="field-group">
         <span class="field-label">No. :</span>
-        <input type="text" id="billNo" class="clean-input" placeholder="Chalan / Bill No" style="width:140px; font-weight:700;">
+        <input type="text" id="billNo" class="clean-input" style="width:140px; font-weight:700;">
       </div>
       <div class="field-group">
         <span class="field-label">તા. :</span>
@@ -189,27 +196,26 @@ input[type="number"] { -moz-appearance: textfield; }
       </div>
     </div>
 
-    <!-- Customer Details Section -->
     <div class="cust-info-box">
       <div class="cust-row">
         <span class="cust-label">માલ લેનારનું નામ :</span>
-        <input type="text" id="custName" class="clean-input" placeholder="Customer full name" style="flex:1;">
+        <input type="text" id="custName" class="clean-input" style="flex:1;">
       </div>
       <div class="cust-row">
         <span class="cust-label">ફોન નંબર :</span>
-        <input type="text" id="custPhone" class="clean-input" placeholder="Customer phone number" style="flex:1;">
+        <input type="text" id="custPhone" class="clean-input" style="flex:1;">
       </div>
       <div class="cust-row">
         <span class="cust-label">ઈમેઈલ આઈડી :</span>
-        <input type="email" id="custEmail" class="clean-input" placeholder="Customer email ID" style="flex:1;">
+        <input type="email" id="custEmail" class="clean-input" style="flex:1;">
       </div>
       <div class="cust-row">
         <span class="cust-label">ઠા. (સરનામું) :</span>
-        <input type="text" id="custAddress" class="clean-input" placeholder="Customer address" style="flex:1;">
+        <input type="text" id="custAddress" class="clean-input" style="flex:1;">
       </div>
       <div class="cust-row">
         <span class="cust-label">જી.એસ.ટી. નં. :</span>
-        <input type="text" id="custGst" class="clean-input" placeholder="Customer GSTIN (Optional)" style="flex:1; text-transform:uppercase;">
+        <input type="text" id="custGst" class="clean-input" style="flex:1; text-transform:uppercase;">
       </div>
     </div>
 
@@ -299,14 +305,17 @@ function renderTable() {
     const qtyNum = parseFloat(item.qty) || 0;
     const rateNum = parseFloat(item.rate) || 0;
     const amt = qtyNum * rateNum;
+    
+    // Display blank instead of 0 or 0.00 if the row hasn't been filled
+    const amtDisplay = (qtyNum > 0 || rateNum > 0) ? amt.toFixed(2) : '';
 
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td style="text-align:center; font-weight:600; color:#64748b; font-size:11px;">${index + 1}</td>
-      <td><input type="text" class="clean-input" value="${item.desc || ''}" oninput="updateItem(${index}, 'desc', this.value)" placeholder="item description" style="width:100%; font-size:11.5px;"></td>
-      <td><input type="number" class="clean-input" value="${item.qty || ''}" oninput="updateItem(${index}, 'qty', this.value)" placeholder="0" style="width:100%; text-align:center; font-size:11.5px;"></td>
-      <td><input type="number" class="clean-input" value="${item.rate || ''}" oninput="updateItem(${index}, 'rate', this.value)" placeholder="0.00" style="width:100%; text-align:right; font-size:11.5px;"></td>
-      <td style="text-align:right; font-weight:600; font-size:11.5px; color:#1e293b;" id="amt-${index}">${amt > 0 ? amt.toFixed(2) : '0.00'}</td>
+      <td><input type="text" class="clean-input" value="${item.desc || ''}" oninput="updateItem(${index}, 'desc', this.value)" style="width:100%; font-size:11.5px;"></td>
+      <td><input type="number" class="clean-input" value="${item.qty || ''}" oninput="updateItem(${index}, 'qty', this.value)" style="width:100%; text-align:center; font-size:11.5px;"></td>
+      <td><input type="number" class="clean-input" value="${item.rate || ''}" oninput="updateItem(${index}, 'rate', this.value)" style="width:100%; text-align:right; font-size:11.5px;"></td>
+      <td style="text-align:right; font-weight:600; font-size:11.5px; color:#1e293b;" id="amt-${index}">${amtDisplay}</td>
       <td style="text-align:center;"><button class="del-row-btn" onclick="removeRow(${index})" title="Remove row">&times;</button></td>
     `;
     tbody.appendChild(tr);
@@ -323,7 +332,7 @@ function updateItem(index, field, val) {
 
   const amtEl = document.getElementById(`amt-${index}`);
   if (amtEl) {
-    amtEl.textContent = lineAmt > 0 ? lineAmt.toFixed(2) : '0.00';
+    amtEl.textContent = (qty > 0 || rate > 0) ? lineAmt.toFixed(2) : '';
   }
   calculateTotal();
 }
@@ -454,8 +463,8 @@ async function saveBill() {
     .filter(i => (i.desc && i.desc.trim() !== '') || (parseFloat(i.qty) > 0))
     .map(i => ({
       desc: (i.desc || '').trim(),
-      qty: i.qty ? String(i.qty) : '0',
-      rate: i.rate ? String(i.rate) : '0'
+      qty: i.qty ? String(i.qty) : '',
+      rate: i.rate ? String(i.rate) : ''
     }));
   
   items.forEach(i => {
