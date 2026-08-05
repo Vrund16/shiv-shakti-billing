@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
 const app = express();
+
 app.use(express.json());
 app.use(cors());
 
@@ -21,10 +22,11 @@ mongoose.connect(MONGO_URI)
 const billSchema = new mongoose.Schema({}, { strict: false, timestamps: true });
 const Bill = mongoose.model('Bill', billSchema);
 
-// HTML Fallback Route - Points to login page by default
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'login.html'));
-});
+// Explicit HTML Page Routes
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'login.html')));
+app.get('/login', (req, res) => res.sendFile(path.join(__dirname, 'login.html')));
+app.get('/index', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
+app.get('/history', (req, res) => res.sendFile(path.join(__dirname, 'history.html')));
 
 // GET all bills
 app.get('/api/bills', async (req, res) => {
