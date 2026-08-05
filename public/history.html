@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
 <script>
-  if (localStorage.getItem('isLoggedIn') !== 'true') {
+  // Instant Auth Guard: Forces redirect to login.html before rendering page
+  if (sessionStorage.getItem('isLoggedIn') !== 'true') {
     window.location.replace('login.html');
   }
 </script>
@@ -13,6 +14,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Inter',Arial,sans-serif;background:#f1f5f9;min-height:100vh;color:#0f172a;}
+
 /* NAVBAR */
 .topnav{background:#0f2847;padding:0 24px;height:60px;display:flex;align-items:center;
   justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.15);}
@@ -33,13 +35,16 @@ body{font-family:'Inter',Arial,sans-serif;background:#f1f5f9;min-height:100vh;co
   display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;}
 .btn-logout{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);
   color:#fff;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;transition:all .15s;}
+
 .page{padding:24px;max-width:1050px;margin:0 auto;}
+
 /* STATS METRICS */
 .stats-grid{display:grid;grid-template-columns:repeat(3, 1fr);gap:16px;margin-bottom:20px;}
 .stat-card{background:#fff;border-radius:10px;padding:18px;border:1px solid #e2e8f0;
   box-shadow:0 1px 3px rgba(0,0,0,.04);}
 .stat-label{font-size:11px;font-weight:700;color:#64748b;letter-spacing:.8px;text-transform:uppercase;margin-bottom:6px;}
 .stat-val{font-size:22px;font-weight:800;color:#0f2847;}
+
 /* FILTER TABS */
 .filter-card{background:#fff;border-radius:12px;padding:18px 20px;margin-bottom:20px;
   border:1px solid #e2e8f0;box-shadow:0 1px 3px rgba(0,0,0,.04);}
@@ -50,12 +55,14 @@ body{font-family:'Inter',Arial,sans-serif;background:#f1f5f9;min-height:100vh;co
 .view-btn:hover{background:#f8fafc;}
 .view-btn.active{background:#1a3a5c;color:#fff;border-color:#1a3a5c;}
 .view-btn.btn-summary.active{background:#0284c7;border-color:#0284c7;color:#fff;}
+
 .search-bar-row{display:flex;gap:12px;}
 .search-input{flex:1;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:8px;
   font-size:13.5px;outline:none;transition:all .15s;}
 .search-input:focus{border-color:#1a3a5c;}
 .btn-new-bill{background:#0f2847;color:#fff;padding:10px 18px;border-radius:8px;
   font-weight:700;font-size:13px;text-decoration:none;display:inline-flex;align-items:center;gap:6px;}
+
 /* DATA TABLE */
 .table-card{background:#fff;border-radius:12px;border:1px solid #cbd5e1;overflow:hidden;
   box-shadow:0 4px 12px rgba(0,0,0,.03);}
@@ -63,7 +70,8 @@ body{font-family:'Inter',Arial,sans-serif;background:#f1f5f9;min-height:100vh;co
 .data-table th{background:#0f2847;color:#fff;padding:12px 14px;font-size:12.5px;font-weight:700;text-align:left;}
 .data-table td{padding:10px 14px;border-bottom:1px solid #e2e8f0;font-size:13px;color:#0f172a;vertical-align:middle;}
 .data-table tr:hover td{background:#f8fafc;}
-/* SUMMARY REGISTER SPECIFIC STYLING (Notebook Reference) */
+
+/* SUMMARY REGISTER SPECIFIC STYLING */
 .summary-table th{background:#1e293b;color:#f8fafc;border-right:1px solid #334155;}
 .summary-table td{border-right:1px solid #e2e8f0;}
 .editable-bill-input{padding:6px 10px;border:1.5px solid #cbd5e1;border-radius:6px;
@@ -71,9 +79,11 @@ body{font-family:'Inter',Arial,sans-serif;background:#f1f5f9;min-height:100vh;co
 .editable-bill-input:focus{border-color:#0284c7;background:#fff;box-shadow:0 0 0 3px rgba(2,132,199,.15);}
 .saved-indicator{font-size:11px;color:#16a34a;font-weight:600;margin-left:6px;opacity:0;transition:opacity .2s;}
 .saved-indicator.show{opacity:1;}
+
 .action-link{color:#0284c7;font-weight:600;text-decoration:none;margin-right:10px;}
 .action-link:hover{text-decoration:underline;}
 .btn-del{color:#ef4444;background:none;border:none;cursor:pointer;font-weight:600;}
+
 .toast{position:fixed;bottom:24px;right:24px;background:#0f2847;color:#fff;
   padding:12px 20px;border-radius:8px;font-size:13px;font-weight:600;
   box-shadow:0 10px 20px rgba(0,0,0,.15);display:none;z-index:9999;}
@@ -81,6 +91,7 @@ body{font-family:'Inter',Arial,sans-serif;background:#f1f5f9;min-height:100vh;co
 </style>
 </head>
 <body>
+
 <nav class="topnav">
   <div class="nav-brand">
     <div class="nav-logo">
@@ -102,6 +113,7 @@ body{font-family:'Inter',Arial,sans-serif;background:#f1f5f9;min-height:100vh;co
     <button class="btn-logout" onclick="logout()">Sign Out</button>
   </div>
 </nav>
+
 <div class="page">
   <!-- STATS -->
   <div class="stats-grid">
@@ -118,36 +130,41 @@ body{font-family:'Inter',Arial,sans-serif;background:#f1f5f9;min-height:100vh;co
       <div class="stat-val" id="latestBillNo">-</div>
     </div>
   </div>
+
   <!-- FILTERS & TABS -->
   <div class="filter-card">
     <div class="tab-row">
       <span class="tab-label">Search / View by:</span>
-      <button class="view-btn active" id="btnByCust" onclick="setViewMode('cust')">👤 Customer Name</button>
+      <button class="view-btn" id="btnByCust" onclick="setViewMode('cust')">👤 Customer Name</button>
       <button class="view-btn" id="btnByPhone" onclick="setViewMode('phone')">📞 Phone Number</button>
       <button class="view-btn" id="btnByChalan" onclick="setViewMode('chalan')">📄 Invoice No.</button>
-      <button class="view-btn btn-summary" id="btnSummary" onclick="setViewMode('summary')">📖 Summary Bill History</button>
+      <button class="view-btn btn-summary active" id="btnSummary" onclick="setViewMode('summary')">📖 Summary Bill History</button>
     </div>
+
     <div class="search-bar-row">
-      <input type="text" id="searchInput" class="search-input" placeholder="Search by customer name..." oninput="renderTable()">
+      <input type="text" id="searchInput" class="search-input" placeholder="Search summary history..." oninput="renderTable()">
       <a href="index.html" class="btn-new-bill">+ New Bill</a>
     </div>
   </div>
+
   <!-- TABLE CONTAINER -->
   <div class="table-card">
-    <table class="data-table" id="billsTable">
+    <table class="data-table summary-table" id="billsTable">
       <thead id="tableHead"></thead>
       <tbody id="tableBody"></tbody>
     </table>
   </div>
 </div>
+
 <div class="toast" id="toast">Saved!</div>
+
 <script>
 let allBills = [];
 let currentViewMode = 'summary';
 
 function logout() {
+  sessionStorage.removeItem('isLoggedIn');
   localStorage.removeItem('isLoggedIn');
-  localStorage.removeItem('user');
   window.location.replace('login.html');
 }
 
@@ -156,10 +173,11 @@ window.addEventListener('DOMContentLoaded', fetchBills);
 async function fetchBills() {
   try {
     const res = await fetch('/api/bills');
-    if (!res.ok) throw new Error('Failed to fetch');
+    if (!res.ok) throw new Error('Failed to fetch bills');
     allBills = await res.json();
     
     allBills.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+
     updateStats();
     renderTable();
   } catch (err) {
@@ -173,6 +191,7 @@ function updateStats() {
   let rev = 0;
   allBills.forEach(b => rev += parseFloat(b.grandTotal) || 0);
   document.getElementById('totalRevenue').textContent = `₹ ${rev.toFixed(2)}`;
+
   document.getElementById('latestBillNo').textContent = allBills.length > 0 ? (allBills[0].billNo || '#1') : '-';
 }
 
@@ -180,8 +199,8 @@ function setViewMode(mode) {
   currentViewMode = mode;
   
   document.querySelectorAll('.view-btn').forEach(btn => btn.classList.remove('active'));
-  
   const searchInput = document.getElementById('searchInput');
+
   if (mode === 'cust') {
     document.getElementById('btnByCust').classList.add('active');
     searchInput.placeholder = 'Search by customer name...';
@@ -190,144 +209,154 @@ function setViewMode(mode) {
     searchInput.placeholder = 'Search by phone number...';
   } else if (mode === 'chalan') {
     document.getElementById('btnByChalan').classList.add('active');
-    searchInput.placeholder = 'Search by invoice / chalan no...';
+    searchInput.placeholder = 'Search by Chalan / Invoice number...';
   } else if (mode === 'summary') {
     document.getElementById('btnSummary').classList.add('active');
-    searchInput.placeholder = 'Filter summary register by party name or chalan no...';
+    searchInput.placeholder = 'Search summary history...';
   }
+  
   renderTable();
 }
 
 function renderTable() {
-  const q = document.getElementById('searchInput').value.toLowerCase().trim();
+  const query = document.getElementById('searchInput').value.toLowerCase().trim();
   const thead = document.getElementById('tableHead');
   const tbody = document.getElementById('tableBody');
-  const table = document.getElementById('billsTable');
-  let filtered = allBills.filter(b => {
-    if (!q) return true;
-    if (currentViewMode === 'cust') return (b.custName || '').toLowerCase().includes(q);
-    if (currentViewMode === 'phone') return (b.custPhone || '').includes(q);
-    if (currentViewMode === 'chalan') return (b.billNo || '').toLowerCase().includes(q);
-    if (currentViewMode === 'summary') {
-      return (b.custName || '').toLowerCase().includes(q) || 
-             (b.billNo || '').toLowerCase().includes(q) ||
-             (b.officialBillNo || '').toLowerCase().includes(q);
-    }
-    return true;
+
+  const filtered = allBills.filter(b => {
+    if (!query) return true;
+    if (currentViewMode === 'cust') return (b.custName || '').toLowerCase().includes(query);
+    if (currentViewMode === 'phone') return (b.custPhone || '').toLowerCase().includes(query);
+    if (currentViewMode === 'chalan') return (b.billNo || '').toLowerCase().includes(query) || (b.officialBillNo || '').toLowerCase().includes(query);
+    
+    return (
+      (b.custName || '').toLowerCase().includes(query) ||
+      (b.custPhone || '').toLowerCase().includes(query) ||
+      (b.billNo || '').toLowerCase().includes(query) ||
+      (b.officialBillNo || '').toLowerCase().includes(query)
+    );
   });
-  tbody.innerHTML = '';
 
   if (currentViewMode === 'summary') {
-    table.className = 'data-table summary-table';
+    document.getElementById('billsTable').className = 'data-table summary-table';
     thead.innerHTML = `
       <tr>
-        <th style="width:130px;">Date</th>
-        <th style="width:130px;">Chalan No.</th>
-        <th>Party Name</th>
-        <th style="width:200px;">Bill No. (Editable)</th>
-        <th style="width:100px; text-align:center;">Action</th>
-      </tr>
-    `;
-    if (filtered.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#94a3b8; padding:24px;">No summary bills found. Create a bill on the main page to populate rows automatically.</td></tr>`;
-      return;
-    }
-    filtered.forEach(b => {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td style="font-weight:600; color:#334155;">${b.date || formatDate(b.createdAt)}</td>
-        <td style="font-weight:700; color:#0f2847;">${b.billNo || '-'}</td>
-        <td style="font-weight:600;">${b.custName || 'Cash Customer'}</td>
-        <td>
-          <input type="text" class="editable-bill-input" value="${b.officialBillNo || ''}" 
-                 placeholder="Enter Bill No." 
-                 onchange="updateOfficialBillNo('${b._id}', this.value, this)">
-          <span class="saved-indicator" id="ind-${b._id}">✓ Saved</span>
-        </td>
-        <td style="text-align:center;">
-          <a href="index.html?id=${b._id}" class="action-link">Edit / View</a>
-          <button class="btn-del" onclick="deleteBill('${b._id}')">✕</button>
-        </td>
-      `;
-      tbody.appendChild(tr);
-    });
-  } else {
-    table.className = 'data-table';
-    thead.innerHTML = `
-      <tr>
-        <th>Chalan / Invoice No.</th>
+        <th style="width: 110px;">Chalan No</th>
+        <th style="width: 140px;">Official Bill No</th>
         <th>Date</th>
         <th>Customer Name</th>
         <th>Phone</th>
-        <th style="text-align:right;">Amount (₹)</th>
-        <th style="text-align:center;">Actions</th>
+        <th style="text-align: right;">Total Amount</th>
+        <th style="text-align: center; width: 140px;">Actions</th>
       </tr>
     `;
+
     if (filtered.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#94a3b8; padding:24px;">No bills found.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: #64748b; padding: 24px;">No matching records found.</td></tr>`;
       return;
     }
-    filtered.forEach(b => {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td style="font-weight:700; color:#0f2847;">${b.billNo || '-'}</td>
-        <td>${b.date || formatDate(b.createdAt)}</td>
-        <td style="font-weight:600;">${b.custName || 'Cash Customer'}</td>
-        <td>${b.custPhone || '-'}</td>
-        <td style="text-align:right; font-weight:700;">₹ ${parseFloat(b.grandTotal || 0).toFixed(2)}</td>
-        <td style="text-align:center;">
-          <a href="index.html?id=${b._id}" class="action-link">Edit / Print</a>
-          <button class="btn-del" onclick="deleteBill('${b._id}')">Delete</button>
+
+    tbody.innerHTML = filtered.map(b => `
+      <tr>
+        <td><strong>${b.billNo || '-'}</strong></td>
+        <td>
+          <div style="display: flex; align-items: center;">
+            <input type="text" class="editable-bill-input" value="${b.officialBillNo || ''}" 
+              placeholder="Bill No" onchange="updateOfficialBillNo('${b._id}', this.value, this)">
+            <span class="saved-indicator">✓</span>
+          </div>
         </td>
-      `;
-      tbody.appendChild(tr);
-    });
+        <td>${b.date || '-'}</td>
+        <td><strong>${b.custName || 'Cash Customer'}</strong></td>
+        <td>${b.custPhone || '-'}</td>
+        <td style="text-align: right; font-weight: 700; color: #0f2847;">₹ ${parseFloat(b.grandTotal || 0).toFixed(2)}</td>
+        <td style="text-align: center;">
+          <a href="index.html?id=${b._id}" class="action-link">✏️ Edit</a>
+          <button class="btn-del" onclick="deleteBill('${b._id}')">🗑️ Delete</button>
+        </td>
+      </tr>
+    `).join('');
+
+  } else {
+    document.getElementById('billsTable').className = 'data-table';
+    thead.innerHTML = `
+      <tr>
+        <th>Chalan No</th>
+        <th>Date</th>
+        <th>Customer Name</th>
+        <th>Phone</th>
+        <th style="text-align: right;">Total Amount</th>
+        <th style="text-align: center;">Actions</th>
+      </tr>
+    `;
+
+    if (filtered.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #64748b; padding: 24px;">No matching records found.</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = filtered.map(b => `
+      <tr>
+        <td><strong>${b.billNo || '-'}</strong></td>
+        <td>${b.date || '-'}</td>
+        <td><strong>${b.custName || 'Cash Customer'}</strong></td>
+        <td>${b.custPhone || '-'}</td>
+        <td style="text-align: right; font-weight: 700; color: #0f2847;">₹ ${parseFloat(b.grandTotal || 0).toFixed(2)}</td>
+        <td style="text-align: center;">
+          <a href="index.html?id=${b._id}" class="action-link">✏️ Edit / Print</a>
+          <button class="btn-del" onclick="deleteBill('${b._id}')">🗑️ Delete</button>
+        </td>
+      </tr>
+    `).join('');
   }
 }
 
-async function updateOfficialBillNo(billId, newBillNo, inputEl) {
+async function updateOfficialBillNo(id, value, inputElem) {
   try {
-    const res = await fetch(`/api/bills/${billId}`, {
+    const res = await fetch(`/api/bills/${id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ officialBillNo: newBillNo })
+      body: JSON.stringify({ officialBillNo: value })
     });
     if (res.ok) {
-      const targetBill = allBills.find(b => b._id === billId);
-      if (targetBill) targetBill.officialBillNo = newBillNo;
-      const ind = document.getElementById(`ind-${billId}`);
-      if (ind) {
-        ind.classList.add('show');
-        setTimeout(() => ind.classList.remove('show'), 2000);
+      const indicator = inputElem.nextElementSibling;
+      if (indicator) {
+        indicator.classList.add('show');
+        setTimeout(() => indicator.classList.remove('show'), 1500);
       }
+      showToast('Official Bill No updated!');
     } else {
-      alert('Failed to update Bill No.');
+      alert('Failed to update official bill number.');
     }
   } catch (err) {
-    console.error('Update error:', err);
-    alert('Failed to connect to server.');
+    console.error(err);
+    alert('Server connection error.');
   }
 }
 
 async function deleteBill(id) {
-  if (confirm('Are you sure you want to delete this bill?')) {
-    try {
-      const res = await fetch(`/api/bills/${id}`, { method: 'DELETE' });
-      if (res.ok) {
-        allBills = allBills.filter(b => b._id !== id);
-        updateStats();
-        renderTable();
-      }
-    } catch (err) {
+  if (!confirm('Are you sure you want to delete this bill? This cannot be undone.')) return;
+  try {
+    const res = await fetch(`/api/bills/${id}`, { method: 'DELETE' });
+    if (res.ok) {
+      allBills = allBills.filter(b => b._id !== id);
+      updateStats();
+      renderTable();
+      showToast('Bill deleted successfully');
+    } else {
       alert('Failed to delete bill.');
     }
+  } catch (err) {
+    console.error(err);
+    alert('Server connection error.');
   }
 }
 
-function formatDate(isoStr) {
-  if (!isoStr) return '-';
-  const d = new Date(isoStr);
-  return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2500);
 }
 </script>
 </body>
