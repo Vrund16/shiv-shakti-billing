@@ -2,9 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
-
 const app = express();
-
 app.use(express.json());
 app.use(cors());
 
@@ -14,9 +12,7 @@ app.use(express.static(__dirname));
 
 // Supports MONGO_URI or MONGODB_URI automatically
 const MONGO_URI = process.env.MONGO_URI || process.env.MONGODB_URI || 'mongodb://localhost:27017/shiv_shakti_tiles';
-
 console.log('Attempting MongoDB connection...');
-
 mongoose.connect(MONGO_URI)
   .then(() => console.log('✅ MongoDB Connected Successfully'))
   .catch(err => console.error('❌ MongoDB Connection Error:', err.message));
@@ -25,9 +21,9 @@ mongoose.connect(MONGO_URI)
 const billSchema = new mongoose.Schema({}, { strict: false, timestamps: true });
 const Bill = mongoose.model('Bill', billSchema);
 
-// HTML Fallback Route
+// HTML Fallback Route - Points to login page by default
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
+  res.sendFile(path.join(__dirname, 'login.html'));
 });
 
 // GET all bills
@@ -54,7 +50,6 @@ app.get('/api/bills/:id', async (req, res) => {
 // POST save new bill
 app.post('/api/bills', async (req, res) => {
   try {
-    // 0 = disconnected, 1 = connected, 2 = connecting, 3 = disconnecting
     if (mongoose.connection.readyState !== 1) {
       return res.status(500).json({ 
         error: `Database connection state is ${mongoose.connection.readyState} (Not Connected). Check password/URL on Render.` 
