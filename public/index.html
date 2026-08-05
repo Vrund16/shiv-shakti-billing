@@ -1,15 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script>
+  if (localStorage.getItem('isLoggedIn') !== 'true') {
+    window.location.replace('login.html');
+  }
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Shiv Shakti Tiles – Billing</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Inter',Arial,sans-serif;background:#eef2f7;min-height:100vh;color:#111;}
-
 input[type="number"]::-webkit-outer-spin-button,
 input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 input[type="number"] { -moz-appearance: textfield; }
@@ -62,7 +65,11 @@ input[type="number"] { -moz-appearance: textfield; }
 .main-title{text-align:center;font-size:20px;font-weight:800;letter-spacing:.5px;color:#0f2847;}
 .guj-title{text-align:center;font-size:15px;font-weight:700;margin-bottom:4px;color:#1e293b;}
 .shop-addr{text-align:center;font-size:10.5px;color:#475569;margin-bottom:12px;}
-.contacts{position:absolute;right:28px;top:28px;text-align:right;font-size:11px;font-weight:700;color:#0f2847;line-height:1.4;}
+
+/* ── TOP RIGHT CONTACT HEADER ── */
+.contacts{position:absolute;right:28px;top:22px;text-align:right;color:#0f2847;line-height:1.35;}
+.contacts .phone-no{font-size:13.5px;font-weight:800;letter-spacing:0.2px;}
+.contacts .contact-meta{font-size:11px;font-weight:600;color:#334155;margin-top:2px;}
 
 .meta-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;
   border-top:1.5px solid #0f2847;border-bottom:1px solid #e2e8f0;margin-bottom:10px;}
@@ -140,7 +147,7 @@ input[type="number"] { -moz-appearance: textfield; }
   </div>
   <div class="nav-right">
     <div class="nav-user"><div class="user-avatar">A</div><span>Admin</span></div>
-    <button class="btn-logout" onclick="location.href='login.html'">Sign Out</button>
+    <button class="btn-logout" onclick="logout()">Sign Out</button>
   </div>
 </nav>
 
@@ -157,9 +164,12 @@ input[type="number"] { -moz-appearance: textfield; }
   </div>
 
   <div class="challan-box" id="challan-sheet">
+    <!-- Top Right Company Contacts Header -->
     <div class="contacts">
-      M.: 94280 73316<br>
-      M.: 98240 49919
+      <div class="phone-no">M.: 94280 73316</div>
+      <div class="phone-no">M.: 98240 49919</div>
+      <div class="contact-meta">Email: shivshaktitiles@gmail.com</div>
+      <div class="contact-meta">GSTIN: 24ACCFS8163L1ZR</div>
     </div>
 
     <div class="sub-title">Invoice / Delivery Memo</div>
@@ -178,6 +188,7 @@ input[type="number"] { -moz-appearance: textfield; }
       </div>
     </div>
 
+    <!-- Customer Details Section -->
     <div class="cust-info-box">
       <div class="cust-row">
         <span class="cust-label">માલ લેનારનું નામ :</span>
@@ -188,8 +199,16 @@ input[type="number"] { -moz-appearance: textfield; }
         <input type="text" id="custPhone" class="clean-input" placeholder="Customer phone number" style="flex:1;">
       </div>
       <div class="cust-row">
+        <span class="cust-label">ઈમેઈલ આઈડી :</span>
+        <input type="email" id="custEmail" class="clean-input" placeholder="Customer email ID" style="flex:1;">
+      </div>
+      <div class="cust-row">
         <span class="cust-label">ઠા. (સરનામું) :</span>
         <input type="text" id="custAddress" class="clean-input" placeholder="Customer address" style="flex:1;">
+      </div>
+      <div class="cust-row">
+        <span class="cust-label">જી.એસ.ટી. નં. :</span>
+        <input type="text" id="custGst" class="clean-input" placeholder="Customer GSTIN (Optional)" style="flex:1; text-transform:uppercase;">
       </div>
     </div>
 
@@ -232,7 +251,7 @@ input[type="number"] { -moz-appearance: textfield; }
         <div><strong>A/c Holder's Name :</strong> Shiv Shakti Tiles</div>
         <div><strong>Bank Name :</strong> Union Bank of India</div>
         <div><strong>A/c No. :</strong> 355101010110766</div>
-        <div><strong>Branch & IFS Code :</strong> Pratapnagar & UBIN0807346</div>
+        <div><strong>Branch &amp; IFS Code :</strong> Pratapnagar &amp; UBIN0807346</div>
       </div>
 
       <div class="signature-box">
@@ -250,6 +269,12 @@ let items = Array.from({ length: 10 }, () => ({ desc: '', qty: '', rate: '' }));
 let isGstApplied = false;
 let currentEditingId = null;
 let currentOfficialBillNo = '';
+
+function logout() {
+  localStorage.removeItem('isLoggedIn');
+  localStorage.removeItem('user');
+  window.location.replace('login.html');
+}
 
 function getTodayFormatted() {
   const d = new Date();
@@ -361,7 +386,9 @@ function clearForm() {
     document.getElementById('billDate').value = getTodayFormatted();
     document.getElementById('custName').value = '';
     document.getElementById('custPhone').value = '';
+    document.getElementById('custEmail').value = '';
     document.getElementById('custAddress').value = '';
+    document.getElementById('custGst').value = '';
     isGstApplied = false;
     const btn = document.getElementById('gstToggleBtn');
     btn.classList.remove('active');
@@ -389,7 +416,9 @@ async function checkEditState() {
       document.getElementById('billDate').value = b.date || getTodayFormatted();
       document.getElementById('custName').value = b.custName || '';
       document.getElementById('custPhone').value = b.custPhone || '';
+      document.getElementById('custEmail').value = b.custEmail || '';
       document.getElementById('custAddress').value = b.custAddress || '';
+      document.getElementById('custGst').value = b.custGst || '';
       
       if (b.items && b.items.length > 0) {
         items = b.items;
@@ -415,7 +444,9 @@ async function saveBill() {
   const date = document.getElementById('billDate').value.trim();
   const custName = document.getElementById('custName').value.trim() || 'Cash Customer';
   const custPhone = document.getElementById('custPhone').value.trim();
+  const custEmail = document.getElementById('custEmail').value.trim();
   const custAddress = document.getElementById('custAddress').value.trim();
+  const custGst = document.getElementById('custGst').value.toUpperCase().trim();
 
   let subtotal = 0;
   const validItems = items
@@ -439,7 +470,9 @@ async function saveBill() {
     date: date || getTodayFormatted(),
     custName,
     custPhone,
+    custEmail,
     custAddress,
+    custGst,
     items: validItems,
     isGstApplied,
     gstAmt: gstAmt.toFixed(2),
