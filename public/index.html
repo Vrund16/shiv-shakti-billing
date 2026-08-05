@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
 <script>
-  if (localStorage.getItem('isLoggedIn') !== 'true') {
+  // Instant Auth Guard: Forces redirect to login.html before rendering page
+  if (sessionStorage.getItem('isLoggedIn') !== 'true') {
     window.location.replace('login.html');
   }
 </script>
@@ -271,8 +272,8 @@ let currentEditingId = null;
 let currentOfficialBillNo = '';
 
 function logout() {
+  sessionStorage.removeItem('isLoggedIn');
   localStorage.removeItem('isLoggedIn');
-  localStorage.removeItem('user');
   window.location.replace('login.html');
 }
 
