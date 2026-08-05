@@ -69,7 +69,7 @@ input[type="number"] { -moz-appearance: textfield; }
 /* ── TOP RIGHT CONTACT HEADER ── */
 .contacts{position:absolute;right:28px;top:22px;text-align:right;color:#0f2847;line-height:1.35;}
 .contacts .phone-no{font-size:13.5px;font-weight:800;letter-spacing:0.2px;}
-.contacts .contact-meta{font-size:11px;font-weight:600;color:#334155;margin-top:2px;}
+.contacts .contact-meta{font-size:10.5px;font-weight:600;color:#334155;margin-top:2px;}
 
 .meta-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;
   border-top:1.5px solid #0f2847;border-bottom:1px solid #e2e8f0;margin-bottom:10px;}
@@ -120,7 +120,7 @@ input[type="number"] { -moz-appearance: textfield; }
 
 /* ── PRINT STYLES ── */
 @page {
-  margin: 0; /* Removes browser default header (Date/Title) and footer (URL/Page Numbers) */
+  margin: 0;
 }
 
 @media print {
@@ -129,7 +129,6 @@ input[type="number"] { -moz-appearance: textfield; }
   .page{max-width:100%;padding:0;margin:0;}
   .challan-box{border:none;box-shadow:none;padding:12mm 15mm !important;}
   .clean-input{border-bottom:none !important;}
-  /* Hide placeholders when printing unfilled inputs */
   input::placeholder {
     color: transparent !important;
   }
@@ -176,7 +175,8 @@ input[type="number"] { -moz-appearance: textfield; }
     <div class="contacts">
       <div class="phone-no">M.: 94280 73316</div>
       <div class="phone-no">M.: 98240 49919</div>
-      <div class="contact-meta">Email: shivshaktitiles@gmail.com</div>
+      <div class="contact-meta">Email: Sureshpatel@sungranites.in</div>
+      <div class="contact-meta">Email: Vishnupatel@sungranites.in</div>
       <div class="contact-meta">GSTIN: 24ACCFS8163L1ZR</div>
     </div>
 
@@ -306,7 +306,6 @@ function renderTable() {
     const rateNum = parseFloat(item.rate) || 0;
     const amt = qtyNum * rateNum;
     
-    // Display blank instead of 0 or 0.00 if the row hasn't been filled
     const amtDisplay = (qtyNum > 0 || rateNum > 0) ? amt.toFixed(2) : '';
 
     const tr = document.createElement('tr');
