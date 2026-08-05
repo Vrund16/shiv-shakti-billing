@@ -1,15 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script>
+  if (localStorage.getItem('isLoggedIn') !== 'true') {
+    window.location.replace('login.html');
+  }
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Shiv Shakti Tiles – Bill History</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Inter',Arial,sans-serif;background:#f1f5f9;min-height:100vh;color:#0f172a;}
-
 /* NAVBAR */
 .topnav{background:#0f2847;padding:0 24px;height:60px;display:flex;align-items:center;
   justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.15);}
@@ -30,16 +33,13 @@ body{font-family:'Inter',Arial,sans-serif;background:#f1f5f9;min-height:100vh;co
   display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;}
 .btn-logout{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);
   color:#fff;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;transition:all .15s;}
-
 .page{padding:24px;max-width:1050px;margin:0 auto;}
-
 /* STATS METRICS */
 .stats-grid{display:grid;grid-template-columns:repeat(3, 1fr);gap:16px;margin-bottom:20px;}
 .stat-card{background:#fff;border-radius:10px;padding:18px;border:1px solid #e2e8f0;
   box-shadow:0 1px 3px rgba(0,0,0,.04);}
 .stat-label{font-size:11px;font-weight:700;color:#64748b;letter-spacing:.8px;text-transform:uppercase;margin-bottom:6px;}
 .stat-val{font-size:22px;font-weight:800;color:#0f2847;}
-
 /* FILTER TABS */
 .filter-card{background:#fff;border-radius:12px;padding:18px 20px;margin-bottom:20px;
   border:1px solid #e2e8f0;box-shadow:0 1px 3px rgba(0,0,0,.04);}
@@ -50,14 +50,12 @@ body{font-family:'Inter',Arial,sans-serif;background:#f1f5f9;min-height:100vh;co
 .view-btn:hover{background:#f8fafc;}
 .view-btn.active{background:#1a3a5c;color:#fff;border-color:#1a3a5c;}
 .view-btn.btn-summary.active{background:#0284c7;border-color:#0284c7;color:#fff;}
-
 .search-bar-row{display:flex;gap:12px;}
 .search-input{flex:1;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:8px;
   font-size:13.5px;outline:none;transition:all .15s;}
 .search-input:focus{border-color:#1a3a5c;}
 .btn-new-bill{background:#0f2847;color:#fff;padding:10px 18px;border-radius:8px;
   font-weight:700;font-size:13px;text-decoration:none;display:inline-flex;align-items:center;gap:6px;}
-
 /* DATA TABLE */
 .table-card{background:#fff;border-radius:12px;border:1px solid #cbd5e1;overflow:hidden;
   box-shadow:0 4px 12px rgba(0,0,0,.03);}
@@ -65,7 +63,6 @@ body{font-family:'Inter',Arial,sans-serif;background:#f1f5f9;min-height:100vh;co
 .data-table th{background:#0f2847;color:#fff;padding:12px 14px;font-size:12.5px;font-weight:700;text-align:left;}
 .data-table td{padding:10px 14px;border-bottom:1px solid #e2e8f0;font-size:13px;color:#0f172a;vertical-align:middle;}
 .data-table tr:hover td{background:#f8fafc;}
-
 /* SUMMARY REGISTER SPECIFIC STYLING (Notebook Reference) */
 .summary-table th{background:#1e293b;color:#f8fafc;border-right:1px solid #334155;}
 .summary-table td{border-right:1px solid #e2e8f0;}
@@ -74,11 +71,9 @@ body{font-family:'Inter',Arial,sans-serif;background:#f1f5f9;min-height:100vh;co
 .editable-bill-input:focus{border-color:#0284c7;background:#fff;box-shadow:0 0 0 3px rgba(2,132,199,.15);}
 .saved-indicator{font-size:11px;color:#16a34a;font-weight:600;margin-left:6px;opacity:0;transition:opacity .2s;}
 .saved-indicator.show{opacity:1;}
-
 .action-link{color:#0284c7;font-weight:600;text-decoration:none;margin-right:10px;}
 .action-link:hover{text-decoration:underline;}
 .btn-del{color:#ef4444;background:none;border:none;cursor:pointer;font-weight:600;}
-
 .toast{position:fixed;bottom:24px;right:24px;background:#0f2847;color:#fff;
   padding:12px 20px;border-radius:8px;font-size:13px;font-weight:600;
   box-shadow:0 10px 20px rgba(0,0,0,.15);display:none;z-index:9999;}
@@ -86,7 +81,6 @@ body{font-family:'Inter',Arial,sans-serif;background:#f1f5f9;min-height:100vh;co
 </style>
 </head>
 <body>
-
 <nav class="topnav">
   <div class="nav-brand">
     <div class="nav-logo">
@@ -105,10 +99,9 @@ body{font-family:'Inter',Arial,sans-serif;background:#f1f5f9;min-height:100vh;co
   </div>
   <div class="nav-right">
     <div class="nav-user"><div class="user-avatar">A</div><span>Admin</span></div>
-    <button class="btn-logout" onclick="location.href='login.html'">Sign Out</button>
+    <button class="btn-logout" onclick="logout()">Sign Out</button>
   </div>
 </nav>
-
 <div class="page">
   <!-- STATS -->
   <div class="stats-grid">
@@ -125,7 +118,6 @@ body{font-family:'Inter',Arial,sans-serif;background:#f1f5f9;min-height:100vh;co
       <div class="stat-val" id="latestBillNo">-</div>
     </div>
   </div>
-
   <!-- FILTERS & TABS -->
   <div class="filter-card">
     <div class="tab-row">
@@ -135,13 +127,11 @@ body{font-family:'Inter',Arial,sans-serif;background:#f1f5f9;min-height:100vh;co
       <button class="view-btn" id="btnByChalan" onclick="setViewMode('chalan')">📄 Invoice No.</button>
       <button class="view-btn btn-summary" id="btnSummary" onclick="setViewMode('summary')">📖 Summary Bill History</button>
     </div>
-
     <div class="search-bar-row">
       <input type="text" id="searchInput" class="search-input" placeholder="Search by customer name..." oninput="renderTable()">
       <a href="index.html" class="btn-new-bill">+ New Bill</a>
     </div>
   </div>
-
   <!-- TABLE CONTAINER -->
   <div class="table-card">
     <table class="data-table" id="billsTable">
@@ -150,12 +140,16 @@ body{font-family:'Inter',Arial,sans-serif;background:#f1f5f9;min-height:100vh;co
     </table>
   </div>
 </div>
-
 <div class="toast" id="toast">Saved!</div>
-
 <script>
 let allBills = [];
-let currentViewMode = 'summary'; // Default or active tab mode
+let currentViewMode = 'summary';
+
+function logout() {
+  localStorage.removeItem('isLoggedIn');
+  localStorage.removeItem('user');
+  window.location.replace('login.html');
+}
 
 window.addEventListener('DOMContentLoaded', fetchBills);
 
@@ -165,9 +159,7 @@ async function fetchBills() {
     if (!res.ok) throw new Error('Failed to fetch');
     allBills = await res.json();
     
-    // Sort bills: Latest dates first
     allBills.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
-
     updateStats();
     renderTable();
   } catch (err) {
@@ -181,7 +173,6 @@ function updateStats() {
   let rev = 0;
   allBills.forEach(b => rev += parseFloat(b.grandTotal) || 0);
   document.getElementById('totalRevenue').textContent = `₹ ${rev.toFixed(2)}`;
-
   document.getElementById('latestBillNo').textContent = allBills.length > 0 ? (allBills[0].billNo || '#1') : '-';
 }
 
@@ -191,7 +182,6 @@ function setViewMode(mode) {
   document.querySelectorAll('.view-btn').forEach(btn => btn.classList.remove('active'));
   
   const searchInput = document.getElementById('searchInput');
-
   if (mode === 'cust') {
     document.getElementById('btnByCust').classList.add('active');
     searchInput.placeholder = 'Search by customer name...';
@@ -205,7 +195,6 @@ function setViewMode(mode) {
     document.getElementById('btnSummary').classList.add('active');
     searchInput.placeholder = 'Filter summary register by party name or chalan no...';
   }
-
   renderTable();
 }
 
@@ -214,7 +203,6 @@ function renderTable() {
   const thead = document.getElementById('tableHead');
   const tbody = document.getElementById('tableBody');
   const table = document.getElementById('billsTable');
-
   let filtered = allBills.filter(b => {
     if (!q) return true;
     if (currentViewMode === 'cust') return (b.custName || '').toLowerCase().includes(q);
@@ -227,10 +215,8 @@ function renderTable() {
     }
     return true;
   });
-
   tbody.innerHTML = '';
 
-  // 📖 SUMMARY BILL HISTORY REGISTER VIEW (Matching notebook reference)
   if (currentViewMode === 'summary') {
     table.className = 'data-table summary-table';
     thead.innerHTML = `
@@ -242,12 +228,10 @@ function renderTable() {
         <th style="width:100px; text-align:center;">Action</th>
       </tr>
     `;
-
     if (filtered.length === 0) {
       tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#94a3b8; padding:24px;">No summary bills found. Create a bill on the main page to populate rows automatically.</td></tr>`;
       return;
     }
-
     filtered.forEach(b => {
       const tr = document.createElement('tr');
       tr.innerHTML = `
@@ -267,9 +251,7 @@ function renderTable() {
       `;
       tbody.appendChild(tr);
     });
-
   } else {
-    // STANDARD DETAILED BILL VIEW
     table.className = 'data-table';
     thead.innerHTML = `
       <tr>
@@ -281,12 +263,10 @@ function renderTable() {
         <th style="text-align:center;">Actions</th>
       </tr>
     `;
-
     if (filtered.length === 0) {
       tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#94a3b8; padding:24px;">No bills found.</td></tr>`;
       return;
     }
-
     filtered.forEach(b => {
       const tr = document.createElement('tr');
       tr.innerHTML = `
@@ -305,7 +285,6 @@ function renderTable() {
   }
 }
 
-// INLINE UPDATE EDITABLE BILL NO.
 async function updateOfficialBillNo(billId, newBillNo, inputEl) {
   try {
     const res = await fetch(`/api/bills/${billId}`, {
@@ -313,11 +292,9 @@ async function updateOfficialBillNo(billId, newBillNo, inputEl) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ officialBillNo: newBillNo })
     });
-
     if (res.ok) {
       const targetBill = allBills.find(b => b._id === billId);
       if (targetBill) targetBill.officialBillNo = newBillNo;
-
       const ind = document.getElementById(`ind-${billId}`);
       if (ind) {
         ind.classList.add('show');
