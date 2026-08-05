@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
 <script>
-  if (localStorage.getItem('isLoggedIn') === 'true') {
+  // Redirect to index if already logged in within this active session
+  if (sessionStorage.getItem('isLoggedIn') === 'true') {
     window.location.replace('index.html');
   }
 </script>
@@ -137,9 +138,6 @@ body{font-family:'Inter','Segoe UI',sans-serif;min-height:100vh;display:flex;bac
   </div>
 </div>
 <script>
-  if (location.search.includes('error=1')) {
-    document.getElementById('err-box').classList.add('show');
-  }
   function togglePass() {
     const pwdInput = document.getElementById('password');
     const eyeIcon = document.getElementById('eye-icon');
@@ -152,6 +150,7 @@ body{font-family:'Inter','Segoe UI',sans-serif;min-height:100vh;display:flex;bac
       eyeIcon.innerHTML = `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>`;
     }
   }
+
   function handleLogin(e) {
     e.preventDefault();
     
@@ -165,8 +164,7 @@ body{font-family:'Inter','Segoe UI',sans-serif;min-height:100vh;display:flex;bac
     const password = document.getElementById('password').value.trim();
     
     if ((username.toLowerCase() === 'admin') && password === 'shivshakti') {
-      localStorage.setItem('isLoggedIn', 'true');
-      localStorage.setItem('user', 'Admin');
+      sessionStorage.setItem('isLoggedIn', 'true');
       window.location.replace('index.html');
     } else {
       errText.textContent = 'Incorrect username or password. Please try again.';
