@@ -66,10 +66,11 @@ input[type="number"] { -moz-appearance: textfield; }
 .guj-title{text-align:center;font-size:15px;font-weight:700;margin-bottom:4px;color:#1e293b;}
 .shop-addr{text-align:center;font-size:10.5px;color:#475569;margin-bottom:12px;}
 
-/* ── TOP RIGHT CONTACT HEADER ── */
+/* ── TOP HEADER CONTACTS & GSTIN ── */
+.gstin-left{position:absolute;left:28px;top:22px;color:#0f2847;font-size:11px;font-weight:800;letter-spacing:0.2px;}
 .contacts{position:absolute;right:28px;top:22px;text-align:right;color:#0f2847;line-height:1.35;}
-.contacts .phone-no{font-size:12.5px;font-weight:800;letter-spacing:0.2px;}
-.contacts .contact-meta{font-size:10.5px;font-weight:700;color:#334155;margin-top:2px;}
+.contacts .phone-no{font-size:11.5px;font-weight:800;letter-spacing:0.2px;}
+.contacts .email-id{font-size:10.5px;font-weight:600;color:#334155;margin-top:1px;}
 
 .meta-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;
   border-top:1.5px solid #0f2847;border-bottom:1px solid #e2e8f0;margin-bottom:10px;}
@@ -102,7 +103,9 @@ input[type="number"] { -moz-appearance: textfield; }
 .add-row-btn:hover{background:#e2e8f0;}
 
 /* ── BOTTOM FOOTER ── */
-.bottom-grid{display:grid;grid-template-columns:1fr 1.2fr 1fr;gap:12px;margin-top:20px;align-items:end;}
+.bottom-grid{display:grid;grid-template-columns:1.2fr 1.2fr 1.2fr;gap:12px;margin-top:20px;align-items:end;}
+.cust-sig-area{margin-bottom:12px;}
+.cust-sig-line{border-top:1px solid #0f2847;width:140px;text-align:center;padding-top:2px;font-size:11px;font-weight:700;color:#0f2847;}
 .terms-box{font-size:10px;line-height:1.45;color:#334155;}
 .terms-title{font-weight:700;margin-bottom:2px;}
 
@@ -110,15 +113,15 @@ input[type="number"] { -moz-appearance: textfield; }
   background:#fafafa;font-size:10.5px;line-height:1.45;}
 .bank-title{font-weight:800;font-size:11px;color:#0f2847;margin-bottom:3px;text-decoration:underline;}
 
-.signature-box{text-align:right;font-size:11px;font-weight:700;color:#0f2847;}
-.sig-line{margin-top:35px;border-top:1px solid #0f2847;display:inline-block;width:130px;text-align:center;padding-top:2px;}
+.retailer-signature-box{text-align:right;font-size:11px;font-weight:700;color:#0f2847;}
+.retailer-sig-line{margin-top:40px;border-top:1px solid #0f2847;display:inline-block;width:150px;text-align:center;padding-top:2px;}
 
 .toast{position:fixed;bottom:20px;right:20px;background:#0f2847;color:#fff;
   padding:10px 18px;border-radius:6px;font-size:12.5px;font-weight:600;
   box-shadow:0 4px 12px rgba(0,0,0,.15);display:none;z-index:9999;}
 .toast.show{display:block;}
 
-/* ── PRINT STYLES (FULL BILL DISPLAY ~60% A4 HEIGHT) ── */
+/* ── PRINT STYLES ── */
 @page {
   size: A4 portrait;
   margin: 0;
@@ -160,14 +163,20 @@ input[type="number"] { -moz-appearance: textfield; }
     page-break-inside: avoid !important;
   }
 
+  .gstin-left {
+    top: 8mm !important;
+    left: 12mm !important;
+    font-size: 9.5px !important;
+  }
+
   .contacts {
     top: 8mm !important;
     right: 12mm !important;
-    line-height: 1.3 !important;
+    line-height: 1.25 !important;
   }
 
-  .contacts .phone-no, .contacts .contact-meta {
-    font-size: 10.5px !important;
+  .contacts .phone-no, .contacts .email-id {
+    font-size: 9.5px !important;
   }
 
   .sub-title { font-size: 11.5px !important; margin-bottom: 2px !important; }
@@ -223,10 +232,16 @@ input[type="number"] { -moz-appearance: textfield; }
 
   .bottom-grid {
     display: grid !important;
-    grid-template-columns: 1fr 1.2fr 1fr !important;
+    grid-template-columns: 1.2fr 1.2fr 1.2fr !important;
     gap: 10px !important;
     margin-top: 12px !important;
     align-items: end !important;
+  }
+
+  .cust-sig-line {
+    border-top: 1px solid #000 !important;
+    font-size: 9.5px !important;
+    width: 120px !important;
   }
 
   .terms-box {
@@ -246,15 +261,15 @@ input[type="number"] { -moz-appearance: textfield; }
     font-size: 10px !important;
   }
 
-  .signature-box {
-    font-size: 10px !important;
+  .retailer-signature-box {
+    font-size: 9.5px !important;
     text-align: right !important;
   }
 
-  .sig-line {
-    margin-top: 22px !important;
+  .retailer-sig-line {
+    margin-top: 25px !important;
     border-top: 1px solid #000 !important;
-    width: 120px !important;
+    width: 130px !important;
   }
 
   .clean-input {
@@ -305,10 +320,17 @@ input[type="number"] { -moz-appearance: textfield; }
   </div>
 
   <div class="challan-box" id="challan-sheet">
+    <!-- LEFT SIDE: GSTIN NUMBER -->
+    <div class="gstin-left">
+      GSTIN: 24ACCFS8163L1ZR
+    </div>
+
+    <!-- RIGHT SIDE: PHONE NUMBERS & EMAIL IDS -->
     <div class="contacts">
       <div class="phone-no">Phone No.: 94280 73316</div>
       <div class="phone-no">Phone No.: 98240 49919</div>
-      <div class="contact-meta">GSTIN: 24ACCFS8163L1ZR</div>
+      <div class="email-id">Email: shivshaktitiles1@gmail.com</div>
+      <div class="email-id">Email: shivshaktitiles2@gmail.com</div>
     </div>
 
     <div class="sub-title">Invoice / Delivery Memo</div>
@@ -337,8 +359,8 @@ input[type="number"] { -moz-appearance: textfield; }
         <input type="text" id="custPhone" class="clean-input" style="width:220px;">
       </div>
       <div class="cust-row">
-        <span class="cust-label">મોબાઈલ નંબર :</span>
-        <input type="text" id="custMobile" class="clean-input" style="width:220px;">
+        <span class="cust-label">ઈમેઈલ આઈડી :</span>
+        <input type="text" id="custEmail" class="clean-input" style="width:320px;">
       </div>
       <div class="cust-row">
         <span class="cust-label">ઠા. (સરનામું) :</span>
@@ -381,11 +403,18 @@ input[type="number"] { -moz-appearance: textfield; }
 
     <button class="add-row-btn" onclick="addRow()">+ Add item row</button>
 
+    <!-- BOTTOM SECTION: CUSTOMER SIGN (LEFT), BANK DETAILS (MIDDLE), RETAILER SIGN (RIGHT) -->
     <div class="bottom-grid">
-      <div class="terms-box">
-        <div class="terms-title">સૂચના :</div>
-        <div>(૧) વેચેલો માલ પાછો લેવામાં આવશે નહીં.</div>
-        <div>(૨) માલ તપાસીને લેવો. પાછળથી તકરાર ચાલશે નહીં.</div>
+      <div>
+        <div class="cust-sig-area">
+          <div style="font-size:11px; font-weight:700; color:#0f2847; margin-bottom:20px;">સહી</div>
+          <div class="cust-sig-line">માલ લેનારની સહી</div>
+        </div>
+        <div class="terms-box">
+          <div class="terms-title">સૂચના :</div>
+          <div>(૧) વેચેલો માલ પાછો લેવામાં આવશે નહીં.</div>
+          <div>(૨) માલ તપાસીને લેવો. પાછળથી તકરાર ચાલશે નહીં.</div>
+        </div>
       </div>
 
       <div class="bank-details-box">
@@ -396,9 +425,10 @@ input[type="number"] { -moz-appearance: textfield; }
         <div><strong>Branch &amp; IFS Code :</strong> Pratapnagar &amp; UBIN0807346</div>
       </div>
 
-      <div class="signature-box">
-        <div style="margin-bottom:15px;">સહી</div>
-        <div class="sig-line">માલ લેનારની સહી</div>
+      <div class="retailer-signature-box">
+        <div style="font-size:11px; font-weight:700; color:#0f2847;">For, SHIV SHAKTI TILES</div>
+        <div style="font-size:10.5px; font-weight:700; color:#1e293b; margin-top:2px;">શિવ શક્તિ ટાઇલ્સ વતી</div>
+        <div class="retailer-sig-line">ઓથોરાઇઝ્ડ સહી</div>
       </div>
     </div>
   </div>
@@ -530,7 +560,7 @@ function clearForm() {
     document.getElementById('billDate').value = getTodayFormatted();
     document.getElementById('custName').value = '';
     document.getElementById('custPhone').value = '';
-    document.getElementById('custMobile').value = '';
+    document.getElementById('custEmail').value = '';
     document.getElementById('custAddress1').value = '';
     document.getElementById('custAddress2').value = '';
     document.getElementById('custGst').value = '';
@@ -561,7 +591,7 @@ async function checkEditState() {
       document.getElementById('billDate').value = b.date || getTodayFormatted();
       document.getElementById('custName').value = b.custName || '';
       document.getElementById('custPhone').value = b.custPhone || '';
-      document.getElementById('custMobile').value = b.custMobile || b.custEmail || '';
+      document.getElementById('custEmail').value = b.custEmail || '';
       document.getElementById('custAddress1').value = b.custAddress1 || b.custAddress || '';
       document.getElementById('custAddress2').value = b.custAddress2 || '';
       document.getElementById('custGst').value = b.custGst || '';
@@ -590,7 +620,7 @@ async function saveBill() {
   const date = document.getElementById('billDate').value.trim();
   const custName = document.getElementById('custName').value.trim() || 'Cash Customer';
   const custPhone = document.getElementById('custPhone').value.trim();
-  const custMobile = document.getElementById('custMobile').value.trim();
+  const custEmail = document.getElementById('custEmail').value.trim();
   const custAddress1 = document.getElementById('custAddress1').value.trim();
   const custAddress2 = document.getElementById('custAddress2').value.trim();
   const custAddress = (custAddress1 + ' ' + custAddress2).trim();
@@ -618,7 +648,7 @@ async function saveBill() {
     date: date || getTodayFormatted(),
     custName,
     custPhone,
-    custMobile,
+    custEmail,
     custAddress,
     custAddress1,
     custAddress2,
