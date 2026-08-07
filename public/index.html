@@ -80,8 +80,8 @@ input[type="number"] { -moz-appearance: textfield; }
 .clean-input:focus{border-bottom-color:#0f2847;background:#f0f9ff;}
 
 .cust-info-box{margin-bottom:12px;}
-.cust-row{display:flex;align-items:center;margin-bottom:4px;}
-.cust-label{width:130px;font-weight:700;font-size:11.5px;color:#1e293b;}
+.cust-row{display:flex;align-items:center;margin-bottom:5px;}
+.cust-label{width:130px;font-weight:700;font-size:11.5px;color:#1e293b;flex-shrink:0;}
 
 /* ── TABLE ── */
 .items-table{width:100%;border-collapse:collapse;margin-bottom:0;}
@@ -134,7 +134,6 @@ input[type="number"] { -moz-appearance: textfield; }
     print-color-adjust: exact;
   }
 
-  /* Force all text & borders to solid black */
   *, *::before, *::after {
     color: #000 !important;
     border-color: #000 !important;
@@ -142,7 +141,6 @@ input[type="number"] { -moz-appearance: textfield; }
     text-shadow: none !important;
   }
 
-  /* Hide interactive web components */
   .topnav, .toolbar-card, .add-row-btn, .del-row-btn, .gst-toggle-btn, .toast {
     display: none !important;
   }
@@ -153,7 +151,6 @@ input[type="number"] { -moz-appearance: textfield; }
     margin: 0 !important;
   }
 
-  /* Scale layout to fit top half of A4 page (~140mm max height) */
   .challan-box {
     border: none !important;
     box-shadow: none !important;
@@ -190,7 +187,6 @@ input[type="number"] { -moz-appearance: textfield; }
   .cust-row { margin-bottom: 2px !important; }
   .cust-label { width: 110px !important; font-size: 10px !important; }
 
-  /* Compact Table */
   .items-table th {
     background: transparent !important;
     color: #000 !important;
@@ -219,7 +215,6 @@ input[type="number"] { -moz-appearance: textfield; }
     color: #000 !important;
   }
 
-  /* Footer Layout */
   .bottom-grid {
     margin-top: 8px !important;
     gap: 6px !important;
@@ -325,23 +320,27 @@ input[type="number"] { -moz-appearance: textfield; }
     <div class="cust-info-box">
       <div class="cust-row">
         <span class="cust-label">માલ લેનારનું નામ :</span>
-        <input type="text" id="custName" class="clean-input" style="flex:1;">
+        <input type="text" id="custName" class="clean-input" style="width:500px; max-width:100%;">
       </div>
       <div class="cust-row">
         <span class="cust-label">ફોન નંબર :</span>
-        <input type="text" id="custPhone" class="clean-input" style="flex:1;">
+        <input type="text" id="custPhone" class="clean-input" style="width:220px;">
       </div>
       <div class="cust-row">
-        <span class="cust-label">ઈમેઈલ આઈડી :</span>
-        <input type="email" id="custEmail" class="clean-input" style="flex:1;">
+        <span class="cust-label">મોબાઈલ નંબર :</span>
+        <input type="text" id="custMobile" class="clean-input" style="width:220px;">
       </div>
       <div class="cust-row">
         <span class="cust-label">ઠા. (સરનામું) :</span>
-        <input type="text" id="custAddress" class="clean-input" style="flex:1;">
+        <input type="text" id="custAddress1" class="clean-input" style="width:500px; max-width:100%;" placeholder="Line 1">
+      </div>
+      <div class="cust-row">
+        <span class="cust-label"></span>
+        <input type="text" id="custAddress2" class="clean-input" style="width:500px; max-width:100%;" placeholder="Line 2">
       </div>
       <div class="cust-row">
         <span class="cust-label">જી.એસ.ટી. નં. :</span>
-        <input type="text" id="custGst" class="clean-input" style="flex:1; text-transform:uppercase;">
+        <input type="text" id="custGst" class="clean-input" style="width:240px; text-transform:uppercase;">
       </div>
     </div>
 
@@ -521,8 +520,9 @@ function clearForm() {
     document.getElementById('billDate').value = getTodayFormatted();
     document.getElementById('custName').value = '';
     document.getElementById('custPhone').value = '';
-    document.getElementById('custEmail').value = '';
-    document.getElementById('custAddress').value = '';
+    document.getElementById('custMobile').value = '';
+    document.getElementById('custAddress1').value = '';
+    document.getElementById('custAddress2').value = '';
     document.getElementById('custGst').value = '';
     isGstApplied = false;
     const btn = document.getElementById('gstToggleBtn');
@@ -551,8 +551,9 @@ async function checkEditState() {
       document.getElementById('billDate').value = b.date || getTodayFormatted();
       document.getElementById('custName').value = b.custName || '';
       document.getElementById('custPhone').value = b.custPhone || '';
-      document.getElementById('custEmail').value = b.custEmail || '';
-      document.getElementById('custAddress').value = b.custAddress || '';
+      document.getElementById('custMobile').value = b.custMobile || b.custEmail || '';
+      document.getElementById('custAddress1').value = b.custAddress1 || b.custAddress || '';
+      document.getElementById('custAddress2').value = b.custAddress2 || '';
       document.getElementById('custGst').value = b.custGst || '';
       
       if (b.items && b.items.length > 0) {
@@ -579,8 +580,10 @@ async function saveBill() {
   const date = document.getElementById('billDate').value.trim();
   const custName = document.getElementById('custName').value.trim() || 'Cash Customer';
   const custPhone = document.getElementById('custPhone').value.trim();
-  const custEmail = document.getElementById('custEmail').value.trim();
-  const custAddress = document.getElementById('custAddress').value.trim();
+  const custMobile = document.getElementById('custMobile').value.trim();
+  const custAddress1 = document.getElementById('custAddress1').value.trim();
+  const custAddress2 = document.getElementById('custAddress2').value.trim();
+  const custAddress = (custAddress1 + ' ' + custAddress2).trim();
   const custGst = document.getElementById('custGst').value.toUpperCase().trim();
 
   let subtotal = 0;
@@ -605,8 +608,10 @@ async function saveBill() {
     date: date || getTodayFormatted(),
     custName,
     custPhone,
-    custEmail,
+    custMobile,
     custAddress,
+    custAddress1,
+    custAddress2,
     custGst,
     items: validItems,
     isGstApplied,
