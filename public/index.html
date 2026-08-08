@@ -41,7 +41,7 @@ input[type="number"] { -moz-appearance: textfield; }
 .btn-logout:hover{background:rgba(255,255,255,.2);}
 
 /* ── CONTAINER ── */
-.page{padding:20px;max-width:920px;margin:0 auto;}
+.page{padding:20px;max-width:940px;margin:0 auto;}
 
 /* ── TOOLBAR ── */
 .toolbar-card{background:#fff;border-radius:8px;padding:12px 20px;margin-bottom:16px;
@@ -81,8 +81,8 @@ input[type="number"] { -moz-appearance: textfield; }
 .clean-input:focus{border-bottom-color:#0f2847;background:#f0f9ff;}
 
 .cust-info-box{margin-bottom:12px;}
-.cust-row{display:flex;align-items:center;margin-bottom:5px;}
-.cust-label{width:130px;font-weight:700;font-size:11.5px;color:#1e293b;flex-shrink:0;}
+.cust-row{display:flex;align-items:center;margin-bottom:6px;}
+.cust-label{width:160px;font-weight:700;font-size:11.5px;color:#1e293b;flex-shrink:0;}
 
 /* ── TABLE ── */
 .items-table{width:100%;border-collapse:collapse;margin-bottom:0;}
@@ -103,15 +103,22 @@ input[type="number"] { -moz-appearance: textfield; }
 .add-row-btn:hover{background:#e2e8f0;}
 
 /* ── BOTTOM FOOTER ── */
-.bottom-grid{display:grid;grid-template-columns:1.2fr 1.2fr 1.2fr;gap:12px;margin-top:20px;align-items:end;}
+.bottom-grid{display:flex;justify-content:space-between;align-items:flex-end;margin-top:20px;gap:12px;}
 .cust-sig-area{margin-bottom:12px;}
 .cust-sig-line{border-top:1px solid #0f2847;width:140px;text-align:center;padding-top:2px;font-size:11px;font-weight:700;color:#0f2847;}
 .terms-box{font-size:10px;line-height:1.45;color:#334155;}
 .terms-title{font-weight:700;margin-bottom:2px;}
 
+.center-payment-group{display:flex;gap:8px;align-items:stretch;}
 .bank-details-box{border:1px solid #cbd5e1;padding:8px 10px;border-radius:4px;
   background:#fafafa;font-size:10.5px;line-height:1.45;}
 .bank-title{font-weight:800;font-size:11px;color:#0f2847;margin-bottom:3px;text-decoration:underline;}
+
+.qr-code-box{border:1px solid #cbd5e1;padding:6px 8px;border-radius:4px;
+  background:#fafafa;text-align:center;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;width:115px;}
+.qr-code-box img{width:75px;height:75px;display:block;margin-bottom:3px;}
+.qr-label{font-size:8.5px;font-weight:800;color:#0f2847;text-transform:uppercase;line-height:1.1;}
 
 .retailer-signature-box{text-align:right;font-size:11px;font-weight:700;color:#0f2847;}
 .retailer-sig-line{margin-top:40px;border-top:1px solid #0f2847;display:inline-block;width:150px;text-align:center;padding-top:2px;}
@@ -163,21 +170,9 @@ input[type="number"] { -moz-appearance: textfield; }
     page-break-inside: avoid !important;
   }
 
-  .gstin-left {
-    top: 8mm !important;
-    left: 12mm !important;
-    font-size: 9.5px !important;
-  }
-
-  .contacts {
-    top: 8mm !important;
-    right: 12mm !important;
-    line-height: 1.25 !important;
-  }
-
-  .contacts .phone-no, .contacts .email-id {
-    font-size: 9.5px !important;
-  }
+  .gstin-left { top: 8mm !important; left: 12mm !important; font-size: 9.5px !important; }
+  .contacts { top: 8mm !important; right: 12mm !important; line-height: 1.25 !important; }
+  .contacts .phone-no, .contacts .email-id { font-size: 9.5px !important; }
 
   .sub-title { font-size: 11.5px !important; margin-bottom: 2px !important; }
   .main-title { font-size: 18px !important; letter-spacing: 0.5px !important; }
@@ -192,27 +187,25 @@ input[type="number"] { -moz-appearance: textfield; }
   }
 
   .cust-info-box { margin-bottom: 8px !important; }
-  .cust-row { margin-bottom: 3px !important; display: flex !important; width: 100% !important; }
-  .cust-label { width: 120px !important; font-size: 10.5px !important; flex-shrink: 0 !important; }
+  .cust-row { margin-bottom: 4px !important; display: flex !important; width: 100% !important; }
+  .cust-label { width: 150px !important; font-size: 10px !important; flex-shrink: 0 !important; }
 
-  .items-table {
-    width: 100% !important;
-    border-collapse: collapse !important;
-  }
-
-  .items-table th {
-    background: transparent !important;
-    color: #000 !important;
-    border: 1px solid #000 !important;
-    padding: 4px 6px !important;
-    font-size: 10px !important;
-  }
-
+  .items-table { width: 100% !important; border-collapse: collapse !important; }
+  .items-table th { background: transparent !important; color: #000 !important; border: 1px solid #000 !important; padding: 4px 6px !important; font-size: 10px !important; }
+  
+  /* Make all table cell text and inputs bold during print */
   .items-table td {
     border: 1px solid #000 !important;
     padding: 3px 6px !important;
     height: 20px !important;
     font-size: 10px !important;
+    font-weight: 700 !important;
+  }
+
+  /* Force Particulars, Qty, and Rate input values to print in bold */
+  .items-table td input {
+    font-weight: 700 !important;
+    font-size: 10.5px !important;
   }
 
   .table-summary-bar {
@@ -224,62 +217,33 @@ input[type="number"] { -moz-appearance: textfield; }
     font-size: 11px !important;
     display: flex !important;
     justify-content: space-between !important;
+    font-weight: 800 !important;
   }
 
-  #gstAmountLabel {
-    color: #000 !important;
-  }
+  #gstAmountLabel { color: #000 !important; }
 
   .bottom-grid {
-    display: grid !important;
-    grid-template-columns: 1.2fr 1.2fr 1.2fr !important;
-    gap: 10px !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: flex-end !important;
     margin-top: 12px !important;
-    align-items: end !important;
   }
 
-  .cust-sig-line {
-    border-top: 1px solid #000 !important;
-    font-size: 9.5px !important;
-    width: 120px !important;
-  }
+  .cust-sig-line { border-top: 1px solid #000 !important; font-size: 9.5px !important; width: 120px !important; }
+  .terms-box { font-size: 9px !important; line-height: 1.35 !important; }
 
-  .terms-box {
-    font-size: 9px !important;
-    line-height: 1.35 !important;
-  }
-
-  .bank-details-box {
+  .bank-details-box, .qr-code-box {
     border: 1px solid #000 !important;
     background: transparent !important;
     padding: 5px 8px !important;
     font-size: 9px !important;
-    line-height: 1.35 !important;
   }
 
-  .bank-title {
-    font-size: 10px !important;
-  }
+  .retailer-signature-box { font-size: 9.5px !important; text-align: right !important; }
+  .retailer-sig-line { margin-top: 25px !important; border-top: 1px solid #000 !important; width: 130px !important; }
 
-  .retailer-signature-box {
-    font-size: 9.5px !important;
-    text-align: right !important;
-  }
-
-  .retailer-sig-line {
-    margin-top: 25px !important;
-    border-top: 1px solid #000 !important;
-    width: 130px !important;
-  }
-
-  .clean-input {
-    border-bottom: none !important;
-    color: #000 !important;
-  }
-
-  input::placeholder {
-    color: transparent !important;
-  }
+  .clean-input { border-bottom: none !important; color: #000 !important; font-weight: 700 !important; }
+  input::placeholder { color: transparent !important; }
 }
 </style>
 </head>
@@ -349,33 +313,44 @@ input[type="number"] { -moz-appearance: textfield; }
       </div>
     </div>
 
+    <!-- CUSTOMER DETAILS SECTION -->
     <div class="cust-info-box">
+      <!-- Line 1: Name -->
       <div class="cust-row">
         <span class="cust-label">માલ લેનારનું નામ :</span>
-        <input type="text" id="custName" class="clean-input" style="width:500px; max-width:100%;">
+        <input type="text" id="custName" class="clean-input" style="flex:1;">
       </div>
+
+      <!-- Line 2: Phone No / Email ID -->
       <div class="cust-row">
-        <span class="cust-label">ફોન નંબર :</span>
-        <input type="text" id="custPhone" class="clean-input" style="width:220px;">
+        <span class="cust-label">ફોન નં. / ઈમેઈલ આઈડી :</span>
+        <div style="flex:1; display:flex; align-items:center; gap:8px;">
+          <input type="text" id="custPhone" class="clean-input" style="width:180px;" placeholder="Phone No.">
+          <span style="font-weight:700; color:#334155;">/</span>
+          <input type="text" id="custEmail" class="clean-input" style="flex:1;" placeholder="Email ID">
+        </div>
       </div>
-      <div class="cust-row">
-        <span class="cust-label">ઈમેઈલ આઈડી :</span>
-        <input type="text" id="custEmail" class="clean-input" style="width:320px;">
-      </div>
+
+      <!-- Line 3: Address Line 1 -->
       <div class="cust-row">
         <span class="cust-label">ઠા. (સરનામું) :</span>
-        <input type="text" id="custAddress1" class="clean-input" style="flex:1;" placeholder="Line 1">
+        <input type="text" id="custAddress1" class="clean-input" style="flex:1;" placeholder="Address Line 1">
       </div>
+
+      <!-- Line 4: Address Line 2 -->
       <div class="cust-row">
         <span class="cust-label"></span>
-        <input type="text" id="custAddress2" class="clean-input" style="flex:1;" placeholder="Line 2">
+        <input type="text" id="custAddress2" class="clean-input" style="flex:1;" placeholder="Address Line 2">
       </div>
+
+      <!-- Line 5: GSTIN -->
       <div class="cust-row">
         <span class="cust-label">જી.એસ.ટી. નં. :</span>
         <input type="text" id="custGst" class="clean-input" style="width:240px; text-transform:uppercase;">
       </div>
     </div>
 
+    <!-- ITEMS TABLE -->
     <table class="items-table">
       <thead>
         <tr>
@@ -403,7 +378,7 @@ input[type="number"] { -moz-appearance: textfield; }
 
     <button class="add-row-btn" onclick="addRow()">+ Add item row</button>
 
-    <!-- BOTTOM SECTION: CUSTOMER SIGN (LEFT), BANK DETAILS (MIDDLE), RETAILER SIGN (RIGHT) -->
+    <!-- BOTTOM SECTION: CUSTOMER SIGN (LEFT), BANK & GPAY QR (MIDDLE), RETAILER SIGN (RIGHT) -->
     <div class="bottom-grid">
       <div>
         <div class="cust-sig-area">
@@ -417,12 +392,20 @@ input[type="number"] { -moz-appearance: textfield; }
         </div>
       </div>
 
-      <div class="bank-details-box">
-        <div class="bank-title">Company's Bank Details</div>
-        <div><strong>A/c Holder's Name :</strong> Shiv Shakti Tiles</div>
-        <div><strong>Bank Name :</strong> Union Bank of India</div>
-        <div><strong>A/c No. :</strong> 355101010110766</div>
-        <div><strong>Branch &amp; IFS Code :</strong> Pratapnagar &amp; UBIN0807346</div>
+      <div class="center-payment-group">
+        <div class="bank-details-box">
+          <div class="bank-title">Company's Bank Details</div>
+          <div><strong>A/c Holder's Name :</strong> Shiv Shakti Tiles</div>
+          <div><strong>Bank Name :</strong> Union Bank of India</div>
+          <div><strong>A/c No. :</strong> 355101010110766</div>
+          <div><strong>Branch &amp; IFS Code :</strong> Pratapnagar &amp; UBIN0807346</div>
+        </div>
+
+        <!-- GPAY / UPI QR CODE BOX -->
+        <div class="qr-code-box">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=9428073316@upi&pn=Shiv%20Shakti%20Tiles" alt="GPay QR Code">
+          <div class="qr-label">Scan to Pay<br>GPay / UPI</div>
+        </div>
       </div>
 
       <div class="retailer-signature-box">
