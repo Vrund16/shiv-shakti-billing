@@ -60,6 +60,9 @@ body{font-family:'Inter',Arial,sans-serif;background:#f1f5f9;min-height:100vh;co
 .search-input{flex:1;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:8px;
   font-size:13.5px;outline:none;transition:all .15s;}
 .search-input:focus{border-color:#1a3a5c;}
+.btn-export-excel{background:#16a34a;color:#fff;padding:10px 18px;border-radius:8px;
+  font-weight:700;font-size:13px;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all .15s;}
+.btn-export-excel:hover{background:#15803d;}
 .btn-new-bill{background:#0f2847;color:#fff;padding:10px 18px;border-radius:8px;
   font-weight:700;font-size:13px;text-decoration:none;display:inline-flex;align-items:center;gap:6px;}
 
@@ -143,6 +146,7 @@ body{font-family:'Inter',Arial,sans-serif;background:#f1f5f9;min-height:100vh;co
 
     <div class="search-bar-row">
       <input type="text" id="searchInput" class="search-input" placeholder="Search summary history..." oninput="renderTable()">
+      <button class="btn-export-excel" onclick="exportToExcel()">📊 Export to Excel</button>
       <a href="index.html" class="btn-new-bill">+ New Bill</a>
     </div>
   </div>
@@ -218,12 +222,9 @@ function setViewMode(mode) {
   renderTable();
 }
 
-function renderTable() {
+function getFilteredBills() {
   const query = document.getElementById('searchInput').value.toLowerCase().trim();
-  const thead = document.getElementById('tableHead');
-  const tbody = document.getElementById('tableBody');
-
-  const filtered = allBills.filter(b => {
+  return allBills.filter(b => {
     if (!query) return true;
     if (currentViewMode === 'cust') return (b.custName || '').toLowerCase().includes(query);
     if (currentViewMode === 'phone') return (b.custPhone || '').toLowerCase().includes(query);
@@ -236,16 +237,22 @@ function renderTable() {
       (b.officialBillNo || '').toLowerCase().includes(query)
     );
   });
+}
+
+function renderTable() {
+  const thead = document.getElementById('tableHead');
+  const tbody = document.getElementById('tableBody');
+  const filtered = getFilteredBills();
 
   if (currentViewMode === 'summary') {
     document.getElementById('billsTable').className = 'data-table summary-table';
     thead.innerHTML = `
       <tr>
         <th style="width: 110px;">Chalan No</th>
-        <th style="width: 140px;">Official Bill No</th>
         <th>Date</th>
         <th>Customer Name</th>
         <th>Phone</th>
+        <th style="width: 140px;">Official Bill No</th>
         <th style="text-align: right;">Total Amount</th>
         <th style="text-align: center; width: 140px;">Actions</th>
       </tr>
@@ -259,6 +266,9 @@ function renderTable() {
     tbody.innerHTML = filtered.map(b => `
       <tr>
         <td><strong>${b.billNo || '-'}</strong></td>
+        <td>${b.date || '-'}</td>
+        <td><strong>${b.custName || 'Cash Customer'}</strong></td>
+        <td>${b.custPhone || '-'}</td>
         <td>
           <div style="display: flex; align-items: center;">
             <input type="text" class="editable-bill-input" value="${b.officialBillNo || ''}" 
@@ -266,9 +276,6 @@ function renderTable() {
             <span class="saved-indicator">✓</span>
           </div>
         </td>
-        <td>${b.date || '-'}</td>
-        <td><strong>${b.custName || 'Cash Customer'}</strong></td>
-        <td>${b.custPhone || '-'}</td>
         <td style="text-align: right; font-weight: 700; color: #0f2847;">₹ ${parseFloat(b.grandTotal || 0).toFixed(2)}</td>
         <td style="text-align: center;">
           <a href="index.html?id=${b._id}" class="action-link">✏️ Edit</a>
@@ -309,6 +316,41 @@ function renderTable() {
       </tr>
     `).join('');
   }
+}
+
+function exportToExcel() {
+  const filtered = getFilteredBills();
+
+  if (!filtered || filtered.length === 0) {
+    alert("No bill records available to export.");
+    return;
+  }
+
+  const headers = ["Chalan No", "Date", "Customer Name", "Phone No", "Official Bill No", "Total Amount (INR)"];
+
+  const rows = filtered.map(b => [
+    `"${(b.billNo || '').replace(/"/g, '""')}"`,
+    `"${(b.date || '').replace(/"/g, '""')}"`,
+    `"${(b.custName || 'Cash Customer').replace(/"/g, '""')}"`,
+    `"${(b.custPhone || '').replace(/"/g, '""')}"`,
+    `"${(b.officialBillNo || '').replace(/"/g, '""')}"`,
+    (parseFloat(b.grandTotal || 0)).toFixed(2)
+  ]);
+
+  const csvContent = "\ufeff" + [headers.join(","), ...rows.map(e => e.join(","))].join("\n");
+  
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  const dateStr = new Date().toISOString().slice(0, 10);
+  
+  link.setAttribute("href", url);
+  link.setAttribute("download", `Summary_Bill_History_${dateStr}.csv`);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  
+  showToast("Excel sheet downloaded!");
 }
 
 async function updateOfficialBillNo(id, value, inputElem) {
