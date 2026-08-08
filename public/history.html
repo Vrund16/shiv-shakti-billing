@@ -326,31 +326,114 @@ function exportToExcel() {
     return;
   }
 
-  const headers = ["Chalan No", "Date", "Customer Name", "Phone No", "Official Bill No", "Total Amount (INR)"];
+  // Generates an XML-formatted Excel spreadsheet.
+  // This explicitly sets mso-number-format to text (\@) for phone numbers and dates to prevent 
+  // scientific notation (9.12E+09) and truncation (###), with pre-formatted dark header styles.
+  let excelXML = `
+    <html xmlns:o="urn:schemas-microsoft-microsoft-com:office:office" 
+          xmlns:x="urn:schemas-microsoft-microsoft-com:office:excel" 
+          xmlns="http://www.w3.org/TR/REC-html40">
+    <head>
+      <meta charset="UTF-8">
+      <!--[if gte mso 9]>
+      <xml>
+        <x:ExcelWorkbook>
+          <x:ExcelWorksheets>
+            <x:ExcelWorksheet>
+              <x:Name>Summary Bill History</x:Name>
+              <x:WorksheetOptions>
+                <x:DisplayGridlines/>
+              </x:WorksheetOptions>
+            </x:ExcelWorksheet>
+          </x:ExcelWorksheets>
+        </x:ExcelWorkbook>
+      </xml>
+      <![endif]-->
+      <style>
+        th {
+          background-color: #0f2847;
+          color: #ffffff;
+          font-family: Arial, sans-serif;
+          font-size: 11pt;
+          font-weight: bold;
+          border: 0.5pt solid #cbd5e1;
+          padding: 8px;
+          text-align: left;
+        }
+        td {
+          font-family: Arial, sans-serif;
+          font-size: 10pt;
+          border: 0.5pt solid #cbd5e1;
+          padding: 6px;
+          vertical-align: middle;
+        }
+        .text-cell {
+          mso-number-format: "\\@";
+        }
+        .num-cell {
+          mso-number-format: "\\#\\,##0\\.00";
+          text-align: right;
+        }
+        .center-cell {
+          text-align: center;
+          mso-number-format: "\\@";
+        }
+      </style>
+    </head>
+    <body>
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 100px;">Chalan No</th>
+            <th style="width: 110px;">Date</th>
+            <th style="width: 220px;">Customer Name</th>
+            <th style="width: 140px;">Phone No</th>
+            <th style="width: 140px;">Official Bill No</th>
+            <th style="width: 160px; text-align: right;">Total Amount (INR)</th>
+          </tr>
+        </thead>
+        <tbody>
+  `;
 
-  const rows = filtered.map(b => [
-    `"${(b.billNo || '').replace(/"/g, '""')}"`,
-    `"${(b.date || '').replace(/"/g, '""')}"`,
-    `"${(b.custName || 'Cash Customer').replace(/"/g, '""')}"`,
-    `"${(b.custPhone || '').replace(/"/g, '""')}"`,
-    `"${(b.officialBillNo || '').replace(/"/g, '""')}"`,
-    (parseFloat(b.grandTotal || 0)).toFixed(2)
-  ]);
+  filtered.forEach(b => {
+    const chalan = b.billNo || '-';
+    const date = b.date || '-';
+    const name = b.custName || 'Cash Customer';
+    const phone = b.custPhone || '-';
+    const officialNo = b.officialBillNo || '-';
+    const total = parseFloat(b.grandTotal || 0).toFixed(2);
 
-  const csvContent = "\ufeff" + [headers.join(","), ...rows.map(e => e.join(","))].join("\n");
-  
-  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    excelXML += `
+      <tr>
+        <td class="center-cell">${chalan}</td>
+        <td class="center-cell">${date}</td>
+        <td class="text-cell">${name}</td>
+        <td class="text-cell">${phone}</td>
+        <td class="text-cell">${officialNo}</td>
+        <td class="num-cell">${total}</td>
+      </tr>
+    `;
+  });
+
+  excelXML += `
+        </tbody>
+      </table>
+    </body>
+    </html>
+  `;
+
+  const blob = new Blob([excelXML], { type: "application/vnd.ms-excel;charset=utf-8" });
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   const dateStr = new Date().toISOString().slice(0, 10);
   
   link.setAttribute("href", url);
-  link.setAttribute("download", `Summary_Bill_History_${dateStr}.csv`);
+  link.setAttribute("download", `Summary_Bill_History_${dateStr}.xls`);
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
   
-  showToast("Excel sheet downloaded!");
+  showToast("Formatted Excel downloaded!");
 }
 
 async function updateOfficialBillNo(id, value, inputElem) {
