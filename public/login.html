@@ -90,6 +90,7 @@ body{font-family:'Inter','Segoe UI',sans-serif;min-height:100vh;display:flex;bac
 <div class="right">
   <div class="login-heading">Welcome back</div>
   <div class="login-sub">Sign in to access the billing system</div>
+  
   <div class="error-box" id="err-box">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
       <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/>
@@ -97,6 +98,7 @@ body{font-family:'Inter','Segoe UI',sans-serif;min-height:100vh;display:flex;bac
     </svg>
     <span id="err-text">Incorrect username or password. Please try again.</span>
   </div>
+
   <form id="loginForm" onsubmit="handleLogin(event)">
     <div class="form-group">
       <label class="form-label" for="username">Username</label>
@@ -137,6 +139,7 @@ body{font-family:'Inter','Segoe UI',sans-serif;min-height:100vh;display:flex;bac
     Contact admin to request access.
   </div>
 </div>
+
 <script>
   function togglePass() {
     const pwdInput = document.getElementById('password');
@@ -151,26 +154,50 @@ body{font-family:'Inter','Segoe UI',sans-serif;min-height:100vh;display:flex;bac
     }
   }
 
-  function handleLogin(e) {
-    e.preventDefault();
-    
+  async function handleLogin(event) {
+    event.preventDefault();
+
+    const usernameInput = document.getElementById('username').value.trim();
+    const passwordInput = document.getElementById('password').value;
     const errBox = document.getElementById('err-box');
     const errText = document.getElementById('err-text');
-    const btnSubmit = document.getElementById('btnSubmit');
-    errBox.classList.remove('show');
-    btnSubmit.disabled = true;
-    btnSubmit.textContent = 'Signing in...';
-    const username = document.getElementById('username').value.trim();
-    const password = document.getElementById('password').value.trim();
-    
-    if ((username.toLowerCase() === 'admin') && password === 'shivshakti') {
-      sessionStorage.setItem('isLoggedIn', 'true');
-      window.location.replace('index.html');
-    } else {
-      errText.textContent = 'Incorrect username or password. Please try again.';
-      errBox.classList.add('show');
-      btnSubmit.disabled = false;
-      btnSubmit.textContent = 'Sign In →';
+    const submitBtn = document.getElementById('btnSubmit');
+
+    if (errBox) errBox.classList.remove('show');
+    if (submitBtn) submitBtn.disabled = true;
+
+    try {
+      const res = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username: usernameInput,
+          password: passwordInput
+        })
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        sessionStorage.setItem('isLoggedIn', 'true');
+        sessionStorage.setItem('sessionId', data.sessionId);
+        window.location.replace('index.html');
+      } else {
+        if (errText && errBox) {
+          errText.textContent = data.message || 'Invalid username or password.';
+          errBox.classList.add('show');
+        } else {
+          alert(data.message || 'Invalid username or password.');
+        }
+      }
+    } catch (err) {
+      console.error('Login error:', err);
+      if (errText && errBox) {
+        errText.textContent = 'Unable to connect to server.';
+        errBox.classList.add('show');
+      }
+    } finally {
+      if (submitBtn) submitBtn.disabled = false;
     }
   }
 </script>
