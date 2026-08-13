@@ -193,7 +193,6 @@ input[type="number"] { -moz-appearance: textfield; }
   .items-table { width: 100% !important; border-collapse: collapse !important; }
   .items-table th { background: transparent !important; color: #000 !important; border: 1px solid #000 !important; padding: 4px 6px !important; font-size: 10px !important; }
   
-  /* Make all table cell text and inputs bold during print */
   .items-table td {
     border: 1px solid #000 !important;
     padding: 3px 6px !important;
@@ -202,7 +201,6 @@ input[type="number"] { -moz-appearance: textfield; }
     font-weight: 700 !important;
   }
 
-  /* Force Particulars, Qty, and Rate input values to print in bold */
   .items-table td input {
     font-weight: 700 !important;
     font-size: 10.5px !important;
@@ -288,12 +286,10 @@ input[type="number"] { -moz-appearance: textfield; }
   </div>
 
   <div class="challan-box" id="challan-sheet">
-    <!-- LEFT SIDE: GSTIN NUMBER -->
     <div class="gstin-left">
       GSTIN: 24ACCFS8163L1ZR
     </div>
 
-    <!-- RIGHT SIDE: PHONE NUMBERS & EMAIL IDS -->
     <div class="contacts">
       <div class="phone-no">Phone No.: 94280 73316</div>
       <div class="phone-no">Phone No.: 98240 49919</div>
@@ -319,13 +315,11 @@ input[type="number"] { -moz-appearance: textfield; }
 
     <!-- CUSTOMER DETAILS SECTION -->
     <div class="cust-info-box">
-      <!-- Line 1: Name -->
       <div class="cust-row">
         <span class="cust-label">માલ લેનારનું નામ :</span>
         <input type="text" id="custName" class="clean-input" style="flex:1;">
       </div>
 
-      <!-- Line 2: Phone No / Email ID -->
       <div class="cust-row">
         <span class="cust-label">ફોન નં. / ઈમેઈલ આઈડી :</span>
         <div style="flex:1; display:flex; align-items:center; gap:8px;">
@@ -335,19 +329,16 @@ input[type="number"] { -moz-appearance: textfield; }
         </div>
       </div>
 
-      <!-- Line 3: Address Line 1 -->
       <div class="cust-row">
         <span class="cust-label">ઠા. (સરનામું) :</span>
         <input type="text" id="custAddress1" class="clean-input" style="flex:1;" placeholder="Address Line 1">
       </div>
 
-      <!-- Line 4: Address Line 2 -->
       <div class="cust-row">
         <span class="cust-label"></span>
         <input type="text" id="custAddress2" class="clean-input" style="flex:1;" placeholder="Address Line 2">
       </div>
 
-      <!-- Line 5: GSTIN -->
       <div class="cust-row">
         <span class="cust-label">જી.એસ.ટી. નં. :</span>
         <input type="text" id="custGst" class="clean-input" style="width:240px; text-transform:uppercase;">
@@ -382,7 +373,7 @@ input[type="number"] { -moz-appearance: textfield; }
 
     <button class="add-row-btn" onclick="addRow()">+ Add item row</button>
 
-    <!-- BOTTOM SECTION: CUSTOMER SIGN (LEFT), BANK & GPAY QR (MIDDLE), RETAILER SIGN (RIGHT) -->
+    <!-- BOTTOM SECTION -->
     <div class="bottom-grid">
       <div>
         <div class="cust-sig-area">
@@ -406,7 +397,6 @@ input[type="number"] { -moz-appearance: textfield; }
           <div><strong>Branch &amp; IFS Code :</strong> Pratapnagar &amp; UBIN0807346</div>
         </div>
 
-        <!-- GPAY / UPI QR CODE BOX (Updated VPA for Shiv Shakti Tiles as per image 2) -->
         <div class="qr-code-box">
           <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=WL0507341A0031400@unionbank&pn=SHIVSHAKTI%20TILES" alt="GPay QR Code">
           <div class="qr-label">Scan to Pay<br>GPay / UPI</div>
@@ -458,7 +448,6 @@ function renderTable() {
     const qtyNum = parseFloat(item.qty) || 0;
     const rateNum = parseFloat(item.rate) || 0;
     const amt = qtyNum * rateNum;
-    
     const amtDisplay = (qtyNum > 0 || rateNum > 0) ? amt.toFixed(2) : '';
 
     const tr = document.createElement('tr');
@@ -668,6 +657,9 @@ async function saveBill() {
       currentEditingId = saved._id;
       if (saved.officialBillNo) currentOfficialBillNo = saved.officialBillNo;
       document.getElementById('formTitle').textContent = `Editing Bill (${saved.billNo})`;
+      
+      // Update LocalStorage for offline synchronization
+      saveToLocalStorage({ ...payload, _id: saved._id });
       showToast('Bill saved successfully!');
     } else {
       const errText = await res.text();
@@ -676,8 +668,21 @@ async function saveBill() {
     }
   } catch (err) {
     console.error('Save connection error:', err);
-    alert('Failed to connect to server. Please verify backend is running.');
+    // Offline Fallback Save
+    saveToLocalStorage({ ...payload, _id: currentEditingId || Date.now().toString() });
+    showToast('Saved to local storage (Offline Mode)');
   }
+}
+
+function saveToLocalStorage(billData) {
+  const localBills = JSON.parse(localStorage.getItem('saved_bills') || '[]');
+  const index = localBills.findIndex(b => b._id === billData._id);
+  if (index >= 0) {
+    localBills[index] = billData;
+  } else {
+    localBills.push(billData);
+  }
+  localStorage.setItem('saved_bills', JSON.stringify(localBills));
 }
 
 function showToast(msg) {
@@ -687,53 +692,86 @@ function showToast(msg) {
   setTimeout(() => toast.classList.remove('show'), 3000);
 }
 
-// Export all saved bills into a downloadable JSON file
-function exportDataBackup() {
-  const allBills = JSON.parse(localStorage.getItem('saved_bills') || '[]');
-  if (allBills.length === 0) {
-    alert('No saved bills found to create a backup!');
-    return;
+// Export bills (Server primary, LocalStorage fallback)
+async function exportDataBackup() {
+  try {
+    let allBills = [];
+    try {
+      const res = await fetch('/api/bills');
+      if (res.ok) {
+        allBills = await res.json();
+      }
+    } catch (e) {
+      console.warn('Server fetch failed, falling back to LocalStorage:', e);
+    }
+
+    if (!allBills || allBills.length === 0) {
+      allBills = JSON.parse(localStorage.getItem('saved_bills') || '[]');
+    }
+
+    if (allBills.length === 0) {
+      alert('No saved bills found to create a backup!');
+      return;
+    }
+
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(allBills, null, 2));
+    const dlAnchor = document.createElement('a');
+    const dateStr = new Date().toISOString().slice(0, 10);
+
+    dlAnchor.setAttribute("href", dataStr);
+    dlAnchor.setAttribute("download", `Shiv_Shakti_Tiles_Backup_${dateStr}.json`);
+    document.body.appendChild(dlAnchor);
+    dlAnchor.click();
+    dlAnchor.remove();
+
+    showToast('Backup file downloaded successfully!');
+  } catch (err) {
+    console.error('Export error:', err);
+    alert('Error creating backup file: ' + err.message);
   }
-  
-  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(allBills, null, 2));
-  const dlAnchor = document.createElement('a');
-  const dateStr = new Date().toISOString().slice(0, 10);
-  
-  dlAnchor.setAttribute("href", dataStr);
-  dlAnchor.setAttribute("download", `Shiv_Shakti_Tiles_Backup_${dateStr}.json`);
-  document.body.appendChild(dlAnchor);
-  dlAnchor.click();
-  dlAnchor.remove();
-  
-  showToast('Backup file downloaded successfully!');
 }
-  
+
 // Import JSON backup file to restore bills
 function importDataBackup(event) {
   const file = event.target.files[0];
   if (!file) return;
 
   const reader = new FileReader();
-  reader.onload = function(e) {
+  reader.onload = async function(e) {
     try {
       const importedData = JSON.parse(e.target.result);
       if (!Array.isArray(importedData)) {
         alert('Invalid backup file format.');
         return;
       }
-      
+
+      let successCount = 0;
+      for (const bill of importedData) {
+        try {
+          const res = await fetch('/api/bills', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(bill)
+          });
+          if (res.ok) successCount++;
+        } catch (err) {
+          console.warn('Failed syncing item to server:', err);
+        }
+      }
+
       const existingBills = JSON.parse(localStorage.getItem('saved_bills') || '[]');
       const mergedBills = [...existingBills, ...importedData];
-      
       localStorage.setItem('saved_bills', JSON.stringify(mergedBills));
-      showToast('Data backup restored successfully!');
+
+      showToast(`Restored ${importedData.length} bills successfully!`);
     } catch (err) {
       alert('Error importing backup file: ' + err.message);
     }
   };
   reader.readAsText(file);
+  event.target.value = '';
 }
-  
+
 // Register Offline Capabilities
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
