@@ -732,6 +732,15 @@ function importDataBackup(event) {
   };
   reader.readAsText(file);
 }
+  
+// Register Offline Capabilities
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js')
+      .then(() => console.log('Offline support activated.'))
+      .catch((err) => console.error('Service Worker Registration Error:', err));
+  });
+}
 </script>
 </body>
 </html>
