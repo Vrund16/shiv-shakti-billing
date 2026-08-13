@@ -57,6 +57,8 @@ app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'login.html')));
 app.get('/login', (req, res) => res.sendFile(path.join(__dirname, 'login.html')));
 app.get('/index', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 app.get('/history', (req, res) => res.sendFile(path.join(__dirname, 'history.html')));
+// Add this route along with your other HTML Page Routes in server.js
+app.get('/activity', (req, res) => res.sendFile(path.join(__dirname, 'activity.html')));
 
 // -------------------------------------------------------------
 // AUTHENTICATION & CONCURRENCY RATE LIMITER ENDPOINTS
