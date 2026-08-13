@@ -11,6 +11,36 @@ app.use(cors());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(__dirname));
 
+// Active Sessions (Max 4 allowed concurrently) & Login Activity Tracker
+const activeSessions = new Map(); // sessionId -> { username, ip, device, loginTime, lastSeen }
+const loginAttemptsLog = [];     // History of login attempts
+
+// Helper to log all incoming login activity
+function logLoginAttempt(username, ip, userAgent, status, reason = '') {
+  const attemptInfo = {
+    id: Date.now().toString(36) + Math.random().toString(36).substring(2, 5),
+    username: username || 'Unknown',
+    ip: ip || 'Unknown',
+    device: userAgent || 'Unknown',
+    timestamp: new Date().toISOString(),
+    status: status, // 'SUCCESS', 'FAILED_INVALID_CREDS', 'REJECTED_MAX_LIMIT'
+    reason: reason
+  };
+  loginAttemptsLog.unshift(attemptInfo);
+  // Keep last 200 records
+  if (loginAttemptsLog.length > 200) loginAttemptsLog.pop();
+}
+
+// Session Cleanup: Automatically clean up sessions inactive for more than 30 minutes
+setInterval(() => {
+  const now = Date.now();
+  for (const [sessionId, session] of activeSessions.entries()) {
+    if (now - session.lastSeen > 30 * 60 * 1000) {
+      activeSessions.delete(sessionId);
+    }
+  }
+}, 5 * 60 * 1000);
+
 // Supports MONGO_URI or MONGODB_URI automatically
 const MONGO_URI = process.env.MONGO_URI || process.env.MONGODB_URI || 'mongodb://localhost:27017/shiv_shakti_tiles';
 console.log('Attempting MongoDB connection...');
@@ -27,6 +57,99 @@ app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'login.html')));
 app.get('/login', (req, res) => res.sendFile(path.join(__dirname, 'login.html')));
 app.get('/index', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 app.get('/history', (req, res) => res.sendFile(path.join(__dirname, 'history.html')));
+
+// -------------------------------------------------------------
+// AUTHENTICATION & CONCURRENCY RATE LIMITER ENDPOINTS
+// -------------------------------------------------------------
+
+// POST /api/login - Login endpoint with 4-User Concurrency Limit & Activity Logging
+app.post('/api/login', (req, res) => {
+  const { username, password } = req.body;
+  const clientIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || req.ip;
+  const userAgent = req.headers['user-agent'] || 'Unknown Device';
+
+  const CORRECT_USERNAME = 'admin';
+  const CORRECT_PASSWORD = 'shivshakti@*%$&sungranites'; // Updated Password
+
+  const reqUsername = (username || '').trim();
+
+  // Validate Credentials
+  if (reqUsername === CORRECT_USERNAME && password === CORRECT_PASSWORD) {
+    // Check Max 4 Concurrent Active Users
+    if (activeSessions.size >= 4) {
+      logLoginAttempt(reqUsername, clientIp, userAgent, 'REJECTED_MAX_LIMIT', 'Active user limit of 4 reached');
+      return res.status(429).json({
+        success: false,
+        message: 'Maximum limit of 4 active users reached. Please try again later.'
+      });
+    }
+
+    // Generate Session ID & Store Active Session
+    const sessionId = 'sess_' + Date.now() + '_' + Math.random().toString(36).substring(2, 9);
+    const sessionData = {
+      sessionId,
+      username: reqUsername,
+      ip: clientIp,
+      device: userAgent,
+      loginTime: new Date().toISOString(),
+      lastSeen: Date.now()
+    };
+
+    activeSessions.set(sessionId, sessionData);
+    logLoginAttempt(reqUsername, clientIp, userAgent, 'SUCCESS', 'Login successful');
+
+    return res.json({
+      success: true,
+      message: 'Login successful',
+      sessionId: sessionId,
+      username: reqUsername
+    });
+  } else {
+    logLoginAttempt(reqUsername, clientIp, userAgent, 'FAILED_INVALID_CREDS', 'Incorrect username or password');
+    return res.status(401).json({
+      success: false,
+      message: 'Invalid username or password'
+    });
+  }
+});
+
+// POST /api/logout - End session and free up a slot
+app.post('/api/logout', (req, res) => {
+  const sessionId = req.headers['x-session-id'] || req.body.sessionId;
+  if (sessionId && activeSessions.has(sessionId)) {
+    activeSessions.delete(sessionId);
+  }
+  res.json({ success: true, message: 'Logged out successfully' });
+});
+
+// GET /api/session-check - Heartbeat & Active Session Validation
+app.get('/api/session-check', (req, res) => {
+  const sessionId = req.headers['x-session-id'] || req.query.sessionId;
+  if (sessionId && activeSessions.has(sessionId)) {
+    const session = activeSessions.get(sessionId);
+    session.lastSeen = Date.now(); // Update heartbeat timestamp
+    return res.json({
+      active: true,
+      activeUserCount: activeSessions.size,
+      maxAllowed: 4
+    });
+  }
+  return res.status(401).json({ active: false, message: 'Session invalid or expired' });
+});
+
+// GET /api/admin/login-activity - View all login logs & currently active users
+app.get('/api/admin/login-activity', (req, res) => {
+  res.json({
+    activeUserCount: activeSessions.size,
+    maxAllowed: 4,
+    activeSessions: Array.from(activeSessions.values()),
+    logs: loginAttemptsLog
+  });
+});
+
+// -------------------------------------------------------------
+// BILLING API ENDPOINTS
+// -------------------------------------------------------------
 
 // GET all bills
 app.get('/api/bills', async (req, res) => {
