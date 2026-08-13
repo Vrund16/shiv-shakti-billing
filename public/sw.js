@@ -4,10 +4,10 @@ const ASSETS_TO_CACHE = [
   './index.html',
   './login.html',
   './history.html',
+  './activity.html',
   'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap'
 ];
 
-// Cache all essential site files on install
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS_TO_CACHE))
@@ -15,7 +15,6 @@ self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
 
-// Intercept network requests and serve cached files when offline
 self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
