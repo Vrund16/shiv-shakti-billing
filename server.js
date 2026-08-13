@@ -27,7 +27,6 @@ function logLoginAttempt(username, ip, userAgent, status, reason = '') {
     reason: reason
   };
   loginAttemptsLog.unshift(attemptInfo);
-  // Keep last 200 records
   if (loginAttemptsLog.length > 200) loginAttemptsLog.pop();
 }
 
@@ -57,27 +56,25 @@ app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'login.html')));
 app.get('/login', (req, res) => res.sendFile(path.join(__dirname, 'login.html')));
 app.get('/index', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 app.get('/history', (req, res) => res.sendFile(path.join(__dirname, 'history.html')));
-// Add this route along with your other HTML Page Routes in server.js
 app.get('/activity', (req, res) => res.sendFile(path.join(__dirname, 'activity.html')));
 
 // -------------------------------------------------------------
 // AUTHENTICATION & CONCURRENCY RATE LIMITER ENDPOINTS
 // -------------------------------------------------------------
 
-// POST /api/login - Login endpoint with 4-User Concurrency Limit & Activity Logging
+// POST /api/login - Strict Auth Endpoint
 app.post('/api/login', (req, res) => {
   const { username, password } = req.body;
   const clientIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || req.ip;
   const userAgent = req.headers['user-agent'] || 'Unknown Device';
 
-  const CORRECT_USERNAME = 'admin';
-  const CORRECT_PASSWORD = 'shivshakti@*%$&sungranites'; // Updated Password
+  const CORRECT_USERNAME = 'Shiv-Shakti';
+  const CORRECT_PASSWORD = 'shivshakti@*&$#2012sungranites';
 
   const reqUsername = (username || '').trim();
 
-  // Validate Credentials
   if (reqUsername === CORRECT_USERNAME && password === CORRECT_PASSWORD) {
-    // Check Max 4 Concurrent Active Users
+    // Enforce 4 Concurrent Active Users
     if (activeSessions.size >= 4) {
       logLoginAttempt(reqUsername, clientIp, userAgent, 'REJECTED_MAX_LIMIT', 'Active user limit of 4 reached');
       return res.status(429).json({
@@ -86,7 +83,6 @@ app.post('/api/login', (req, res) => {
       });
     }
 
-    // Generate Session ID & Store Active Session
     const sessionId = 'sess_' + Date.now() + '_' + Math.random().toString(36).substring(2, 9);
     const sessionData = {
       sessionId,
@@ -115,7 +111,7 @@ app.post('/api/login', (req, res) => {
   }
 });
 
-// POST /api/logout - End session and free up a slot
+// POST /api/logout
 app.post('/api/logout', (req, res) => {
   const sessionId = req.headers['x-session-id'] || req.body.sessionId;
   if (sessionId && activeSessions.has(sessionId)) {
@@ -124,12 +120,12 @@ app.post('/api/logout', (req, res) => {
   res.json({ success: true, message: 'Logged out successfully' });
 });
 
-// GET /api/session-check - Heartbeat & Active Session Validation
+// GET /api/session-check
 app.get('/api/session-check', (req, res) => {
   const sessionId = req.headers['x-session-id'] || req.query.sessionId;
   if (sessionId && activeSessions.has(sessionId)) {
     const session = activeSessions.get(sessionId);
-    session.lastSeen = Date.now(); // Update heartbeat timestamp
+    session.lastSeen = Date.now();
     return res.json({
       active: true,
       activeUserCount: activeSessions.size,
@@ -139,7 +135,7 @@ app.get('/api/session-check', (req, res) => {
   return res.status(401).json({ active: false, message: 'Session invalid or expired' });
 });
 
-// GET /api/admin/login-activity - View all login logs & currently active users
+// GET /api/admin/login-activity
 app.get('/api/admin/login-activity', (req, res) => {
   res.json({
     activeUserCount: activeSessions.size,
@@ -153,7 +149,6 @@ app.get('/api/admin/login-activity', (req, res) => {
 // BILLING API ENDPOINTS
 // -------------------------------------------------------------
 
-// GET all bills
 app.get('/api/bills', async (req, res) => {
   try {
     const bills = await Bill.find().sort({ createdAt: -1 });
@@ -163,7 +158,6 @@ app.get('/api/bills', async (req, res) => {
   }
 });
 
-// GET single bill
 app.get('/api/bills/:id', async (req, res) => {
   try {
     const bill = await Bill.findById(req.params.id);
@@ -174,7 +168,6 @@ app.get('/api/bills/:id', async (req, res) => {
   }
 });
 
-// POST save new bill
 app.post('/api/bills', async (req, res) => {
   try {
     if (mongoose.connection.readyState !== 1) {
@@ -191,7 +184,6 @@ app.post('/api/bills', async (req, res) => {
   }
 });
 
-// PUT update full bill
 app.put('/api/bills/:id', async (req, res) => {
   try {
     const updated = await Bill.findByIdAndUpdate(req.params.id, req.body, { new: true });
@@ -201,7 +193,6 @@ app.put('/api/bills/:id', async (req, res) => {
   }
 });
 
-// PATCH update official bill number
 app.patch('/api/bills/:id', async (req, res) => {
   try {
     const { officialBillNo } = req.body;
@@ -216,7 +207,6 @@ app.patch('/api/bills/:id', async (req, res) => {
   }
 });
 
-// DELETE bill
 app.delete('/api/bills/:id', async (req, res) => {
   try {
     await Bill.findByIdAndDelete(req.params.id);
