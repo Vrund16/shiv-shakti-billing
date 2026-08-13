@@ -280,6 +280,9 @@ input[type="number"] { -moz-appearance: textfield; }
       <button class="action-btn btn-clear" onclick="clearForm()">🔄 Clear / New</button>
       <button class="action-btn btn-save" onclick="saveBill()">💾 Save Bill</button>
       <button class="action-btn btn-print" onclick="window.print()">🖨️ Print Bill PDF</button>
+      <button class="action-btn btn-clear" onclick="exportDataBackup()">📥 Export Backup</button>
+      <button class="action-btn btn-clear" onclick="document.getElementById('importBackupInput').click()">📤 Import Backup</button>
+      <input type="file" id="importBackupInput" accept=".json" style="display:none;" onchange="importDataBackup(event)">
     </div>
   </div>
 
@@ -681,6 +684,53 @@ function showToast(msg) {
   toast.textContent = msg;
   toast.classList.add('show');
   setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
+// Export all saved bills into a downloadable JSON file
+function exportDataBackup() {
+  const allBills = JSON.parse(localStorage.getItem('saved_bills') || '[]');
+  if (allBills.length === 0) {
+    alert('No saved bills found to create a backup!');
+    return;
+  }
+  
+  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(allBills, null, 2));
+  const dlAnchor = document.createElement('a');
+  const dateStr = new Date().toISOString().slice(0, 10);
+  
+  dlAnchor.setAttribute("href", dataStr);
+  dlAnchor.setAttribute("download", `Shiv_Shakti_Tiles_Backup_${dateStr}.json`);
+  document.body.appendChild(dlAnchor);
+  dlAnchor.click();
+  dlAnchor.remove();
+  
+  showToast('Backup file downloaded successfully!');
+}
+  
+// Import JSON backup file to restore bills
+function importDataBackup(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const importedData = JSON.parse(e.target.result);
+      if (!Array.isArray(importedData)) {
+        alert('Invalid backup file format.');
+        return;
+      }
+      
+      const existingBills = JSON.parse(localStorage.getItem('saved_bills') || '[]');
+      const mergedBills = [...existingBills, ...importedData];
+      
+      localStorage.setItem('saved_bills', JSON.stringify(mergedBills));
+      showToast('Data backup restored successfully!');
+    } catch (err) {
+      alert('Error importing backup file: ' + err.message);
+    }
+  };
+  reader.readAsText(file);
 }
 </script>
 </body>
