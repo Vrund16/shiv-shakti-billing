@@ -12,85 +12,212 @@
 <title>Shiv Shakti Tiles – Bill History</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-*{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Inter',Arial,sans-serif;background:#f1f5f9;min-height:100vh;color:#0f172a;}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Inter', Arial, sans-serif; background: #f1f5f9; min-height: 100vh; color: #0f172a; }
 
 /* NAVBAR */
-.topnav{background:#0f2847;padding:0 24px;height:60px;display:flex;align-items:center;
-  justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.15);}
-.nav-brand{display:flex;align-items:center;gap:12px;}
-.nav-logo{width:34px;height:34px;background:rgba(255,255,255,.12);border-radius:8px;
-  display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,.15);}
-.nav-logo svg{width:20px;height:20px;}
-.nav-title{font-size:16px;font-weight:700;color:#fff;letter-spacing:.3px;}
-.nav-title span{font-weight:400;opacity:.7;font-size:13px;margin-left:6px;}
-.nav-links{display:flex;gap:6px;}
-.nav-link{padding:7px 16px;border-radius:6px;font-size:13px;font-weight:500;
-  color:rgba(255,255,255,.75);text-decoration:none;transition:all .15s;}
-.nav-link:hover{background:rgba(255,255,255,.1);color:#fff;}
-.nav-link.active{background:rgba(255,255,255,.18);color:#fff;}
-.nav-right{display:flex;align-items:center;gap:14px;}
-.nav-user{font-size:13px;color:rgba(255,255,255,.85);display:flex;align-items:center;gap:8px;}
-.user-avatar{width:28px;height:28px;border-radius:50%;background:#1a3a5c;border:1px solid rgba(255,255,255,.3);
-  display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;}
-.btn-logout{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);
-  color:#fff;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;transition:all .15s;}
+.topnav {
+  background: #0f2847;
+  padding: 0 24px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 8px rgba(0,0,0,.15);
+}
+.nav-brand { display: flex; align-items: center; gap: 12px; }
+.nav-logo {
+  width: 34px;
+  height: 34px;
+  background: rgba(255,255,255,.12);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255,255,255,.15);
+}
+.nav-logo svg { width: 20px; height: 20px; }
+.nav-title { font-size: 16px; font-weight: 700; color: #fff; letter-spacing: .3px; }
+.nav-title span { font-weight: 400; opacity: .7; font-size: 13px; margin-left: 6px; }
+.nav-links { display: flex; gap: 6px; }
+.nav-link {
+  padding: 7px 16px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(255,255,255,.75);
+  text-decoration: none;
+  transition: all .15s;
+}
+.nav-link:hover { background: rgba(255,255,255,.1); color: #fff; }
+.nav-link.active { background: rgba(255,255,255,.18); color: #fff; }
+.nav-right { display: flex; align-items: center; gap: 14px; }
+.nav-user { font-size: 13px; color: rgba(255,255,255,.85); display: flex; align-items: center; gap: 8px; }
+.user-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #1a3a5c;
+  border: 1px solid rgba(255,255,255,.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+}
+.btn-logout {
+  background: rgba(255,255,255,.1);
+  border: 1px solid rgba(255,255,255,.2);
+  color: #fff;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all .15s;
+}
+.btn-logout:hover { background: rgba(255,255,255,.2); }
 
-.page{padding:24px;max-width:1050px;margin:0 auto;}
+.page { padding: 24px; max-width: 1050px; margin: 0 auto; }
 
 /* STATS METRICS */
-.stats-grid{display:grid;grid-template-columns:repeat(3, 1fr);gap:16px;margin-bottom:20px;}
-.stat-card{background:#fff;border-radius:10px;padding:18px;border:1px solid #e2e8f0;
-  box-shadow:0 1px 3px rgba(0,0,0,.04);}
-.stat-label{font-size:11px;font-weight:700;color:#64748b;letter-spacing:.8px;text-transform:uppercase;margin-bottom:6px;}
-.stat-val{font-size:22px;font-weight:800;color:#0f2847;}
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 20px; }
+.stat-card {
+  background: #fff;
+  border-radius: 10px;
+  padding: 18px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0,0,0,.04);
+}
+.stat-label { font-size: 11px; font-weight: 700; color: #64748b; letter-spacing: .8px; text-transform: uppercase; margin-bottom: 6px; }
+.stat-val { font-size: 22px; font-weight: 800; color: #0f2847; }
 
 /* FILTER TABS */
-.filter-card{background:#fff;border-radius:12px;padding:18px 20px;margin-bottom:20px;
-  border:1px solid #e2e8f0;box-shadow:0 1px 3px rgba(0,0,0,.04);}
-.tab-row{display:flex;gap:8px;align-items:center;margin-bottom:14px;flex-wrap:wrap;}
-.tab-label{font-size:13px;font-weight:600;color:#475569;margin-right:6px;}
-.view-btn{padding:8px 16px;border-radius:20px;border:1px solid #cbd5e1;background:#fff;
-  font-size:13px;font-weight:600;color:#334155;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:6px;}
-.view-btn:hover{background:#f8fafc;}
-.view-btn.active{background:#1a3a5c;color:#fff;border-color:#1a3a5c;}
-.view-btn.btn-summary.active{background:#0284c7;border-color:#0284c7;color:#fff;}
+.filter-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 18px 20px;
+  margin-bottom: 20px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0,0,0,.04);
+}
+.tab-row { display: flex; gap: 8px; align-items: center; margin-bottom: 14px; flex-wrap: wrap; }
+.tab-label { font-size: 13px; font-weight: 600; color: #475569; margin-right: 6px; }
+.view-btn {
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: 1px solid #cbd5e1;
+  background: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+  cursor: pointer;
+  transition: all .15s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.view-btn:hover { background: #f8fafc; }
+.view-btn.active { background: #1a3a5c; color: #fff; border-color: #1a3a5c; }
+.view-btn.btn-summary.active { background: #0284c7; border-color: #0284c7; color: #fff; }
 
-.search-bar-row{display:flex;gap:12px;}
-.search-input{flex:1;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:8px;
-  font-size:13.5px;outline:none;transition:all .15s;}
-.search-input:focus{border-color:#1a3a5c;}
-.btn-export-excel{background:#16a34a;color:#fff;padding:10px 18px;border-radius:8px;
-  font-weight:700;font-size:13px;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all .15s;}
-.btn-export-excel:hover{background:#15803d;}
-.btn-new-bill{background:#0f2847;color:#fff;padding:10px 18px;border-radius:8px;
-  font-weight:700;font-size:13px;text-decoration:none;display:inline-flex;align-items:center;gap:6px;}
+.search-bar-row { display: flex; gap: 12px; flex-wrap: wrap; }
+.search-input {
+  flex: 1;
+  min-width: 220px;
+  padding: 10px 14px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 13.5px;
+  outline: none;
+  transition: all .15s;
+}
+.search-input:focus { border-color: #1a3a5c; }
+.btn-export-excel {
+  background: #16a34a;
+  color: #fff;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 13px;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all .15s;
+}
+.btn-export-excel:hover { background: #15803d; }
+.btn-new-bill {
+  background: #0f2847;
+  color: #fff;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 13px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
 
 /* DATA TABLE */
-.table-card{background:#fff;border-radius:12px;border:1px solid #cbd5e1;overflow:hidden;
-  box-shadow:0 4px 12px rgba(0,0,0,.03);}
-.data-table{width:100%;border-collapse:collapse;}
-.data-table th{background:#0f2847;color:#fff;padding:12px 14px;font-size:12.5px;font-weight:700;text-align:left;}
-.data-table td{padding:10px 14px;border-bottom:1px solid #e2e8f0;font-size:13px;color:#0f172a;vertical-align:middle;}
-.data-table tr:hover td{background:#f8fafc;}
+.table-card {
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid #cbd5e1;
+  overflow-x: auto;
+  box-shadow: 0 4px 12px rgba(0,0,0,.03);
+}
+.data-table { width: 100%; border-collapse: collapse; text-align: left; }
+.data-table th { background: #0f2847; color: #fff; padding: 12px 14px; font-size: 12.5px; font-weight: 700; }
+.data-table td { padding: 10px 14px; border-bottom: 1px solid #e2e8f0; font-size: 13px; color: #0f172a; vertical-align: middle; }
+.data-table tr:hover td { background: #f8fafc; }
 
 /* SUMMARY REGISTER SPECIFIC STYLING */
-.summary-table th{background:#1e293b;color:#f8fafc;border-right:1px solid #334155;}
-.summary-table td{border-right:1px solid #e2e8f0;}
-.editable-bill-input{padding:6px 10px;border:1.5px solid #cbd5e1;border-radius:6px;
-  font-size:13px;font-weight:700;color:#0f2847;width:120px;outline:none;background:#fafafa;transition:all .15s;}
-.editable-bill-input:focus{border-color:#0284c7;background:#fff;box-shadow:0 0 0 3px rgba(2,132,199,.15);}
-.saved-indicator{font-size:11px;color:#16a34a;font-weight:600;margin-left:6px;opacity:0;transition:opacity .2s;}
-.saved-indicator.show{opacity:1;}
+.summary-table th { background: #1e293b; color: #f8fafc; border-right: 1px solid #334155; }
+.summary-table td { border-right: 1px solid #e2e8f0; }
+.editable-bill-input {
+  padding: 6px 10px;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #0f2847;
+  width: 120px;
+  outline: none;
+  background: #fafafa;
+  transition: all .15s;
+}
+.editable-bill-input:focus { border-color: #0284c7; background: #fff; box-shadow: 0 0 0 3px rgba(2,132,199,.15); }
+.saved-indicator { font-size: 11px; color: #16a34a; font-weight: 600; margin-left: 6px; opacity: 0; transition: opacity .2s; }
+.saved-indicator.show { opacity: 1; }
 
-.action-link{color:#0284c7;font-weight:600;text-decoration:none;margin-right:10px;}
-.action-link:hover{text-decoration:underline;}
-.btn-del{color:#ef4444;background:none;border:none;cursor:pointer;font-weight:600;}
+.action-link { color: #0284c7; font-weight: 600; text-decoration: none; margin-right: 10px; }
+.action-link:hover { text-decoration: underline; }
+.btn-del { color: #ef4444; background: none; border: none; cursor: pointer; font-weight: 600; }
+.btn-del:hover { text-decoration: underline; }
 
-.toast{position:fixed;bottom:24px;right:24px;background:#0f2847;color:#fff;
-  padding:12px 20px;border-radius:8px;font-size:13px;font-weight:600;
-  box-shadow:0 10px 20px rgba(0,0,0,.15);display:none;z-index:9999;}
-.toast.show{display:block;}
+.toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: #0f2847;
+  color: #fff;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: 0 10px 20px rgba(0,0,0,.15);
+  display: none;
+  z-index: 9999;
+}
+.toast.show { display: block; }
 </style>
 </head>
 <body>
@@ -167,6 +294,17 @@ body{font-family:'Inter',Arial,sans-serif;background:#f1f5f9;min-height:100vh;co
 let allBills = [];
 let currentViewMode = 'summary';
 
+// Helper function to escape HTML special characters for XSS prevention
+function escapeHtml(str) {
+  if (str === null || str === undefined) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
 function logout() {
   sessionStorage.removeItem('isLoggedIn');
   localStorage.removeItem('isLoggedIn');
@@ -178,6 +316,10 @@ window.addEventListener('DOMContentLoaded', fetchBills);
 async function fetchBills() {
   try {
     const res = await fetch('/api/bills');
+    if (res.status === 401 || res.status === 403) {
+      logout();
+      return;
+    }
     if (!res.ok) throw new Error('Failed to fetch bills');
     allBills = await res.json();
     
@@ -266,13 +408,13 @@ function renderTable() {
 
     tbody.innerHTML = filtered.map(b => `
       <tr>
-        <td><strong>${b.billNo || '-'}</strong></td>
-        <td>${b.date || '-'}</td>
-        <td><strong>${b.custName || 'Cash Customer'}</strong></td>
-        <td>${b.custPhone || '-'}</td>
+        <td><strong>${escapeHtml(b.billNo || '-')}</strong></td>
+        <td>${escapeHtml(b.date || '-')}</td>
+        <td><strong>${escapeHtml(b.custName || 'Cash Customer')}</strong></td>
+        <td>${escapeHtml(b.custPhone || '-')}</td>
         <td>
           <div style="display: flex; align-items: center;">
-            <input type="text" class="editable-bill-input" value="${b.officialBillNo || ''}" 
+            <input type="text" class="editable-bill-input" value="${escapeHtml(b.officialBillNo || '')}" 
               placeholder="Bill No" onchange="updateOfficialBillNo('${b._id}', this.value, this)">
             <span class="saved-indicator">✓</span>
           </div>
@@ -305,10 +447,10 @@ function renderTable() {
 
     tbody.innerHTML = filtered.map(b => `
       <tr>
-        <td><strong>${b.billNo || '-'}</strong></td>
-        <td>${b.date || '-'}</td>
-        <td><strong>${b.custName || 'Cash Customer'}</strong></td>
-        <td>${b.custPhone || '-'}</td>
+        <td><strong>${escapeHtml(b.billNo || '-')}</strong></td>
+        <td>${escapeHtml(b.date || '-')}</td>
+        <td><strong>${escapeHtml(b.custName || 'Cash Customer')}</strong></td>
+        <td>${escapeHtml(b.custPhone || '-')}</td>
         <td style="text-align: right; font-weight: 700; color: #0f2847;">₹ ${parseFloat(b.grandTotal || 0).toFixed(2)}</td>
         <td style="text-align: center;">
           <a href="index.html?id=${b._id}" class="action-link">✏️ Edit / Print</a>
@@ -327,9 +469,6 @@ function exportToExcel() {
     return;
   }
 
-  // Generates an XML-formatted Excel spreadsheet.
-  // This explicitly sets mso-number-format to text (\@) for phone numbers and dates to prevent 
-  // scientific notation (9.12E+09) and truncation (###), with pre-formatted dark header styles.
   let excelXML = `
     <html xmlns:o="urn:schemas-microsoft-microsoft-com:office:office" 
           xmlns:x="urn:schemas-microsoft-microsoft-com:office:excel" 
@@ -397,11 +536,11 @@ function exportToExcel() {
   `;
 
   filtered.forEach(b => {
-    const chalan = b.billNo || '-';
-    const date = b.date || '-';
-    const name = b.custName || 'Cash Customer';
-    const phone = b.custPhone || '-';
-    const officialNo = b.officialBillNo || '-';
+    const chalan = escapeHtml(b.billNo || '-');
+    const date = escapeHtml(b.date || '-');
+    const name = escapeHtml(b.custName || 'Cash Customer');
+    const phone = escapeHtml(b.custPhone || '-');
+    const officialNo = escapeHtml(b.officialBillNo || '-');
     const total = parseFloat(b.grandTotal || 0).toFixed(2);
 
     excelXML += `
@@ -444,6 +583,12 @@ async function updateOfficialBillNo(id, value, inputElem) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ officialBillNo: value })
     });
+    
+    if (res.status === 401 || res.status === 403) {
+      logout();
+      return;
+    }
+
     if (res.ok) {
       const indicator = inputElem.nextElementSibling;
       if (indicator) {
@@ -464,6 +609,12 @@ async function deleteBill(id) {
   if (!confirm('Are you sure you want to delete this bill? This cannot be undone.')) return;
   try {
     const res = await fetch(`/api/bills/${id}`, { method: 'DELETE' });
+
+    if (res.status === 401 || res.status === 403) {
+      logout();
+      return;
+    }
+
     if (res.ok) {
       allBills = allBills.filter(b => b._id !== id);
       updateStats();
