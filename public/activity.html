@@ -53,6 +53,7 @@ body{font-family:'Inter',Arial,sans-serif;background:#eef2f7;min-height:100vh;co
 
 .btn-kick{background:#fef2f2;color:#dc2626;border:1px solid #fecaca;padding:4px 8px;border-radius:4px;font-size:11px;font-weight:700;cursor:pointer;}
 .btn-kick:hover{background:#fee2e2;}
+.badge-you{background:#e0f2fe;color:#0369a1;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:800;margin-left:6px;}
 </style>
 </head>
 <body>
@@ -140,7 +141,35 @@ body{font-family:'Inter',Arial,sans-serif;background:#eef2f7;min-height:100vh;co
 </div>
 
 <script>
-// Corrected Universal Logout Handler
+// --- AUTOMATIC SESSION HEARTBEAT (Kicks user off if terminated) ---
+setInterval(async () => {
+  const mySessionId = sessionStorage.getItem('sessionId');
+  if (!mySessionId) {
+    sessionStorage.clear();
+    window.location.replace('login.html');
+    return;
+  }
+  try {
+    const res = await fetch('/api/session-ping', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-session-id': mySessionId
+      },
+      body: JSON.stringify({ sessionId: mySessionId })
+    });
+    
+    // Server responded with 401 Unauthorized -> Session killed!
+    if (res.status === 401) {
+      sessionStorage.clear();
+      window.location.replace('login.html');
+    }
+  } catch (err) {
+    // Network glitch, skip ping
+  }
+}, 3000); // Checks every 3 seconds
+
+// --- LOGOUT HANDLER ---
 async function logout() {
   const sessionId = sessionStorage.getItem('sessionId');
   if (sessionId) {
@@ -161,11 +190,14 @@ async function logout() {
   window.location.replace('login.html');
 }
 
+// --- FETCH DASHBOARD ACTIVITY ---
 async function fetchActivity() {
   try {
     const res = await fetch('/api/admin/login-activity');
     if (!res.ok) throw new Error('Failed to fetch activity');
     const data = await res.json();
+
+    const mySessionId = sessionStorage.getItem('sessionId');
 
     // Render Stats
     document.getElementById('statActive').textContent = `${data.activeUserCount} / ${data.maxAllowed}`;
@@ -177,9 +209,14 @@ async function fetchActivity() {
     if (!data.activeSessions || data.activeSessions.length === 0) {
       activeBody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#64748b; padding:16px;">No users currently logged in.</td></tr>`;
     } else {
-      activeBody.innerHTML = data.activeSessions.map(s => `
+      activeBody.innerHTML = data.activeSessions.map(s => {
+        const isThisDevice = s.sessionId === mySessionId;
+        return `
         <tr>
-          <td style="font-weight:700; color:#0f2847;">${escapeHtml(s.username)}</td>
+          <td style="font-weight:700; color:#0f2847;">
+            ${escapeHtml(s.username)}
+            ${isThisDevice ? '<span class="badge-you">YOU</span>' : ''}
+          </td>
           <td style="font-family:monospace;">${escapeHtml(s.ip)}</td>
           <td style="max-width:300px; word-break:break-all; font-size:11.5px; color:#475569;">${escapeHtml(s.device)}</td>
           <td>${new Date(s.loginTime).toLocaleString('en-IN')}</td>
@@ -187,7 +224,7 @@ async function fetchActivity() {
             <button class="btn-kick" onclick="terminateSession('${s.sessionId}')">Disconnect</button>
           </td>
         </tr>
-      `).join('');
+      `}).join('');
     }
 
     // Render Logs History
@@ -214,15 +251,27 @@ async function fetchActivity() {
   }
 }
 
-async function terminateSession(sessionId) {
+// --- TERMINATE / DISCONNECT SESSION ---
+async function terminateSession(targetSessionId) {
   if (!confirm('Are you sure you want to disconnect this session?')) return;
+  
+  const mySessionId = sessionStorage.getItem('sessionId');
+
   try {
     const res = await fetch('/api/admin/terminate-session', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ sessionId })
+      body: JSON.stringify({ sessionId: targetSessionId })
     });
+
     if (res.ok) {
+      // If you disconnected YOUR OWN current device/session, logout immediately!
+      if (targetSessionId === mySessionId) {
+        sessionStorage.clear();
+        window.location.replace('login.html');
+        return;
+      }
+      // Otherwise refresh table
       fetchActivity();
     }
   } catch (err) {
@@ -236,7 +285,7 @@ function escapeHtml(str) {
 
 window.addEventListener('DOMContentLoaded', () => {
   fetchActivity();
-  setInterval(fetchActivity, 10000); // Auto-refresh every 10 seconds
+  setInterval(fetchActivity, 5000); // Auto-refresh active user table every 5 seconds
 });
 </script>
 </body>
