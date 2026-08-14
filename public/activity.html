@@ -11,85 +11,62 @@
 <title>Shiv Shakti Tiles – Security & Activity Dashboard</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',Arial,sans-serif;background:#eef2f7;min-height:100vh;color:#111;}
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'Inter', Arial, sans-serif; background: #eef2f7; min-height: 100vh; color: #111; }
+.topnav{background:#0f2847;padding:0 24px;height:58px;display:flex;align-items:center;
+  justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 10px rgba(0,0,0,.2);}
+.nav-brand{display:flex;align-items:center;gap:10px;}
+.nav-logo{width:30px;height:30px;background:rgba(255,255,255,.15);border-radius:6px;
+  display:flex;align-items:center;justify-content:center;}
+.nav-logo svg{width:18px;height:18px;}
+.nav-title{font-size:15px;font-weight:700;color:#fff;letter-spacing:.3px;}
+.nav-title span{font-weight:400;opacity:.7;font-size:12.5px;margin-left:4px;}
+.nav-links{display:flex;gap:4px;}
+.nav-link{padding:6px 14px;border-radius:6px;font-size:12.5px;font-weight:500;
+  color:rgba(255,255,255,.75);text-decoration:none;transition:all .15s;}
+.nav-link:hover{background:rgba(255,255,255,.1);color:#fff;}
+.nav-link.active{background:rgba(255,255,255,.18);color:#fff;}
+.btn-logout{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);
+  color:#fff;padding:5px 12px;border-radius:5px;font-size:12px;cursor:pointer;}
 
-/* TOPNAV */
-.topnav {
-  background: #0f2847;
-  padding: 0 24px;
-  height: 58px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  box-shadow: 0 2px 10px rgba(0,0,0,.2);
-}
-.nav-brand { display: flex; align-items: center; gap: 10px; }
-.nav-title { font-size: 15px; font-weight: 700; color: #fff; }
-.nav-title span { font-weight: 400; opacity: 0.8; font-size: 13px; margin-left: 6px; }
-.nav-links { display: flex; gap: 4px; }
-.nav-link {
-  padding: 6px 14px;
-  border-radius: 6px;
-  font-size: 12.5px;
-  font-weight: 500;
-  color: rgba(255,255,255,.75);
-  text-decoration: none;
-  transition: all .15s;
-}
-.nav-link:hover { background: rgba(255,255,255,.1); color: #fff; }
-.nav-link.active { background: rgba(255,255,255,.18); color: #fff; }
+.page{padding:24px;max-width:1150px;margin:0 auto;}
 
-/* LAYOUT */
-.page { padding: 20px; max-width: 1100px; margin: 0 auto; }
-.metrics-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 16px;
-  margin-bottom: 20px;
-}
-.card { background: #fff; border-radius: 8px; padding: 18px; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
-.card-title { font-size: 12px; font-weight: 700; color: #64748b; text-transform: uppercase; margin-bottom: 6px; }
-.card-value { font-size: 24px; font-weight: 800; color: #0f2847; }
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-bottom:24px;}
+.stat-card{background:#fff;border-radius:10px;padding:18px;box-shadow:0 2px 8px rgba(0,0,0,.04);}
+.stat-label{font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.5px;}
+.stat-val{font-size:24px;font-weight:800;color:#0f2847;margin-top:6px;}
 
-.section-card { background: #fff; border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
-.section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
-.section-title { font-size: 16px; font-weight: 700; color: #0f2847; }
+.card{background:#fff;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.06);padding:20px;margin-bottom:24px;overflow:hidden;}
+.card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+.card-title{font-size:16px;font-weight:700;color:#0f2847;display:flex;align-items:center;gap:8px;}
 
-/* TABLES */
-.table-responsive { overflow-x: auto; width: 100%; }
-.data-table { width: 100%; border-collapse: collapse; font-size: 12.5px; text-align: left; }
-.data-table th { background: #f8fafc; color: #475569; padding: 10px 12px; font-weight: 700; border-bottom: 2px solid #e2e8f0; }
-.data-table td { padding: 10px 12px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+.btn-refresh{background:#0f2847;color:#fff;border:none;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;}
+.btn-refresh:hover{background:#1a3a60;}
 
-/* BADGES */
-.badge { padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; display: inline-block; }
-.badge-success { background: #dcfce7; color: #15803d; }
-.badge-failed { background: #fee2e2; color: #b91c1c; }
-.badge-rejected { background: #fef3c7; color: #b45309; }
+.table{width:100%;border-collapse:collapse;font-size:12.5px;}
+.table th{background:#f8fafc;color:#475569;padding:10px 12px;text-align:left;font-weight:600;border-bottom:1px solid #e2e8f0;}
+.table td{padding:10px 12px;border-bottom:1px solid #f1f5f9;vertical-align:middle;}
 
-.btn-refresh {
-  background: #0f2847;
-  color: #fff;
-  border: none;
-  padding: 6px 14px;
-  border-radius: 5px;
-  font-weight: 600;
-  font-size: 12px;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-.btn-refresh:hover { background: #1e3a8a; }
+.badge-success{background:#dcfce7;color:#15803d;padding:3px 8px;border-radius:4px;font-weight:700;font-size:11px;}
+.badge-failed{background:#fee2e2;color:#b91c1c;padding:3px 8px;border-radius:4px;font-weight:700;font-size:11px;}
+
+.btn-kick{background:#fef2f2;color:#dc2626;border:1px solid #fecaca;padding:4px 8px;border-radius:4px;font-size:11px;font-weight:700;cursor:pointer;}
+.btn-kick:hover{background:#fee2e2;}
 </style>
 </head>
 <body>
 
 <nav class="topnav">
   <div class="nav-brand">
+    <div class="nav-logo">
+      <svg viewBox="0 0 40 40" fill="none">
+        <rect x="4" y="4" width="14" height="14" rx="2" fill="white"/>
+        <rect x="22" y="4" width="14" height="14" rx="2" fill="white" opacity=".5"/>
+        <rect x="4" y="22" width="14" height="14" rx="2" fill="white" opacity=".5"/>
+        <rect x="22" y="22" width="14" height="14" rx="2" fill="white"/>
+      </svg>
+    </div>
     <div class="nav-title">SHIV SHAKTI TILES <span>Security Monitor</span></div>
   </div>
   <div class="nav-links">
@@ -97,156 +74,169 @@ body { font-family: 'Inter', Arial, sans-serif; background: #eef2f7; min-height:
     <a href="history.html" class="nav-link">Bill History</a>
     <a href="activity.html" class="nav-link active">Login Dashboard</a>
   </div>
+  <div>
+    <button class="btn-logout" onclick="logout()">Sign Out</button>
+  </div>
 </nav>
 
 <div class="page">
-  <!-- SUMMARY METRICS -->
-  <div class="metrics-grid">
-    <div class="card">
-      <div class="card-title">Active Users</div>
-      <div class="card-value" id="activeUsersCount">0 / 4</div>
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-label">Active Users</div>
+      <div class="stat-val" id="statActive">0 / 4</div>
     </div>
-    <div class="card">
-      <div class="card-title">Total Logged Attempts</div>
-      <div class="card-value" id="totalAttemptsCount">0</div>
+    <div class="stat-card">
+      <div class="stat-label">Total Login Attempts</div>
+      <div class="stat-val" id="statTotal">0</div>
     </div>
-    <div class="card">
-      <div class="card-title">Failed Logins</div>
-      <div class="card-value" id="failedCount" style="color:#ef4444;">0</div>
-    </div>
-  </div>
-
-  <!-- CURRENTLY ACTIVE SESSIONS -->
-  <div class="section-card">
-    <div class="section-header">
-      <div class="section-title">🟢 Currently Active Sessions (Max 4)</div>
-      <button class="btn-refresh" onclick="fetchActivityData()">🔄 Live Refresh</button>
-    </div>
-    <div class="table-responsive">
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>User</th>
-            <th>IP Address</th>
-            <th>Device / Browser</th>
-            <th>Login Time</th>
-          </tr>
-        </thead>
-        <tbody id="activeSessionsBody">
-          <tr><td colspan="4" style="text-align:center; color:#94a3b8;">Loading active sessions...</td></tr>
-        </tbody>
-      </table>
+    <div class="stat-card">
+      <div class="stat-label">Failed Logins</div>
+      <div class="stat-val" id="statFailed" style="color:#dc2626;">0</div>
     </div>
   </div>
 
-  <!-- LOGIN ATTEMPTS AUDIT LOG -->
-  <div class="section-card">
-    <div class="section-header">
-      <div class="section-title">📜 Login Attempts History</div>
+  <!-- Active Sessions Card -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">🟢 Currently Active Sessions (Max 4)</div>
+      <button class="btn-refresh" onclick="fetchActivity()">🔄 Live Refresh</button>
     </div>
-    <div class="table-responsive">
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>Timestamp</th>
-            <th>User Attempted</th>
-            <th>IP Address</th>
-            <th>Status</th>
-            <th>Device Information</th>
-          </tr>
-        </thead>
-        <tbody id="logsBody">
-          <tr><td colspan="5" style="text-align:center; color:#94a3b8;">Loading attempt history...</td></tr>
-        </tbody>
-      </table>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>User</th>
+          <th>IP Address</th>
+          <th>Device / Browser</th>
+          <th>Login Time</th>
+          <th style="text-align:center;">Action</th>
+        </tr>
+      </thead>
+      <tbody id="activeSessionsBody">
+        <tr><td colspan="5" style="text-align:center; color:#64748b; padding:16px;">Loading...</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Login Attempts History Card -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">📜 Login Attempts History</div>
     </div>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Timestamp</th>
+          <th>User Attempted</th>
+          <th>IP Address</th>
+          <th>Status</th>
+          <th>Device Information</th>
+        </tr>
+      </thead>
+      <tbody id="loginLogsBody">
+        <tr><td colspan="5" style="text-align:center; color:#64748b; padding:16px;">Loading...</td></tr>
+      </tbody>
+    </table>
   </div>
 </div>
 
 <script>
-// Helper function to escape HTML special characters for XSS prevention
-function escapeHtml(str) {
-  if (!str) return '';
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
+// Corrected Universal Logout Handler
+async function logout() {
+  const sessionId = sessionStorage.getItem('sessionId');
+  if (sessionId) {
+    try {
+      await fetch('/api/logout', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'x-session-id': sessionId 
+        },
+        body: JSON.stringify({ sessionId })
+      });
+    } catch (err) {
+      console.warn('Logout notification error:', err);
+    }
+  }
+  sessionStorage.clear();
+  window.location.replace('login.html');
 }
 
-async function fetchActivityData() {
+async function fetchActivity() {
   try {
     const res = await fetch('/api/admin/login-activity');
-    
-    if (res.status === 401 || res.status === 403) {
-      sessionStorage.removeItem('isLoggedIn');
-      window.location.replace('login.html');
-      return;
-    }
-
-    if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
-
+    if (!res.ok) throw new Error('Failed to fetch activity');
     const data = await res.json();
 
-    // 1. Update Metrics
-    document.getElementById('activeUsersCount').textContent = `${data.activeUserCount || 0} / ${data.maxAllowed || 4}`;
-    document.getElementById('totalAttemptsCount').textContent = data.logs ? data.logs.length : 0;
-    
-    const failedLogins = data.logs ? data.logs.filter(l => l.status !== 'SUCCESS').length : 0;
-    document.getElementById('failedCount').textContent = failedLogins;
+    // Render Stats
+    document.getElementById('statActive').textContent = `${data.activeUserCount} / ${data.maxAllowed}`;
+    document.getElementById('statTotal').textContent = data.logs.length;
+    document.getElementById('statFailed').textContent = data.logs.filter(l => l.status !== 'SUCCESS').length;
 
-    // 2. Render Active Sessions Table
+    // Render Active Sessions
     const activeBody = document.getElementById('activeSessionsBody');
     if (!data.activeSessions || data.activeSessions.length === 0) {
-      activeBody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#94a3b8;">No active users right now.</td></tr>`;
+      activeBody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#64748b; padding:16px;">No users currently logged in.</td></tr>`;
     } else {
       activeBody.innerHTML = data.activeSessions.map(s => `
         <tr>
-          <td><strong>${escapeHtml(s.username)}</strong></td>
-          <td><code>${escapeHtml(s.ip)}</code></td>
-          <td style="font-size:11px; color:#475569;">${escapeHtml(s.device)}</td>
-          <td>${new Date(s.loginTime).toLocaleString()}</td>
+          <td style="font-weight:700; color:#0f2847;">${escapeHtml(s.username)}</td>
+          <td style="font-family:monospace;">${escapeHtml(s.ip)}</td>
+          <td style="max-width:300px; word-break:break-all; font-size:11.5px; color:#475569;">${escapeHtml(s.device)}</td>
+          <td>${new Date(s.loginTime).toLocaleString('en-IN')}</td>
+          <td style="text-align:center;">
+            <button class="btn-kick" onclick="terminateSession('${s.sessionId}')">Disconnect</button>
+          </td>
         </tr>
       `).join('');
     }
 
-    // 3. Render Login Logs Table
-    const logsBody = document.getElementById('logsBody');
+    // Render Logs History
+    const logsBody = document.getElementById('loginLogsBody');
     if (!data.logs || data.logs.length === 0) {
-      logsBody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#94a3b8;">No login attempts recorded yet.</td></tr>`;
+      logsBody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#64748b; padding:16px;">No activity logged yet.</td></tr>`;
     } else {
-      logsBody.innerHTML = data.logs.map(l => {
-        let badgeHtml = '';
-        if (l.status === 'SUCCESS') {
-          badgeHtml = `<span class="badge badge-success">✓ SUCCESS</span>`;
-        } else if (l.status === 'REJECTED_MAX_LIMIT') {
-          badgeHtml = `<span class="badge badge-rejected">⚠️ REJECTED (4 MAX LIMIT)</span>`;
-        } else {
-          badgeHtml = `<span class="badge badge-failed">✕ INVALID CREDS</span>`;
-        }
-
-        return `
-          <tr>
-            <td style="font-size:11.5px; color:#64748b;">${new Date(l.timestamp).toLocaleString()}</td>
-            <td><strong>${escapeHtml(l.username)}</strong></td>
-            <td><code>${escapeHtml(l.ip)}</code></td>
-            <td>${badgeHtml}</td>
-            <td style="font-size:11px; color:#64748b;">${escapeHtml(l.device)}</td>
-          </tr>
-        `;
-      }).join('');
+      logsBody.innerHTML = data.logs.map(l => `
+        <tr>
+          <td style="font-size:11.5px;">${new Date(l.timestamp).toLocaleString('en-IN')}</td>
+          <td style="font-weight:600;">${escapeHtml(l.username)}</td>
+          <td style="font-family:monospace;">${escapeHtml(l.ip)}</td>
+          <td>
+            <span class="${l.status === 'SUCCESS' ? 'badge-success' : 'badge-failed'}">
+              ${l.status === 'SUCCESS' ? '✓ SUCCESS' : '✕ ' + l.status}
+            </span>
+          </td>
+          <td style="max-width:300px; word-break:break-all; font-size:11px; color:#64748b;">${escapeHtml(l.device)}</td>
+        </tr>
+      `).join('');
     }
-
   } catch (err) {
-    console.error('Error fetching security activity:', err);
+    console.error('Error loading dashboard activity:', err);
   }
 }
 
-// Auto-refresh every 5 seconds
+async function terminateSession(sessionId) {
+  if (!confirm('Are you sure you want to disconnect this session?')) return;
+  try {
+    const res = await fetch('/api/admin/terminate-session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sessionId })
+    });
+    if (res.ok) {
+      fetchActivity();
+    }
+  } catch (err) {
+    console.error('Error terminating session:', err);
+  }
+}
+
+function escapeHtml(str) {
+  return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
 window.addEventListener('DOMContentLoaded', () => {
-  fetchActivityData();
-  setInterval(fetchActivityData, 5000);
+  fetchActivity();
+  setInterval(fetchActivity, 10000); // Auto-refresh every 10 seconds
 });
 </script>
 </body>
