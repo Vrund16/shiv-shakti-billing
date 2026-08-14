@@ -13,9 +13,13 @@ app.use(cors());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(__dirname));
 
-// Environment Variables & Admin Credentials
-const CORRECT_USERNAME = process.env.ADMIN_USERNAME || 'Shiv-Shakti';
-const CORRECT_PASSWORD = process.env.ADMIN_PASSWORD || 'shivshakti@*&$#2012sungranites';
+// Dynamic Authentication Configuration
+let authConfig = {
+  username: process.env.ADMIN_USERNAME || 'Shiv-Shakti',
+  password: process.env.ADMIN_PASSWORD || 'shivshakti@*&$#2012sungranites',
+  resetPin: process.env.RESET_PIN || '2012' // Master PIN to reset password
+};
+
 const MAX_CONCURRENT_USERS = parseInt(process.env.MAX_ACTIVE_USERS, 10) || 4;
 
 // Active Sessions (Max 4 allowed concurrently) & Login Activity Tracker
@@ -51,7 +55,6 @@ setInterval(() => {
 function requireAuth(req, res, next) {
   const sessionId = req.headers['x-session-id'] || req.query.sessionId;
   
-  // Allow requests if valid session exists OR if explicitly bypassed for local dev/testing
   if (sessionId && activeSessions.has(sessionId)) {
     const session = activeSessions.get(sessionId);
     session.lastSeen = Date.now();
@@ -103,19 +106,27 @@ app.get('/api/health', (req, res) => {
 // AUTHENTICATION & CONCURRENCY RATE LIMITER ENDPOINTS
 // -------------------------------------------------------------
 
-// POST /api/login - Strict Auth Endpoint
+// POST /api/login - Auth Endpoint
 app.post('/api/login', (req, res) => {
   const { username, password } = req.body;
   const clientIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || req.ip;
   const userAgent = req.headers['user-agent'] || 'Unknown Device';
 
-  const reqUsername = (username || '').trim();
-  const reqPassword = (password || '');
+  const reqUserClean = (username || '').trim().toLowerCase();
+  const reqPass = (password || '');
 
-  if (reqUsername === CORRECT_USERNAME && reqPassword === CORRECT_PASSWORD) {
+  // Flexible Username Acceptance
+  const validUsernames = [
+    authConfig.username.toLowerCase(),
+    'admin',
+    'shiv-shakti',
+    'shivshakti'
+  ];
+
+  if (validUsernames.includes(reqUserClean) && reqPass === authConfig.password) {
     // Enforce Concurrent Active Users Limit
     if (activeSessions.size >= MAX_CONCURRENT_USERS) {
-      logLoginAttempt(reqUsername, clientIp, userAgent, 'REJECTED_MAX_LIMIT', `Active limit of ${MAX_CONCURRENT_USERS} reached`);
+      logLoginAttempt(username, clientIp, userAgent, 'REJECTED_MAX_LIMIT', `Active limit of ${MAX_CONCURRENT_USERS} reached`);
       return res.status(429).json({
         success: false,
         message: `Maximum limit of ${MAX_CONCURRENT_USERS} active users reached. Please try again later.`
@@ -125,7 +136,7 @@ app.post('/api/login', (req, res) => {
     const sessionId = 'sess_' + Date.now() + '_' + Math.random().toString(36).substring(2, 9);
     const sessionData = {
       sessionId,
-      username: reqUsername,
+      username: (username || authConfig.username).trim(),
       ip: clientIp,
       device: userAgent,
       loginTime: new Date().toISOString(),
@@ -133,16 +144,16 @@ app.post('/api/login', (req, res) => {
     };
 
     activeSessions.set(sessionId, sessionData);
-    logLoginAttempt(reqUsername, clientIp, userAgent, 'SUCCESS', 'Login successful');
+    logLoginAttempt(username, clientIp, userAgent, 'SUCCESS', 'Login successful');
 
     return res.json({
       success: true,
       message: 'Login successful',
       sessionId: sessionId,
-      username: reqUsername
+      username: sessionData.username
     });
   } else {
-    logLoginAttempt(reqUsername, clientIp, userAgent, 'FAILED_INVALID_CREDS', 'Incorrect username or password');
+    logLoginAttempt(username, clientIp, userAgent, 'FAILED_INVALID_CREDS', 'Incorrect username or password');
     return res.status(401).json({
       success: false,
       message: 'Invalid username or password'
@@ -150,13 +161,55 @@ app.post('/api/login', (req, res) => {
   }
 });
 
-// POST /api/logout
+// POST /api/reset-password - Password Reset Endpoint using Master Security PIN
+app.post('/api/reset-password', (req, res) => {
+  const { pin, newPassword } = req.body;
+
+  if (!pin || pin.trim() !== authConfig.resetPin) {
+    return res.status(401).json({
+      success: false,
+      message: 'Invalid Master Security PIN. Contact admin if forgotten.'
+    });
+  }
+
+  if (!newPassword || newPassword.trim().length < 4) {
+    return res.status(400).json({
+      success: false,
+      message: 'New password must be at least 4 characters long.'
+    });
+  }
+
+  authConfig.password = newPassword.trim();
+  console.log(`🔑 Password successfully reset`);
+
+  return res.json({
+    success: true,
+    message: 'Password reset successfully! You can now log in with your new password.'
+  });
+});
+
+// POST /api/logout - Immediately Releases Active Session Slot
 app.post('/api/logout', (req, res) => {
-  const sessionId = req.headers['x-session-id'] || req.body.sessionId;
+  const sessionId = req.headers['x-session-id'] || (req.body && req.body.sessionId) || req.query.sessionId;
+
+  if (sessionId && activeSessions.has(sessionId)) {
+    const session = activeSessions.get(sessionId);
+    activeSessions.delete(sessionId);
+    console.log(`🚪 Session released for user [${session.username}] (${sessionId})`);
+    return res.json({ success: true, message: 'Session released successfully' });
+  }
+
+  res.json({ success: true, message: 'Logged out successfully' });
+});
+
+// POST /api/admin/terminate-session - Force Kill Session from Dashboard
+app.post('/api/admin/terminate-session', (req, res) => {
+  const { sessionId } = req.body;
   if (sessionId && activeSessions.has(sessionId)) {
     activeSessions.delete(sessionId);
+    return res.json({ success: true, message: 'Session forcefully terminated' });
   }
-  res.json({ success: true, message: 'Logged out successfully' });
+  return res.status(404).json({ success: false, message: 'Session not found' });
 });
 
 // GET /api/session-check
@@ -174,9 +227,9 @@ app.get('/api/session-check', (req, res) => {
   return res.status(401).json({ active: false, message: 'Session invalid or expired' });
 });
 
-// POST /api/session-ping - Heartbeat to keep session alive
+// POST /api/session-ping - Heartbeat
 app.post('/api/session-ping', (req, res) => {
-  const sessionId = req.headers['x-session-id'] || req.body.sessionId;
+  const sessionId = req.headers['x-session-id'] || (req.body && req.body.sessionId);
   if (sessionId && activeSessions.has(sessionId)) {
     activeSessions.get(sessionId).lastSeen = Date.now();
     return res.json({ success: true });
@@ -244,10 +297,15 @@ app.put('/api/bills/:id', async (req, res) => {
 
 app.patch('/api/bills/:id', async (req, res) => {
   try {
-    const { officialBillNo } = req.body;
+    const { officialBillNo, billNo } = req.body;
+    const updateFields = {};
+
+    if (officialBillNo !== undefined) updateFields.officialBillNo = officialBillNo;
+    if (billNo !== undefined) updateFields.billNo = billNo;
+
     const updated = await Bill.findByIdAndUpdate(
       req.params.id, 
-      { officialBillNo }, 
+      { $set: updateFields }, 
       { new: true }
     );
     res.json(updated);
