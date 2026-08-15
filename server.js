@@ -5,6 +5,9 @@ const path = require('path');
 
 const app = express();
 
+// Enable Trust Proxy for Render / Cloudflare to extract exact client IPs
+app.set('trust proxy', true);
+
 // Middlewares
 app.use(express.json());
 app.use(cors());
@@ -25,6 +28,34 @@ const MAX_CONCURRENT_USERS = parseInt(process.env.MAX_ACTIVE_USERS, 10) || 4;
 // Active Sessions (Max 4 allowed concurrently) & Login Activity Tracker
 const activeSessions = new Map(); // sessionId -> { sessionId, username, ip, device, loginTime, lastSeen }
 const loginAttemptsLog = [];      // History of login attempts (max 200)
+
+// Helper to extract clean single IP address and location details
+async function getClientIp(req) {
+  const rawIp = req.headers['cf-connecting-ip'] || 
+                (req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : null) || 
+                req.ip || 
+                req.socket.remoteAddress;
+
+  const cleanIp = (rawIp || 'Unknown').replace(/^::ffff:/, '').trim();
+
+  // Return immediately if local network IP
+  if (cleanIp === '127.0.0.1' || cleanIp === '::1' || cleanIp.startsWith('10.') || cleanIp.startsWith('192.168.')) {
+    return cleanIp;
+  }
+
+  // Attempt location lookup via ip-api
+  try {
+    const response = await fetch(`http://ip-api.com/json/${cleanIp}?fields=status,city,country,isp`);
+    const data = await response.json();
+    if (data.status === 'success') {
+      return `${cleanIp} (${data.city}, ${data.country} - ${data.isp})`;
+    }
+  } catch (err) {
+    // Fallback to clean IP if API query fails
+  }
+
+  return cleanIp;
+}
 
 // Helper to log all incoming login activity
 function logLoginAttempt(username, ip, userAgent, status, reason = '') {
@@ -107,9 +138,9 @@ app.get('/api/health', (req, res) => {
 // -------------------------------------------------------------
 
 // POST /api/login - Auth Endpoint
-app.post('/api/login', (req, res) => {
+app.post('/api/login', async (req, res) => {
   const { username, password } = req.body;
-  const clientIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || req.ip;
+  const clientIp = await getClientIp(req);
   const userAgent = req.headers['user-agent'] || 'Unknown Device';
 
   const reqUserClean = (username || '').trim().toLowerCase();
