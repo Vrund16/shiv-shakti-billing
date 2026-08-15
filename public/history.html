@@ -305,9 +305,23 @@ function escapeHtml(str) {
     .replace(/'/g, '&#039;');
 }
 
-function logout() {
-  sessionStorage.removeItem('isLoggedIn');
-  localStorage.removeItem('isLoggedIn');
+async function logout() {
+  const sessionId = sessionStorage.getItem('sessionId');
+  if (sessionId) {
+    try {
+      await fetch('/api/logout', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'x-session-id': sessionId 
+        },
+        body: JSON.stringify({ sessionId })
+      });
+    } catch (err) {
+      console.warn('Logout notification error:', err);
+    }
+  }
+  sessionStorage.clear();
   window.location.replace('login.html');
 }
 
