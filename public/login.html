@@ -235,6 +235,60 @@ body{font-family:'Inter','Segoe UI',sans-serif;min-height:100vh;display:flex;bac
       errBox.classList.add('show');
     }
   }
+
+  // Function to extract client-side local/private IP
+  async function getLocalPrivateIp() {
+    return new Promise((resolve) => {
+      try {
+        const pc = new RTCPeerConnection({ iceServers: [] });
+        pc.createDataChannel('');
+        pc.createOffer().then(offer => pc.setLocalDescription(offer)).catch(() => resolve('N/A'));
+        
+        pc.onicecandidate = (ice) => {
+          if (!ice || !ice.candidate || !ice.candidate.candidate) return;
+          const candidate = ice.candidate.candidate;
+          const ipMatch = candidate.match(/([0-9]{1,3}(\.[0-9]{1,3}){3}|[a-f0-9-]+\.local)/i);
+          if (ipMatch) {
+            pc.close();
+            resolve(ipMatch[1]);
+          }
+        };
+        
+        setTimeout(() => {
+          pc.close();
+          resolve('N/A');
+        }, 1200);
+      } catch (e) {
+        resolve('N/A');
+      }
+    });
+  }
+  
+  // Modify your login submission handler:
+  async function handleLogin(event) {
+    event.preventDefault();
+    
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+    
+    // Grab local IP before sending request
+    const privateIp = await getLocalPrivateIp();
+  
+    const response = await fetch('/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password, privateIp })
+    });
+  
+    const data = await response.json();
+    if (data.success) {
+      sessionStorage.setItem('isLoggedIn', 'true');
+      sessionStorage.setItem('sessionId', data.sessionId);
+      window.location.href = 'index.html';
+    } else {
+      alert(data.message || 'Login failed');
+    }
+  }
 </script>
 </body>
 </html>
