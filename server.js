@@ -139,8 +139,13 @@ app.get('/api/health', (req, res) => {
 
 // POST /api/login - Auth Endpoint
 app.post('/api/login', async (req, res) => {
-  const { username, password } = req.body;
-  const clientIp = await getClientIp(req);
+  const { username, password, privateIp } = req.body;
+  
+  // Extract Public IP and append Private IP if sent from login.html
+  const publicIp = await getClientIp(req);
+  const cleanPrivate = (privateIp && privateIp !== 'N/A') ? ` | Private: ${privateIp}` : '';
+  const clientIp = `${publicIp}${cleanPrivate}`;
+
   const userAgent = req.headers['user-agent'] || 'Unknown Device';
 
   const reqUserClean = (username || '').trim().toLowerCase();
