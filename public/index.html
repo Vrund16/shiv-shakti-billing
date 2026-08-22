@@ -287,7 +287,8 @@ input[type="number"] { -moz-appearance: textfield; }
 
   <div class="challan-box" id="challan-sheet">
     <div class="gstin-left">
-      GSTIN: 24ACCFS8163L1ZR
+      <div>GSTIN: 24ACCFS8163L1ZR</div>
+      <div style="font-size: 10px; font-weight: 700; margin-top: 2px;">Office No.: 84605 26012</div>
     </div>
 
     <div class="contacts">
@@ -672,7 +673,6 @@ async function saveBill() {
       if (saved.officialBillNo) currentOfficialBillNo = saved.officialBillNo;
       document.getElementById('formTitle').textContent = `Editing Bill (${saved.billNo})`;
       
-      // Update LocalStorage for offline synchronization
       saveToLocalStorage({ ...payload, _id: saved._id });
       showToast('Bill saved successfully!');
     } else {
@@ -682,7 +682,6 @@ async function saveBill() {
     }
   } catch (err) {
     console.error('Save connection error:', err);
-    // Offline Fallback Save
     saveToLocalStorage({ ...payload, _id: currentEditingId || Date.now().toString() });
     showToast('Saved to local storage (Offline Mode)');
   }
@@ -706,7 +705,6 @@ function showToast(msg) {
   setTimeout(() => toast.classList.remove('show'), 3000);
 }
 
-// Export bills (Server primary, LocalStorage fallback)
 async function exportDataBackup() {
   try {
     let allBills = [];
@@ -745,7 +743,6 @@ async function exportDataBackup() {
   }
 }
 
-// Import JSON backup file to restore bills
 function importDataBackup(event) {
   const file = event.target.files[0];
   if (!file) return;
@@ -786,7 +783,6 @@ function importDataBackup(event) {
   event.target.value = '';
 }
 
-// Register Offline Capabilities
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('./sw.js')
@@ -795,7 +791,6 @@ if ('serviceWorker' in navigator) {
   });
 }
 
-// --- AUTOMATIC DISCONNECT MONITOR ---
 setInterval(async () => {
   const mySessionId = sessionStorage.getItem('sessionId');
   if (!mySessionId) {
@@ -813,13 +808,12 @@ setInterval(async () => {
       body: JSON.stringify({ sessionId: mySessionId })
     });
     
-    // If session is deleted or invalid, redirect immediately to login
     if (res.status === 401) {
       sessionStorage.clear();
       window.location.replace('login.html');
     }
   } catch (err) {
-    // Network glitch, skip
+    // Network glitch
   }
 }, 3000);
 </script>
