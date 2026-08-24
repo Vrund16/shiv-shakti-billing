@@ -388,7 +388,7 @@ input[type="number"] { -moz-appearance: textfield; }
       </div>
     </div>
 
-    <button class="add-row-btn" id="addRowBtn" onclick="addRow()">+ Add item row</button>
+    <button class="add-row-btn" onclick="addRow()">+ Add item row</button>
 
     <!-- BOTTOM SECTION -->
     <div class="bottom-grid">
@@ -433,7 +433,7 @@ input[type="number"] { -moz-appearance: textfield; }
 <div id="print-wrapper"></div>
 
 <script>
-let items = Array.from({ length: 5 }, () => ({ desc: '', qty: '', rate: '' }));
+let items = Array.from({ length: 10 }, () => ({ desc: '', qty: '', rate: '' }));
 let isGstApplied = false;
 let currentEditingId = null;
 let currentOfficialBillNo = '';
@@ -624,7 +624,7 @@ function preparePrintView() {
       const q = parseFloat(item.qty) || 0;
       const r = parseFloat(item.rate) || 0;
       const lineAmt = (q > 0 || r > 0) ? (q * r).toFixed(2) : '';
-      const srNo = (item._padded && globalIdx >= activeItemsCount) ? '' : (globalIdx + 1); // Continuous Sr. No (1, 2, 3...)
+      const srNo = (item._padded && globalIdx >= activeItemsCount) ? '' : (globalIdx + 1);
 
       tableRowsHtml += `
         <tr>
@@ -778,7 +778,7 @@ function clearForm() {
     const btn = document.getElementById('gstToggleBtn');
     btn.classList.remove('active');
     btn.textContent = '+ Add GST (18%)';
-    items = Array.from({ length: 5 }, () => ({ desc: '', qty: '', rate: '' }));
+    items = Array.from({ length: 10 }, () => ({ desc: '', qty: '', rate: '' }));
     window.history.replaceState({}, document.title, window.location.pathname);
     renderTable();
   }
@@ -808,6 +808,7 @@ async function checkEditState() {
       
       if (b.items && b.items.length > 0) {
         items = b.items;
+        while (items.length < 10) items.push({ desc: '', qty: '', rate: '' });
       }
 
       if (b.isGstApplied) {
