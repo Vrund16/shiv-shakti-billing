@@ -433,7 +433,8 @@ input[type="number"] { -moz-appearance: textfield; }
 <div id="print-wrapper"></div>
 
 <script>
-let items = Array.from({ length: 5 }, () => ({ desc: '', qty: '', rate: '' }));
+// Initialized with 10 rows by default
+let items = Array.from({ length: 10 }, () => ({ desc: '', qty: '', rate: '' }));
 let isGstApplied = false;
 let currentEditingId = null;
 let currentOfficialBillNo = '';
@@ -525,8 +526,9 @@ function addRow() {
 }
 
 function removeRow(index) {
-  if (items.length <= 1) {
-    items = [{ desc: '', qty: '', rate: '' }];
+  // Keeps at least 10 rows visible at all times
+  if (items.length <= 10) {
+    items[index] = { desc: '', qty: '', rate: '' };
   } else {
     items.splice(index, 1);
   }
@@ -606,7 +608,6 @@ function preparePrintView() {
       pageItems.push({ desc: '', qty: '', rate: '', _padded: true });
     }
 
-    // Calculate totals PER PAGE individually
     let pageSubtotal = 0;
     pageItems.forEach(item => {
       const q = parseFloat(item.qty) || 0;
@@ -627,7 +628,6 @@ function preparePrintView() {
       const r = parseFloat(item.rate) || 0;
       const lineAmt = (q > 0 || r > 0) ? (q * r).toFixed(2) : '';
 
-      // Reset Sr. No. to start from 1 to 10 on each page
       const srNo = (item._padded && globalIdx >= activeItemsCount) ? '' : (idx + 1);
 
       tableRowsHtml += `
@@ -779,7 +779,7 @@ function clearForm() {
     const btn = document.getElementById('gstToggleBtn');
     btn.classList.remove('active');
     btn.textContent = '+ Add GST (18%)';
-    items = Array.from({ length: 5 }, () => ({ desc: '', qty: '', rate: '' }));
+    items = Array.from({ length: 10 }, () => ({ desc: '', qty: '', rate: '' }));
     window.history.replaceState({}, document.title, window.location.pathname);
     renderTable();
   }
@@ -809,6 +809,10 @@ async function checkEditState() {
       
       if (b.items && b.items.length > 0) {
         items = b.items;
+        // Pad to at least 10 rows if editing a bill with fewer than 10 items
+        while (items.length < 10) {
+          items.push({ desc: '', qty: '', rate: '' });
+        }
       }
 
       if (b.isGstApplied) {
