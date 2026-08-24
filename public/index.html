@@ -433,11 +433,9 @@ input[type="number"] { -moz-appearance: textfield; }
 <div id="print-wrapper"></div>
 
 <script>
-// Initialized with 10 rows by default
 let items = Array.from({ length: 10 }, () => ({ desc: '', qty: '', rate: '' }));
 let isGstApplied = false;
 let currentEditingId = null;
-let currentOfficialBillNo = '';
 
 async function logout() {
   const sessionId = sessionStorage.getItem('sessionId');
@@ -478,9 +476,25 @@ function escapeHtml(str) {
 
 window.addEventListener('DOMContentLoaded', () => {
   document.getElementById('billDate').value = getTodayFormatted();
+  generateBillNo();
   renderTable();
   checkEditState();
 });
+
+function generateBillNo() {
+  if (!currentEditingId) {
+    const existingBills = JSON.parse(localStorage.getItem('sst_saved_bills') || '[]');
+    const nextNo = (existingBills.length + 1).toString().padStart(4, '0');
+    document.getElementById('billNo').value = `SST-${nextNo}`;
+  }
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
 
 function renderTable() {
   const tbody = document.getElementById('itemsBody');
@@ -495,7 +509,7 @@ function renderTable() {
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td style="text-align:center; font-weight:600; color:#64748b; font-size:11px;">${index + 1}</td>
-      <td><input type="text" class="clean-input" value="${item.desc || ''}" oninput="updateItem(${index}, 'desc', this.value)" style="width:100%; font-size:11.5px;"></td>
+      <td><input type="text" class="clean-input" value="${escapeHtml(item.desc)}" oninput="updateItem(${index}, 'desc', this.value)" style="width:100%; font-size:11.5px;"></td>
       <td><input type="number" class="clean-input" value="${item.qty || ''}" oninput="updateItem(${index}, 'qty', this.value)" style="width:100%; text-align:center; font-size:11.5px;"></td>
       <td><input type="number" class="clean-input" value="${item.rate || ''}" oninput="updateItem(${index}, 'rate', this.value)" style="width:100%; text-align:right; font-size:11.5px;"></td>
       <td style="text-align:right; font-weight:600; font-size:11.5px; color:#1e293b;" id="amt-${index}">${amtDisplay}</td>
@@ -526,7 +540,6 @@ function addRow() {
 }
 
 function removeRow(index) {
-  // Keeps at least 10 rows visible at all times
   if (items.length <= 10) {
     items[index] = { desc: '', qty: '', rate: '' };
   } else {
@@ -627,7 +640,6 @@ function preparePrintView() {
       const q = parseFloat(item.qty) || 0;
       const r = parseFloat(item.rate) || 0;
       const lineAmt = (q > 0 || r > 0) ? (q * r).toFixed(2) : '';
-
       const srNo = (item._padded && globalIdx >= activeItemsCount) ? '' : (idx + 1);
 
       tableRowsHtml += `
@@ -750,7 +762,6 @@ function preparePrintView() {
         </div>
       </div>
     `;
-
     printWrapper.appendChild(pageDiv);
   }
 }
@@ -760,209 +771,102 @@ function triggerPrint() {
   window.print();
 }
 
-window.addEventListener('beforeprint', preparePrintView);
-
 function clearForm() {
-  if (confirm('Are you sure you want to clear all fields for a new bill?')) {
-    currentEditingId = null;
-    currentOfficialBillNo = '';
-    document.getElementById('formTitle').textContent = 'New Bill';
-    document.getElementById('billNo').value = '';
-    document.getElementById('billDate').value = getTodayFormatted();
-    document.getElementById('custName').value = '';
-    document.getElementById('custPhone').value = '';
-    document.getElementById('custEmail').value = '';
-    document.getElementById('custAddress1').value = '';
-    document.getElementById('custAddress2').value = '';
-    document.getElementById('custGst').value = '';
-    isGstApplied = false;
+  currentEditingId = null;
+  document.getElementById('formTitle').textContent = 'New Bill';
+  document.getElementById('billDate').value = getTodayFormatted();
+  document.getElementById('custName').value = '';
+  document.getElementById('custPhone').value = '';
+  document.getElementById('custEmail').value = '';
+  document.getElementById('custAddress1').value = '';
+  document.getElementById('custAddress2').value = '';
+  document.getElementById('custGst').value = '';
+  items = Array.from({ length: 10 }, () => ({ desc: '', qty: '', rate: '' }));
+  isGstApplied = false;
+  
+  const btn = document.getElementById('gstToggleBtn');
+  btn.classList.remove('active');
+  btn.textContent = '+ Add GST (18%)';
+  
+  generateBillNo();
+  renderTable();
+  showToast('Form cleared');
+}
+
+function saveBill() {
+  const billData = {
+    id: currentEditingId || 'BILL_' + Date.now(),
+    billNo: document.getElementById('billNo').value,
+    billDate: document.getElementById('billDate').value,
+    custName: document.getElementById('custName').value,
+    custPhone: document.getElementById('custPhone').value,
+    custEmail: document.getElementById('custEmail').value,
+    custAddress1: document.getElementById('custAddress1').value,
+    custAddress2: document.getElementById('custAddress2').value,
+    custGst: document.getElementById('custGst').value,
+    isGstApplied,
+    items: items.filter(i => i.desc || i.qty || i.rate),
+    updatedAt: new Date().toISOString()
+  };
+
+  let savedBills = JSON.parse(localStorage.getItem('sst_saved_bills') || '[]');
+  const index = savedBills.findIndex(b => b.id === billData.id);
+
+  if (index >= 0) {
+    savedBills[index] = billData;
+  } else {
+    savedBills.push(billData);
+  }
+
+  localStorage.setItem('sst_saved_bills', JSON.stringify(savedBills));
+  showToast('Bill saved successfully!');
+}
+
+function checkEditState() {
+  const params = new URLSearchParams(window.location.search);
+  const editId = params.get('edit');
+  if (!editId) return;
+
+  const savedBills = JSON.parse(localStorage.getItem('sst_saved_bills') || '[]');
+  const bill = savedBills.find(b => b.id === editId);
+
+  if (bill) {
+    currentEditingId = bill.id;
+    document.getElementById('formTitle').textContent = `Editing Bill #${bill.billNo}`;
+    document.getElementById('billNo').value = bill.billNo || '';
+    document.getElementById('billDate').value = bill.billDate || getTodayFormatted();
+    document.getElementById('custName').value = bill.custName || '';
+    document.getElementById('custPhone').value = bill.custPhone || '';
+    document.getElementById('custEmail').value = bill.custEmail || '';
+    document.getElementById('custAddress1').value = bill.custAddress1 || '';
+    document.getElementById('custAddress2').value = bill.custAddress2 || '';
+    document.getElementById('custGst').value = bill.custGst || '';
+    
+    isGstApplied = !!bill.isGstApplied;
     const btn = document.getElementById('gstToggleBtn');
-    btn.classList.remove('active');
-    btn.textContent = '+ Add GST (18%)';
-    items = Array.from({ length: 10 }, () => ({ desc: '', qty: '', rate: '' }));
-    window.history.replaceState({}, document.title, window.location.pathname);
+    if (isGstApplied) {
+      btn.classList.add('active');
+      btn.textContent = '✓ GST Added (18%)';
+    }
+
+    items = bill.items || [];
+    while (items.length < 10) {
+      items.push({ desc: '', qty: '', rate: '' });
+    }
     renderTable();
   }
 }
 
-async function checkEditState() {
-  const urlParams = new URLSearchParams(window.location.search);
-  const editId = urlParams.get('id');
-
-  if (editId) {
-    try {
-      const res = await fetch(`/api/bills/${editId}`);
-      if (!res.ok) return;
-      const b = await res.json();
-      
-      currentEditingId = b._id;
-      currentOfficialBillNo = b.officialBillNo || '';
-      document.getElementById('formTitle').textContent = `Editing Bill (${b.billNo || 'Draft'})`;
-      document.getElementById('billNo').value = b.billNo || '';
-      document.getElementById('billDate').value = b.date || getTodayFormatted();
-      document.getElementById('custName').value = b.custName || '';
-      document.getElementById('custPhone').value = b.custPhone || '';
-      document.getElementById('custEmail').value = b.custEmail || '';
-      document.getElementById('custAddress1').value = b.custAddress1 || b.custAddress || '';
-      document.getElementById('custAddress2').value = b.custAddress2 || '';
-      document.getElementById('custGst').value = b.custGst || '';
-      
-      if (b.items && b.items.length > 0) {
-        items = b.items;
-        // Pad to at least 10 rows if editing a bill with fewer than 10 items
-        while (items.length < 10) {
-          items.push({ desc: '', qty: '', rate: '' });
-        }
-      }
-
-      if (b.isGstApplied) {
-        isGstApplied = true;
-        const btn = document.getElementById('gstToggleBtn');
-        btn.classList.add('active');
-        btn.textContent = '✓ GST Added (18%)';
-      }
-
-      renderTable();
-    } catch(e) {
-      console.error('Error loading bill for editing:', e);
-    }
-  }
-}
-
-async function saveBill() {
-  const billNo = document.getElementById('billNo').value.trim();
-  const date = document.getElementById('billDate').value.trim();
-  const custName = document.getElementById('custName').value.trim() || 'Cash Customer';
-  const custPhone = document.getElementById('custPhone').value.trim();
-  const custEmail = document.getElementById('custEmail').value.trim();
-  const custAddress1 = document.getElementById('custAddress1').value.trim();
-  const custAddress2 = document.getElementById('custAddress2').value.trim();
-  const custAddress = (custAddress1 + ' ' + custAddress2).trim();
-  const custGst = document.getElementById('custGst').value.toUpperCase().trim();
-
-  let subtotal = 0;
-  const validItems = items
-    .filter(i => (i.desc && i.desc.trim() !== '') || (parseFloat(i.qty) > 0))
-    .map(i => ({
-      desc: (i.desc || '').trim(),
-      qty: i.qty ? String(i.qty) : '',
-      rate: i.rate ? String(i.rate) : ''
-    }));
-  
-  items.forEach(i => {
-    subtotal += (parseFloat(i.qty) || 0) * (parseFloat(i.rate) || 0);
-  });
-
-  const gstAmt = isGstApplied ? (subtotal * 0.18) : 0;
-  const grandTotal = subtotal + gstAmt;
-
-  const payload = {
-    billNo: billNo || 'N/A',
-    officialBillNo: currentOfficialBillNo || '',
-    date: date || getTodayFormatted(),
-    custName,
-    custPhone,
-    custEmail,
-    custAddress,
-    custAddress1,
-    custAddress2,
-    custGst,
-    items: validItems,
-    isGstApplied,
-    gstAmt: gstAmt.toFixed(2),
-    grandTotal: grandTotal.toFixed(2)
-  };
-
-  try {
-    let res;
-    if (currentEditingId) {
-      res = await fetch(`/api/bills/${currentEditingId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-    } else {
-      res = await fetch('/api/bills', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-    }
-
-    if (res.ok) {
-      const saved = await res.json();
-      currentEditingId = saved._id;
-      if (saved.officialBillNo) currentOfficialBillNo = saved.officialBillNo;
-      document.getElementById('formTitle').textContent = `Editing Bill (${saved.billNo})`;
-      
-      saveToLocalStorage({ ...payload, _id: saved._id });
-      showToast('Bill saved successfully!');
-    } else {
-      const errText = await res.text();
-      console.error('Server save error:', errText);
-      alert('Error saving bill to database: ' + (errText || 'Server error'));
-    }
-  } catch (err) {
-    console.error('Save connection error:', err);
-    saveToLocalStorage({ ...payload, _id: currentEditingId || Date.now().toString() });
-    showToast('Saved to local storage (Offline Mode)');
-  }
-}
-
-function saveToLocalStorage(billData) {
-  const localBills = JSON.parse(localStorage.getItem('saved_bills') || '[]');
-  const index = localBills.findIndex(b => b._id === billData._id);
-  if (index >= 0) {
-    localBills[index] = billData;
-  } else {
-    localBills.push(billData);
-  }
-  localStorage.setItem('saved_bills', JSON.stringify(localBills));
-}
-
-function showToast(msg) {
-  const toast = document.getElementById('toast');
-  toast.textContent = msg;
-  toast.classList.add('show');
-  setTimeout(() => toast.classList.remove('show'), 3000);
-}
-
-async function exportDataBackup() {
-  try {
-    let allBills = [];
-    try {
-      const res = await fetch('/api/bills');
-      if (res.ok) {
-        allBills = await res.json();
-      }
-    } catch (e) {
-      console.warn('Server fetch failed, falling back to LocalStorage:', e);
-    }
-
-    if (!allBills || allBills.length === 0) {
-      allBills = JSON.parse(localStorage.getItem('saved_bills') || '[]');
-    }
-
-    if (allBills.length === 0) {
-      alert('No saved bills found to create a backup!');
-      return;
-    }
-
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(allBills, null, 2));
-    const dlAnchor = document.createElement('a');
-    const dateStr = new Date().toISOString().slice(0, 10);
-
-    dlAnchor.setAttribute("href", dataStr);
-    dlAnchor.setAttribute("download", `Shiv_Shakti_Tiles_Backup_${dateStr}.json`);
-    document.body.appendChild(dlAnchor);
-    dlAnchor.click();
-    dlAnchor.remove();
-
-    showToast('Backup file downloaded successfully!');
-  } catch (err) {
-    console.error('Export error:', err);
-    alert('Error creating backup file: ' + err.message);
-  }
+function exportDataBackup() {
+  const data = localStorage.getItem('sst_saved_bills') || '[]';
+  const blob = new Blob([data], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `ShivShaktiTiles_Backup_${new Date().toISOString().slice(0, 10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('Backup exported');
 }
 
 function importDataBackup(event) {
@@ -970,74 +874,21 @@ function importDataBackup(event) {
   if (!file) return;
 
   const reader = new FileReader();
-  reader.onload = async function(e) {
+  reader.onload = function(e) {
     try {
-      const importedData = JSON.parse(e.target.result);
-      if (!Array.isArray(importedData)) {
-        alert('Invalid backup file format.');
-        return;
+      const json = JSON.parse(e.target.result);
+      if (Array.isArray(json)) {
+        localStorage.setItem('sst_saved_bills', JSON.stringify(json));
+        showToast('Backup imported successfully!');
+      } else {
+        alert('Invalid backup file format');
       }
-
-      let successCount = 0;
-      for (const bill of importedData) {
-        try {
-          const res = await fetch('/api/bills', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(bill)
-          });
-          if (res.ok) successCount++;
-        } catch (err) {
-          console.warn('Failed syncing item to server:', err);
-        }
-      }
-
-      const existingBills = JSON.parse(localStorage.getItem('saved_bills') || '[]');
-      const mergedBills = [...existingBills, ...importedData];
-      localStorage.setItem('saved_bills', JSON.stringify(mergedBills));
-
-      showToast(`Restored ${importedData.length} bills successfully!`);
     } catch (err) {
-      alert('Error importing backup file: ' + err.message);
+      alert('Failed to parse backup JSON file');
     }
   };
   reader.readAsText(file);
-  event.target.value = '';
 }
-
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js')
-      .then(() => console.log('Offline support activated.'))
-      .catch((err) => console.error('Service Worker Registration Error:', err));
-  });
-}
-
-setInterval(async () => {
-  const mySessionId = sessionStorage.getItem('sessionId');
-  if (!mySessionId) {
-    sessionStorage.clear();
-    window.location.replace('login.html');
-    return;
-  }
-  try {
-    const res = await fetch('/api/session-ping', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-session-id': mySessionId
-      },
-      body: JSON.stringify({ sessionId: mySessionId })
-    });
-    
-    if (res.status === 401) {
-      sessionStorage.clear();
-      window.location.replace('login.html');
-    }
-  } catch (err) {
-    // Network glitch
-  }
-}, 3000);
 </script>
 </body>
 </html>
