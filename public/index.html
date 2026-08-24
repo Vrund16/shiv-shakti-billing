@@ -128,6 +128,8 @@ input[type="number"] { -moz-appearance: textfield; }
   box-shadow:0 4px 12px rgba(0,0,0,.15);display:none;z-index:9999;}
 .toast.show{display:block;}
 
+#print-wrapper { display: none; }
+
 /* ── PRINT STYLES ── */
 @page {
   size: A4 portrait;
@@ -151,63 +153,73 @@ input[type="number"] { -moz-appearance: textfield; }
     text-shadow: none !important;
   }
 
-  .topnav, .toolbar-card, .add-row-btn, .del-row-btn, .gst-toggle-btn, .toast, .no-print {
+  .page, .topnav, .toolbar-card, .toast, .no-print {
     display: none !important;
   }
 
-  .page {
-    max-width: 100% !important;
-    padding: 0 !important;
+  #print-wrapper {
+    display: block !important;
+    width: 100% !important;
     margin: 0 !important;
+    padding: 0 !important;
   }
 
-  .challan-box {
-    border: none !important;
-    box-shadow: none !important;
+  .print-page {
+    box-sizing: border-box !important;
     padding: 8mm 12mm !important;
     width: 100% !important;
-    box-sizing: border-box !important;
-    page-break-inside: avoid !important;
+    page-break-after: always !important;
+    break-after: page !important;
+    background: #fff !important;
+    position: relative !important;
   }
 
-  .gstin-left { top: 8mm !important; left: 12mm !important; font-size: 9.5px !important; line-height: 1.3 !important; }
-  .gstin-left div { font-size: 9.5px !important; font-weight: 800 !important; }
-  .contacts { top: 8mm !important; right: 12mm !important; line-height: 1.25 !important; }
-  .contacts .phone-no, .contacts .email-id { font-size: 9.5px !important; }
+  .print-page:last-child {
+    page-break-after: avoid !important;
+    break-after: avoid !important;
+  }
 
-  .sub-title { font-size: 11.5px !important; margin-bottom: 2px !important; }
-  .main-title { font-size: 18px !important; letter-spacing: 0.5px !important; }
-  .guj-title { font-size: 13.5px !important; margin-bottom: 3px !important; }
-  .shop-addr { font-size: 9.5px !important; margin-bottom: 8px !important; }
+  .print-page .gstin-left { position: absolute !important; top: 8mm !important; left: 12mm !important; font-size: 9.5px !important; line-height: 1.3 !important; }
+  .print-page .gstin-left div { font-size: 9.5px !important; font-weight: 800 !important; }
+  .print-page .contacts { position: absolute !important; top: 8mm !important; right: 12mm !important; text-align: right !important; line-height: 1.25 !important; }
+  .print-page .contacts .phone-no, .print-page .contacts .email-id { font-size: 9.5px !important; }
 
-  .meta-row {
+  .print-page .sub-title { font-size: 11.5px !important; margin-bottom: 2px !important; text-align: center !important; }
+  .print-page .main-title { font-size: 18px !important; letter-spacing: 0.5px !important; text-align: center !important; }
+  .print-page .guj-title { font-size: 13.5px !important; margin-bottom: 3px !important; text-align: center !important; }
+  .print-page .shop-addr { font-size: 9.5px !important; margin-bottom: 8px !important; text-align: center !important; }
+
+  .print-page .meta-row {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
     padding: 4px 0 !important;
     margin-bottom: 8px !important;
     border-top: 1px solid #000 !important;
     border-bottom: 1px solid #000 !important;
   }
+  .print-page .field-group { display: flex !important; align-items: center !important; gap: 6px !important; }
+  .print-page .field-label { font-weight: 700 !important; font-size: 11.5px !important; }
+  .print-page .print-val { font-size: 12px !important; font-weight: 700 !important; }
 
-  .cust-info-box { margin-bottom: 8px !important; }
-  .cust-row { margin-bottom: 4px !important; display: flex !important; width: 100% !important; }
-  .cust-label { width: 150px !important; font-size: 10px !important; flex-shrink: 0 !important; }
+  .print-page .cust-info-box { margin-bottom: 8px !important; }
+  .print-page .cust-row { margin-bottom: 4px !important; display: flex !important; width: 100% !important; align-items: center !important; }
+  .print-page .cust-label { width: 150px !important; font-size: 10px !important; flex-shrink: 0 !important; font-weight: 700 !important; }
+  .print-page .cust-val { font-size: 10.5px !important; font-weight: 700 !important; flex: 1 !important; }
 
-  .items-table { width: 100% !important; border-collapse: collapse !important; }
-  .items-table th { background: transparent !important; color: #000 !important; border: 1px solid #000 !important; padding: 4px 6px !important; font-size: 10px !important; }
+  .print-page .items-table { width: 100% !important; border-collapse: collapse !important; margin-bottom: 0 !important; }
+  .print-page .items-table th { background: transparent !important; color: #000 !important; border: 1px solid #000 !important; padding: 4px 6px !important; font-size: 10px !important; font-weight: 700 !important; }
   
-  .items-table td {
+  .print-page .items-table td {
     border: 1px solid #000 !important;
     padding: 3px 6px !important;
     height: 20px !important;
     font-size: 10px !important;
     font-weight: 700 !important;
+    vertical-align: middle !important;
   }
 
-  .items-table td input {
-    font-weight: 700 !important;
-    font-size: 10.5px !important;
-  }
-
-  .table-summary-bar {
+  .print-page .table-summary-bar {
     background: transparent !important;
     color: #000 !important;
     border: 1px solid #000 !important;
@@ -219,30 +231,33 @@ input[type="number"] { -moz-appearance: textfield; }
     font-weight: 800 !important;
   }
 
-  #gstAmountLabel { color: #000 !important; }
-
-  .bottom-grid {
+  .print-page .bottom-grid {
     display: flex !important;
     justify-content: space-between !important;
     align-items: flex-end !important;
     margin-top: 12px !important;
+    gap: 12px !important;
   }
 
-  .cust-sig-line { border-top: 1px solid #000 !important; font-size: 9.5px !important; width: 120px !important; }
-  .terms-box { font-size: 9px !important; line-height: 1.35 !important; }
+  .print-page .cust-sig-line { border-top: 1px solid #000 !important; font-size: 9.5px !important; width: 120px !important; text-align: center !important; font-weight: 700 !important; padding-top: 2px !important; }
+  .print-page .terms-box { font-size: 9px !important; line-height: 1.35 !important; }
+  .print-page .terms-title { font-weight: 700 !important; margin-bottom: 2px !important; }
 
-  .bank-details-box, .qr-code-box {
+  .print-page .center-payment-group { display: flex !important; gap: 8px !important; align-items: stretch !important; }
+  .print-page .bank-details-box, .print-page .qr-code-box {
     border: 1px solid #000 !important;
     background: transparent !important;
     padding: 5px 8px !important;
     font-size: 9px !important;
   }
+  .print-page .bank-title { font-weight: 800 !important; font-size: 10px !important; margin-bottom: 2px !important; text-decoration: underline !important; }
 
-  .retailer-signature-box { font-size: 9.5px !important; text-align: right !important; }
-  .retailer-sig-line { margin-top: 25px !important; border-top: 1px solid #000 !important; width: 130px !important; }
+  .print-page .qr-code-box { text-align: center !important; display: flex !important; flex-direction: column !important; align-items: center !important; justify-content: center !important; width: 95px !important; }
+  .print-page .qr-code-box img { width: 60px !important; height: 60px !important; display: block !important; margin-bottom: 2px !important; }
+  .print-page .qr-label { font-size: 8px !important; font-weight: 800 !important; text-transform: uppercase !important; line-height: 1.1 !important; }
 
-  .clean-input { border-bottom: none !important; color: #000 !important; font-weight: 700 !important; }
-  input::placeholder { color: transparent !important; }
+  .print-page .retailer-signature-box { font-size: 9.5px !important; text-align: right !important; font-weight: 700 !important; }
+  .print-page .retailer-sig-line { margin-top: 25px !important; border-top: 1px solid #000 !important; width: 130px !important; display: inline-block !important; text-align: center !important; padding-top: 2px !important; }
 }
 </style>
 </head>
@@ -279,7 +294,7 @@ input[type="number"] { -moz-appearance: textfield; }
     <div class="toolbar-right">
       <button class="action-btn btn-clear" onclick="clearForm()">🔄 Clear / New</button>
       <button class="action-btn btn-save" onclick="saveBill()">💾 Save Bill</button>
-      <button class="action-btn btn-print" onclick="window.print()">🖨️ Print Bill PDF</button>
+      <button class="action-btn btn-print" onclick="triggerPrint()">🖨️ Print Bill PDF</button>
       <button class="action-btn btn-clear" onclick="exportDataBackup()">📥 Export Backup</button>
       <button class="action-btn btn-clear" onclick="document.getElementById('importBackupInput').click()">📤 Import Backup</button>
       <input type="file" id="importBackupInput" accept=".json" style="display:none;" onchange="importDataBackup(event)">
@@ -415,6 +430,7 @@ input[type="number"] { -moz-appearance: textfield; }
 </div>
 
 <div class="toast" id="toast"></div>
+<div id="print-wrapper"></div>
 
 <script>
 let items = Array.from({ length: 10 }, () => ({ desc: '', qty: '', rate: '' }));
@@ -448,6 +464,15 @@ function getTodayFormatted() {
   const month = String(d.getMonth() + 1).padStart(2, '0');
   const year = d.getFullYear();
   return `${day}/${month}/${year}`;
+}
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
 }
 
 window.addEventListener('DOMContentLoaded', () => {
@@ -543,6 +568,198 @@ function calculateTotal() {
 
   document.getElementById('grandTotalDisplay').textContent = `₹ ${grandTotal.toFixed(2)}`;
 }
+
+function preparePrintView() {
+  const printWrapper = document.getElementById('print-wrapper');
+  if (!printWrapper) return;
+  printWrapper.innerHTML = '';
+
+  const billNo = document.getElementById('billNo').value || '';
+  const billDate = document.getElementById('billDate').value || '';
+  const custName = document.getElementById('custName').value || '';
+  const custPhone = document.getElementById('custPhone').value || '';
+  const custEmail = document.getElementById('custEmail').value || '';
+  const custAddress1 = document.getElementById('custAddress1').value || '';
+  const custAddress2 = document.getElementById('custAddress2').value || '';
+  const custGst = document.getElementById('custGst').value || '';
+
+  let subtotal = 0;
+  items.forEach(item => {
+    const q = parseFloat(item.qty) || 0;
+    const r = parseFloat(item.rate) || 0;
+    subtotal += (q * r);
+  });
+  const gstAmt = isGstApplied ? (subtotal * 0.18) : 0;
+  const grandTotal = subtotal + gstAmt;
+
+  let lastFilledIndex = -1;
+  for (let i = items.length - 1; i >= 0; i--) {
+    if ((items[i].desc && items[i].desc.trim()) || parseFloat(items[i].qty) > 0 || parseFloat(items[i].rate) > 0) {
+      lastFilledIndex = i;
+      break;
+    }
+  }
+  const activeItemsCount = Math.max(10, lastFilledIndex + 1);
+  const activeItems = items.slice(0, activeItemsCount);
+
+  const pageSize = 10;
+  const totalPages = Math.ceil(activeItems.length / pageSize);
+
+  const phoneEmailStr = [custPhone, custEmail].filter(Boolean).join(' / ');
+  const fullAddressStr = [custAddress1, custAddress2].filter(Boolean).join(' ');
+
+  for (let p = 0; p < totalPages; p++) {
+    const pageItems = activeItems.slice(p * pageSize, (p + 1) * pageSize);
+
+    while (pageItems.length < pageSize) {
+      pageItems.push({ desc: '', qty: '', rate: '', _padded: true });
+    }
+
+    const pageDiv = document.createElement('div');
+    pageDiv.className = 'print-page';
+
+    let tableRowsHtml = '';
+    pageItems.forEach((item, idx) => {
+      const globalIdx = (p * pageSize) + idx;
+      const q = parseFloat(item.qty) || 0;
+      const r = parseFloat(item.rate) || 0;
+      const lineAmt = (q > 0 || r > 0) ? (q * r).toFixed(2) : '';
+      const srNo = (item._padded && globalIdx >= activeItemsCount) ? '' : (globalIdx + 1);
+
+      tableRowsHtml += `
+        <tr>
+          <td style="text-align:center; width:40px;">${srNo}</td>
+          <td style="text-align:left;">${escapeHtml(item.desc || '')}</td>
+          <td style="text-align:center; width:70px;">${item.qty || ''}</td>
+          <td style="text-align:right; width:90px;">${item.rate || ''}</td>
+          <td style="text-align:right; width:100px;">${lineAmt}</td>
+        </tr>
+      `;
+    });
+
+    const pageInfoStr = totalPages > 1 ? `<span style="font-size:10px; opacity:0.8; margin-right:10px;">(Page ${p + 1} of ${totalPages})</span>` : '';
+
+    pageDiv.innerHTML = `
+      <div class="gstin-left">
+        <div>GSTIN: 24ACCFS8163L1ZR</div>
+        <div>Office No.: 84605 26012</div>
+      </div>
+
+      <div class="contacts">
+        <div class="phone-no">Phone No.: 94280 73316</div>
+        <div class="phone-no">Phone No.: 98240 49919</div>
+        <div class="email-id">Email: Sureshpatel@sungranites.in</div>
+        <div class="email-id">Email: Vishnupatel@sungranites.in</div>
+      </div>
+
+      <div class="sub-title">Invoice / Delivery Memo</div>
+      <div class="main-title">SHIV SHAKTI TILES</div>
+      <div class="guj-title">શિવ શક્તિ ટાઇલ્સ</div>
+      <div class="shop-addr">મહાનગર સોસાયટીની સામે, યમુના મીલ પાસે, ડભોઇ રોડ, વડોદરા – ૩૯૦ ૦૦૪.</div>
+
+      <div class="meta-row">
+        <div class="field-group">
+          <span class="field-label">No. :</span>
+          <span class="print-val">${escapeHtml(billNo)}</span>
+        </div>
+        <div class="field-group">
+          <span class="field-label">તા. :</span>
+          <span class="print-val">${escapeHtml(billDate)}</span>
+        </div>
+      </div>
+
+      <div class="cust-info-box">
+        <div class="cust-row">
+          <span class="cust-label">માલ લેનારનું નામ :</span>
+          <span class="cust-val">${escapeHtml(custName)}</span>
+        </div>
+        <div class="cust-row">
+          <span class="cust-label">ફોન નં. / ઈમેઈલ આઈડી :</span>
+          <span class="cust-val">${escapeHtml(phoneEmailStr)}</span>
+        </div>
+        <div class="cust-row">
+          <span class="cust-label">ઠા. (સરનામું) :</span>
+          <span class="cust-val">${escapeHtml(fullAddressStr)}</span>
+        </div>
+        <div class="cust-row">
+          <span class="cust-label">જી.એસ.ટી. નં. :</span>
+          <span class="cust-val" style="text-transform:uppercase;">${escapeHtml(custGst)}</span>
+        </div>
+      </div>
+
+      <table class="items-table">
+        <thead>
+          <tr>
+            <th style="width:40px; text-align:center;">Sr. No.</th>
+            <th style="text-align:left;">Particulars</th>
+            <th style="width:70px; text-align:center;">Qty.</th>
+            <th style="width:90px; text-align:right;">Rate</th>
+            <th style="width:100px; text-align:right;">Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${tableRowsHtml}
+        </tbody>
+      </table>
+
+      <div class="table-summary-bar">
+        <div>
+          ${isGstApplied ? `<span>GST (18%): ₹ ${gstAmt.toFixed(2)}</span>` : ''}
+        </div>
+        <div>
+          ${pageInfoStr}
+          <span style="letter-spacing:1px; margin-right:8px;">TOTAL</span>
+          <span>₹ ${grandTotal.toFixed(2)}</span>
+        </div>
+      </div>
+
+      <div class="bottom-grid">
+        <div>
+          <div class="cust-sig-area">
+            <div style="font-size:10px; font-weight:700; color:#000; margin-bottom:15px;">સહી</div>
+            <div class="cust-sig-line">માલ લેનારની સહી</div>
+          </div>
+          <div class="terms-box">
+            <div class="terms-title">સૂચના :</div>
+            <div>(૧) વેચેલો માલ પાછો લેવામાં આવશે નહીં.</div>
+            <div>(૨) માલ તપાસીને લેવો. પાછળથી તકરાર ચાલશે નહીં.</div>
+            <div>(૩) JAQUAR-TOLL FREE NO.: 18001216808</div>
+          </div>
+        </div>
+
+        <div class="center-payment-group">
+          <div class="bank-details-box">
+            <div class="bank-title">Company's Bank Details</div>
+            <div><strong>A/c Holder's Name :</strong> Shiv Shakti Tiles</div>
+            <div><strong>Bank Name :</strong> Union Bank of India</div>
+            <div><strong>A/c No. :</strong> 355101010110766</div>
+            <div><strong>Branch &amp; IFS Code :</strong> Pratapnagar &amp; UBIN0807346</div>
+          </div>
+
+          <div class="qr-code-box">
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=WL0507341A0031400@unionbank&pn=SHIVSHAKTI%20TILES" alt="GPay QR Code">
+            <div class="qr-label">Scan to Pay<br>GPay / UPI</div>
+          </div>
+        </div>
+
+        <div class="retailer-signature-box">
+          <div>For, SHIV SHAKTI TILES</div>
+          <div style="font-size:9px; margin-top:1px;">શિવ શક્તિ ટાઇલ્સ વતી</div>
+          <div class="retailer-sig-line">ઓથોરાઇઝ્ડ સહી</div>
+        </div>
+      </div>
+    `;
+
+    printWrapper.appendChild(pageDiv);
+  }
+}
+
+function triggerPrint() {
+  preparePrintView();
+  window.print();
+}
+
+window.addEventListener('beforeprint', preparePrintView);
 
 function clearForm() {
   if (confirm('Are you sure you want to clear all fields for a new bill?')) {
