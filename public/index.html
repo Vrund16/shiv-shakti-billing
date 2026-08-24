@@ -362,7 +362,7 @@ input[type="number"] { -moz-appearance: textfield; }
       </div>
     </div>
 
-    <!-- ITEMS TABLE (STRICTLY SR NO 1 TO 10) -->
+    <!-- ITEMS TABLE -->
     <table class="items-table">
       <thead>
         <tr>
@@ -433,7 +433,7 @@ input[type="number"] { -moz-appearance: textfield; }
 <div id="print-wrapper"></div>
 
 <script>
-let items = Array.from({ length: 10 }, () => ({ desc: '', qty: '', rate: '' }));
+let items = Array.from({ length: 5 }, () => ({ desc: '', qty: '', rate: '' }));
 let isGstApplied = false;
 let currentEditingId = null;
 let currentOfficialBillNo = '';
@@ -503,13 +503,6 @@ function renderTable() {
     tbody.appendChild(tr);
   });
 
-  const addBtn = document.getElementById('addRowBtn');
-  if (items.length >= 10) {
-    addBtn.style.display = 'none';
-  } else {
-    addBtn.style.display = 'inline-block';
-  }
-
   calculateTotal();
 }
 
@@ -527,10 +520,6 @@ function updateItem(index, field, val) {
 }
 
 function addRow() {
-  if (items.length >= 10) {
-    alert("Maximum 10 rows (Sr No. 1 to 10) allowed per bill.");
-    return;
-  }
   items.push({ desc: '', qty: '', rate: '' });
   renderTable();
 }
@@ -635,7 +624,7 @@ function preparePrintView() {
       const q = parseFloat(item.qty) || 0;
       const r = parseFloat(item.rate) || 0;
       const lineAmt = (q > 0 || r > 0) ? (q * r).toFixed(2) : '';
-      const srNo = (item._padded && globalIdx >= activeItemsCount) ? '' : (idx + 1); // Strictly 1 to 10 numbering
+      const srNo = (item._padded && globalIdx >= activeItemsCount) ? '' : (globalIdx + 1); // Continuous Sr. No (1, 2, 3...)
 
       tableRowsHtml += `
         <tr>
@@ -789,7 +778,7 @@ function clearForm() {
     const btn = document.getElementById('gstToggleBtn');
     btn.classList.remove('active');
     btn.textContent = '+ Add GST (18%)';
-    items = Array.from({ length: 10 }, () => ({ desc: '', qty: '', rate: '' }));
+    items = Array.from({ length: 5 }, () => ({ desc: '', qty: '', rate: '' }));
     window.history.replaceState({}, document.title, window.location.pathname);
     renderTable();
   }
@@ -818,8 +807,7 @@ async function checkEditState() {
       document.getElementById('custGst').value = b.custGst || '';
       
       if (b.items && b.items.length > 0) {
-        items = b.items.slice(0, 10);
-        while (items.length < 10) items.push({ desc: '', qty: '', rate: '' });
+        items = b.items;
       }
 
       if (b.isGstApplied) {
