@@ -199,7 +199,7 @@ input[type="number"] { -moz-appearance: textfield; }
 
 .print-page .meta-row {
   display: flex !important;
-  justify-content: space-between !important;
+  justify-space-between: space-between !important;
   align-items: center !important;
   padding: 4px 0 !important;
   margin-bottom: 8px !important;
@@ -601,6 +601,16 @@ function preparePrintView() {
   const activeItemsCount = Math.max(10, lastFilledIndex + 1);
   const activeItems = items.slice(0, activeItemsCount);
 
+  // Calculate global invoice total for multi-page consistency
+  let totalSubtotal = 0;
+  activeItems.forEach(item => {
+    const q = parseFloat(item.qty) || 0;
+    const r = parseFloat(item.rate) || 0;
+    totalSubtotal += (q * r);
+  });
+  const totalGstAmt = isGstApplied ? (totalSubtotal * 0.18) : 0;
+  const overallGrandTotal = totalSubtotal + totalGstAmt;
+
   const pageSize = 10;
   const totalPages = Math.ceil(activeItems.length / pageSize);
 
@@ -614,16 +624,6 @@ function preparePrintView() {
       pageItems.push({ desc: '', qty: '', rate: '', _padded: true });
     }
 
-    let pageSubtotal = 0;
-    pageItems.forEach(item => {
-      const q = parseFloat(item.qty) || 0;
-      const r = parseFloat(item.rate) || 0;
-      pageSubtotal += (q * r);
-    });
-
-    const pageGstAmt = isGstApplied ? (pageSubtotal * 0.18) : 0;
-    const pageGrandTotal = pageSubtotal + pageGstAmt;
-
     const pageDiv = document.createElement('div');
     pageDiv.className = 'print-page';
 
@@ -634,7 +634,7 @@ function preparePrintView() {
       const r = parseFloat(item.rate) || 0;
       const lineAmt = (q > 0 || r > 0) ? (q * r).toFixed(2) : '';
 
-      const srNo = (item._padded && globalIdx >= activeItemsCount) ? '' : (idx + 1);
+      const srNo = (item._padded && globalIdx >= activeItemsCount) ? '' : (globalIdx + 1);
 
       tableRowsHtml += `
         <tr>
@@ -712,11 +712,11 @@ function preparePrintView() {
 
       <div class="table-summary-bar">
         <div>
-          ${isGstApplied ? `<span>GST (18%): ₹ ${pageGstAmt.toFixed(2)}</span>` : ''}
+          ${isGstApplied ? `<span>GST (18%): ₹ ${totalGstAmt.toFixed(2)}</span>` : ''}
         </div>
         <div>
           <span style="letter-spacing:1px; margin-right:8px;">TOTAL</span>
-          <span>₹ ${pageGrandTotal.toFixed(2)}</span>
+          <span>₹ ${overallGrandTotal.toFixed(2)}</span>
         </div>
       </div>
 
