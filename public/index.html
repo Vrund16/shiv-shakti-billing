@@ -199,7 +199,7 @@ input[type="number"] { -moz-appearance: textfield; }
 
 .print-page .meta-row {
   display: flex !important;
-  justify-space-between: space-between !important;
+  justify-content: space-between !important;
   align-items: center !important;
   padding: 4px 0 !important;
   margin-bottom: 8px !important;
@@ -634,7 +634,8 @@ function preparePrintView() {
       const r = parseFloat(item.rate) || 0;
       const lineAmt = (q > 0 || r > 0) ? (q * r).toFixed(2) : '';
 
-      const srNo = (item._padded && globalIdx >= activeItemsCount) ? '' : (globalIdx + 1);
+      // Reset Sr. No. to 1..10 per page
+      const srNo = (item._padded && globalIdx >= activeItemsCount) ? '' : (idx + 1);
 
       tableRowsHtml += `
         <tr>
