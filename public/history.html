@@ -3,8 +3,8 @@
 <head>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
-  // Instant Auth Guard: Forces redirect to login.html before rendering page
-  if (sessionStorage.getItem('isLoggedIn') !== 'true') {
+  // Instant Auth Guard
+  if (sessionStorage.getItem('isLoggedIn') !== 'true' || !sessionStorage.getItem('sessionId')) {
     window.location.replace('login.html');
   }
 </script>
@@ -305,7 +305,6 @@ body { font-family: 'Inter', Arial, sans-serif; background: #f1f5f9; min-height:
 let allBills = [];
 let currentViewMode = 'summary';
 
-// Helper function to escape HTML special characters for XSS prevention
 function escapeHtml(str) {
   if (str === null || str === undefined) return '';
   return String(str)
@@ -512,7 +511,6 @@ function renderTable() {
   }
 }
 
-// Updated Excel exporter generating native binary .xlsx (opens on all mobile & desktop Excel apps)
 function exportToExcel() {
   const filtered = getFilteredBills();
 
@@ -534,13 +532,13 @@ function exportToExcel() {
   const worksheet = XLSX.utils.json_to_sheet(exportRows);
 
   worksheet['!cols'] = [
-    { wch: 8 },  // Sr. No.
-    { wch: 15 }, // Chalan No
-    { wch: 15 }, // Date
-    { wch: 25 }, // Customer Name
-    { wch: 18 }, // Phone No
-    { wch: 18 }, // Official Bill No
-    { wch: 18 }  // Total Amount
+    { wch: 8 },
+    { wch: 15 },
+    { wch: 15 },
+    { wch: 25 },
+    { wch: 18 },
+    { wch: 18 },
+    { wch: 18 }
   ];
 
   const workbook = XLSX.utils.book_new();
@@ -617,23 +615,6 @@ function showToast(msg) {
   setTimeout(() => toast.classList.remove('show'), 2500);
 }
 
-// --- TAB CLOSING & SESSION TERMINATION BEACON ---
-function terminateSessionBeacon() {
-  const sessionId = sessionStorage.getItem('sessionId');
-  if (sessionId) {
-    const payload = JSON.stringify({ sessionId });
-    const blob = new Blob([payload], { type: 'application/json' });
-    navigator.sendBeacon('/api/logout', blob);
-  }
-}
-
-window.addEventListener('pagehide', terminateSessionBeacon);
-document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'hidden') {
-    terminateSessionBeacon();
-  }
-});
-
 // --- AUTOMATIC DISCONNECT MONITOR ---
 setInterval(async () => {
   const mySessionId = sessionStorage.getItem('sessionId');
@@ -649,13 +630,12 @@ setInterval(async () => {
       body: JSON.stringify({ sessionId: mySessionId })
     });
     
-    // If session is deleted or invalid, redirect immediately to login
     if (res.status === 401) {
       sessionStorage.clear();
       window.location.replace('login.html');
     }
   } catch (err) {
-    // Network glitch, skip
+    // Ignore brief network hiccups
   }
 }, 3000);
 </script>
