@@ -9,7 +9,7 @@ const app = express();
 app.set('trust proxy', true);
 
 // Middlewares
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
 app.use(express.text({ type: ['text/plain', 'application/json'] })); // Parses navigator.sendBeacon payload strings
 app.use(cors());
 
@@ -25,10 +25,21 @@ let authConfig = {
 };
 
 const MAX_CONCURRENT_USERS = parseInt(process.env.MAX_ACTIVE_USERS, 10) || 4;
+const SESSION_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes inactivity timeout
 
 // Active Sessions (Max 4 allowed concurrently) & Login Activity Tracker
 const activeSessions = new Map(); // sessionId -> { sessionId, username, ip, device, loginTime, lastSeen }
 const loginAttemptsLog = [];      // History of login attempts (max 200)
+
+// Helper to clean up inactive sessions
+function pruneExpiredSessions() {
+  const now = Date.now();
+  for (const [sessionId, session] of activeSessions.entries()) {
+    if (now - session.lastSeen > SESSION_TIMEOUT_MS) {
+      activeSessions.delete(sessionId);
+    }
+  }
+}
 
 // Helper to extract clean single IP address and location details
 async function getClientIp(req) {
@@ -44,15 +55,22 @@ async function getClientIp(req) {
     return cleanIp;
   }
 
-  // Attempt location lookup via ip-api
+  // Attempt location lookup via ip-api with a strict 2-second timeout to prevent login delays
   try {
-    const response = await fetch(`http://ip-api.com/json/${cleanIp}?fields=status,city,country,isp`);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 2000);
+
+    const response = await fetch(`http://ip-api.com/json/${cleanIp}?fields=status,city,country,isp`, {
+      signal: controller.signal
+    });
+    clearTimeout(timeoutId);
+
     const data = await response.json();
     if (data.status === 'success') {
       return `${cleanIp} (${data.city}, ${data.country} - ${data.isp})`;
     }
   } catch (err) {
-    // Fallback to clean IP if API query fails
+    // Fallback to clean IP if API query fails or times out
   }
 
   return cleanIp;
@@ -73,15 +91,8 @@ function logLoginAttempt(username, ip, userAgent, status, reason = '') {
   if (loginAttemptsLog.length > 200) loginAttemptsLog.pop();
 }
 
-// Session Cleanup: Automatically clean up sessions inactive for more than 30 minutes
-setInterval(() => {
-  const now = Date.now();
-  for (const [sessionId, session] of activeSessions.entries()) {
-    if (now - session.lastSeen > 30 * 60 * 1000) {
-      activeSessions.delete(sessionId);
-    }
-  }
-}, 5 * 60 * 1000);
+// Periodic Session Cleanup: Runs every 5 minutes
+setInterval(pruneExpiredSessions, 5 * 60 * 1000);
 
 // Authentication Middleware to Protect API Routes
 function requireAuth(req, res, next) {
@@ -97,7 +108,7 @@ function requireAuth(req, res, next) {
   return res.status(401).json({ error: 'Unauthorized. Active session required.' });
 }
 
-// Helper to safely parse stringified JSON bodies sent via navigator.sendBeacon
+// Helper to safely parse stringified JSON bodies sent via navigator.sendBeacon or plain text
 function parseRequestBody(req) {
   if (typeof req.body === 'string') {
     try {
@@ -134,6 +145,7 @@ app.get('/activity', (req, res) => res.sendFile(path.join(__dirname, 'activity.h
 
 // GET /api/health - System and Database Status Check
 app.get('/api/health', (req, res) => {
+  pruneExpiredSessions();
   const dbState = mongoose.connection.readyState;
   const dbStatusMap = { 0: 'Disconnected', 1: 'Connected', 2: 'Connecting', 3: 'Disconnecting' };
   
@@ -155,7 +167,7 @@ app.post('/api/login', async (req, res) => {
   const body = parseRequestBody(req);
   const { username, password, privateIp } = body;
   
-  // Extract Public IP and append Private IP if sent from login.html
+  // Extract Public IP and append Private IP if sent from client
   const publicIp = await getClientIp(req);
   const cleanPrivate = (privateIp && privateIp !== 'N/A') ? ` | Private: ${privateIp}` : '';
   const clientIp = `${publicIp}${cleanPrivate}`;
@@ -174,6 +186,9 @@ app.post('/api/login', async (req, res) => {
   ];
 
   if (validUsernames.includes(reqUserClean) && reqPass === authConfig.password) {
+    // Prune inactive sessions before evaluating limit
+    pruneExpiredSessions();
+
     // Enforce Concurrent Active Users Limit
     if (activeSessions.size >= MAX_CONCURRENT_USERS) {
       logLoginAttempt(username, clientIp, userAgent, 'REJECTED_MAX_LIMIT', `Active limit of ${MAX_CONCURRENT_USERS} reached`);
@@ -293,6 +308,7 @@ app.post('/api/session-ping', (req, res) => {
 
 // GET /api/admin/login-activity
 app.get('/api/admin/login-activity', requireAuth, (req, res) => {
+  pruneExpiredSessions();
   res.json({
     activeUserCount: activeSessions.size,
     maxAllowed: MAX_CONCURRENT_USERS,
@@ -316,6 +332,9 @@ app.get('/api/bills', requireAuth, async (req, res) => {
 
 app.get('/api/bills/:id', requireAuth, async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ error: 'Invalid bill ID format' });
+    }
     const bill = await Bill.findById(req.params.id);
     if (!bill) return res.status(404).json({ error: 'Bill not found' });
     res.json(bill);
@@ -343,8 +362,12 @@ app.post('/api/bills', requireAuth, async (req, res) => {
 
 app.put('/api/bills/:id', requireAuth, async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ error: 'Invalid bill ID format' });
+    }
     const body = parseRequestBody(req);
     const updated = await Bill.findByIdAndUpdate(req.params.id, body, { new: true });
+    if (!updated) return res.status(404).json({ error: 'Bill not found' });
     res.json(updated);
   } catch (err) {
     res.status(500).json({ error: err.message || 'Failed to update bill' });
@@ -353,6 +376,9 @@ app.put('/api/bills/:id', requireAuth, async (req, res) => {
 
 app.patch('/api/bills/:id', requireAuth, async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ error: 'Invalid bill ID format' });
+    }
     const body = parseRequestBody(req);
     const { officialBillNo, billNo } = body;
     const updateFields = {};
@@ -365,6 +391,7 @@ app.patch('/api/bills/:id', requireAuth, async (req, res) => {
       { $set: updateFields }, 
       { new: true }
     );
+    if (!updated) return res.status(404).json({ error: 'Bill not found' });
     res.json(updated);
   } catch (err) {
     res.status(500).json({ error: err.message || 'Failed to update official bill number' });
@@ -373,7 +400,11 @@ app.patch('/api/bills/:id', requireAuth, async (req, res) => {
 
 app.delete('/api/bills/:id', requireAuth, async (req, res) => {
   try {
-    await Bill.findByIdAndDelete(req.params.id);
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ error: 'Invalid bill ID format' });
+    }
+    const deleted = await Bill.findByIdAndDelete(req.params.id);
+    if (!deleted) return res.status(404).json({ error: 'Bill not found' });
     res.json({ message: 'Bill deleted successfully' });
   } catch (err) {
     res.status(500).json({ error: err.message || 'Failed to delete bill' });
