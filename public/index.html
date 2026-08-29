@@ -1106,17 +1106,25 @@ window.addEventListener('pageshow', () => {
   isNavigating = false;
 });
 
-// Automatically logout and decrement active session count on tab close
+// Automatically logout and update active session count on tab close via sendBeacon
 window.addEventListener('pagehide', () => {
   if (!isNavigating) {
     const sessionId = sessionStorage.getItem('sessionId');
     if (sessionId) {
-      fetch('/api/logout', {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify({ sessionId }),
-        keepalive: true
-      }).catch(() => {});
+      const payload = JSON.stringify({ sessionId });
+
+      if (navigator.sendBeacon) {
+        const blob = new Blob([payload], { type: 'application/json' });
+        navigator.sendBeacon('/api/logout', blob);
+      } else {
+        fetch('/api/logout', {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: payload,
+          keepalive: true
+        }).catch(() => {});
+      }
+      sessionStorage.clear();
     }
   }
 });
