@@ -10,6 +10,7 @@ app.set('trust proxy', true);
 
 // Middlewares
 app.use(express.json());
+app.use(express.text({ type: ['text/plain', 'application/json'] })); // Parses navigator.sendBeacon payload strings
 app.use(cors());
 
 // Serve static files
@@ -96,6 +97,18 @@ function requireAuth(req, res, next) {
   return res.status(401).json({ error: 'Unauthorized. Active session required.' });
 }
 
+// Helper to safely parse stringified JSON bodies sent via navigator.sendBeacon
+function parseRequestBody(req) {
+  if (typeof req.body === 'string') {
+    try {
+      return JSON.parse(req.body);
+    } catch (e) {
+      return {};
+    }
+  }
+  return req.body || {};
+}
+
 // MongoDB Connection Configuration
 const MONGO_URI = process.env.MONGO_URI || process.env.MONGODB_URI || 'mongodb://localhost:27017/shiv_shakti_tiles';
 
@@ -139,7 +152,8 @@ app.get('/api/health', (req, res) => {
 
 // POST /api/login - Auth Endpoint
 app.post('/api/login', async (req, res) => {
-  const { username, password, privateIp } = req.body;
+  const body = parseRequestBody(req);
+  const { username, password, privateIp } = body;
   
   // Extract Public IP and append Private IP if sent from login.html
   const publicIp = await getClientIp(req);
@@ -199,7 +213,8 @@ app.post('/api/login', async (req, res) => {
 
 // POST /api/reset-password - Password Reset Endpoint using Master Security PIN
 app.post('/api/reset-password', (req, res) => {
-  const { pin, newPassword } = req.body;
+  const body = parseRequestBody(req);
+  const { pin, newPassword } = body;
 
   if (!pin || pin.trim() !== authConfig.resetPin) {
     return res.status(401).json({
@@ -226,7 +241,8 @@ app.post('/api/reset-password', (req, res) => {
 
 // POST /api/logout - Immediately Releases Active Session Slot
 app.post('/api/logout', (req, res) => {
-  const sessionId = req.headers['x-session-id'] || (req.body && req.body.sessionId) || req.query.sessionId;
+  const body = parseRequestBody(req);
+  const sessionId = req.headers['x-session-id'] || body.sessionId || req.query.sessionId;
 
   if (sessionId && activeSessions.has(sessionId)) {
     const session = activeSessions.get(sessionId);
@@ -239,8 +255,9 @@ app.post('/api/logout', (req, res) => {
 });
 
 // POST /api/admin/terminate-session - Force Kill Session from Dashboard
-app.post('/api/admin/terminate-session', (req, res) => {
-  const { sessionId } = req.body;
+app.post('/api/admin/terminate-session', requireAuth, (req, res) => {
+  const body = parseRequestBody(req);
+  const { sessionId } = body;
   if (sessionId && activeSessions.has(sessionId)) {
     activeSessions.delete(sessionId);
     return res.json({ success: true, message: 'Session forcefully terminated' });
@@ -265,7 +282,8 @@ app.get('/api/session-check', (req, res) => {
 
 // POST /api/session-ping - Heartbeat
 app.post('/api/session-ping', (req, res) => {
-  const sessionId = req.headers['x-session-id'] || (req.body && req.body.sessionId);
+  const body = parseRequestBody(req);
+  const sessionId = req.headers['x-session-id'] || body.sessionId;
   if (sessionId && activeSessions.has(sessionId)) {
     activeSessions.get(sessionId).lastSeen = Date.now();
     return res.json({ success: true });
@@ -274,7 +292,7 @@ app.post('/api/session-ping', (req, res) => {
 });
 
 // GET /api/admin/login-activity
-app.get('/api/admin/login-activity', (req, res) => {
+app.get('/api/admin/login-activity', requireAuth, (req, res) => {
   res.json({
     activeUserCount: activeSessions.size,
     maxAllowed: MAX_CONCURRENT_USERS,
@@ -284,10 +302,10 @@ app.get('/api/admin/login-activity', (req, res) => {
 });
 
 // -------------------------------------------------------------
-// BILLING API ENDPOINTS
+// BILLING API ENDPOINTS (PROTECTED WITH AUTHENTICATION)
 // -------------------------------------------------------------
 
-app.get('/api/bills', async (req, res) => {
+app.get('/api/bills', requireAuth, async (req, res) => {
   try {
     const bills = await Bill.find().sort({ createdAt: -1 });
     res.json(bills);
@@ -296,7 +314,7 @@ app.get('/api/bills', async (req, res) => {
   }
 });
 
-app.get('/api/bills/:id', async (req, res) => {
+app.get('/api/bills/:id', requireAuth, async (req, res) => {
   try {
     const bill = await Bill.findById(req.params.id);
     if (!bill) return res.status(404).json({ error: 'Bill not found' });
@@ -306,14 +324,15 @@ app.get('/api/bills/:id', async (req, res) => {
   }
 });
 
-app.post('/api/bills', async (req, res) => {
+app.post('/api/bills', requireAuth, async (req, res) => {
   try {
     if (mongoose.connection.readyState !== 1) {
       return res.status(500).json({ 
         error: `Database connection state is ${mongoose.connection.readyState} (Not Connected). Check password/URL on Render.` 
       });
     }
-    const newBill = new Bill(req.body);
+    const body = parseRequestBody(req);
+    const newBill = new Bill(body);
     const saved = await newBill.save();
     res.status(201).json(saved);
   } catch (err) {
@@ -322,18 +341,20 @@ app.post('/api/bills', async (req, res) => {
   }
 });
 
-app.put('/api/bills/:id', async (req, res) => {
+app.put('/api/bills/:id', requireAuth, async (req, res) => {
   try {
-    const updated = await Bill.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const body = parseRequestBody(req);
+    const updated = await Bill.findByIdAndUpdate(req.params.id, body, { new: true });
     res.json(updated);
   } catch (err) {
     res.status(500).json({ error: err.message || 'Failed to update bill' });
   }
 });
 
-app.patch('/api/bills/:id', async (req, res) => {
+app.patch('/api/bills/:id', requireAuth, async (req, res) => {
   try {
-    const { officialBillNo, billNo } = req.body;
+    const body = parseRequestBody(req);
+    const { officialBillNo, billNo } = body;
     const updateFields = {};
 
     if (officialBillNo !== undefined) updateFields.officialBillNo = officialBillNo;
@@ -350,7 +371,7 @@ app.patch('/api/bills/:id', async (req, res) => {
   }
 });
 
-app.delete('/api/bills/:id', async (req, res) => {
+app.delete('/api/bills/:id', requireAuth, async (req, res) => {
   try {
     await Bill.findByIdAndDelete(req.params.id);
     res.json({ message: 'Bill deleted successfully' });
