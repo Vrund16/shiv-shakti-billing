@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
   // Instant Auth Guard: Forces redirect to login.html before rendering page
   if (sessionStorage.getItem('isLoggedIn') !== 'true') {
@@ -511,6 +512,7 @@ function renderTable() {
   }
 }
 
+// Updated Excel exporter generating native binary .xlsx (opens on all mobile & desktop Excel apps)
 function exportToExcel() {
   const filtered = getFilteredBills();
 
@@ -519,103 +521,35 @@ function exportToExcel() {
     return;
   }
 
-  let excelXML = `
-    <html xmlns:o="urn:schemas-microsoft-microsoft-com:office:office" 
-          xmlns:x="urn:schemas-microsoft-microsoft-com:office:excel" 
-          xmlns="http://www.w3.org/TR/REC-html40">
-    <head>
-      <meta charset="UTF-8">
-      <!--[if gte mso 9]>
-      <xml>
-        <x:ExcelWorkbook>
-          <x:ExcelWorksheets>
-            <x:ExcelWorksheet>
-              <x:Name>Summary Bill History</x:Name>
-              <x:WorksheetOptions>
-                <x:DisplayGridlines/>
-              </x:WorksheetOptions>
-            </x:ExcelWorksheet>
-          </x:ExcelWorksheets>
-        </x:ExcelWorkbook>
-      </xml>
-      <![endif]-->
-      <style>
-        th {
-          background-color: #0f2847;
-          color: #ffffff;
-          font-family: Arial, sans-serif;
-          font-size: 11pt;
-          font-weight: bold;
-          border: 0.5pt solid #cbd5e1;
-          padding: 8px;
-          text-align: left;
-        }
-        td {
-          font-family: Arial, sans-serif;
-          font-size: 10pt;
-          border: 0.5pt solid #cbd5e1;
-          padding: 6px;
-          vertical-align: middle;
-        }
-        .text-cell { mso-number-format: "\\@"; }
-        .num-cell { mso-number-format: "\\#\\,##0\\.00"; text-align: right; }
-        .center-cell { text-align: center; mso-number-format: "\\@"; }
-      </style>
-    </head>
-    <body>
-      <table>
-        <thead>
-          <tr>
-            <th style="width: 100px;">Chalan No</th>
-            <th style="width: 110px;">Date</th>
-            <th style="width: 220px;">Customer Name</th>
-            <th style="width: 140px;">Phone No</th>
-            <th style="width: 140px;">Official Bill No</th>
-            <th style="width: 160px; text-align: right;">Total Amount (INR)</th>
-          </tr>
-        </thead>
-        <tbody>
-  `;
+  const exportRows = filtered.map((b, index) => ({
+    "Sr. No.": index + 1,
+    "Chalan No": b.billNo || '-',
+    "Date": b.date || '-',
+    "Customer Name": b.custName || 'Cash Customer',
+    "Phone No": b.custPhone || '-',
+    "Official Bill No": b.officialBillNo || '-',
+    "Total Amount (₹)": parseFloat(b.grandTotal || 0).toFixed(2)
+  }));
 
-  filtered.forEach(b => {
-    const chalan = escapeHtml(b.billNo || '-');
-    const date = escapeHtml(b.date || '-');
-    const name = escapeHtml(b.custName || 'Cash Customer');
-    const phone = escapeHtml(b.custPhone || '-');
-    const officialNo = escapeHtml(b.officialBillNo || '-');
-    const total = parseFloat(b.grandTotal || 0).toFixed(2);
+  const worksheet = XLSX.utils.json_to_sheet(exportRows);
 
-    excelXML += `
-      <tr>
-        <td class="center-cell">${chalan}</td>
-        <td class="center-cell">${date}</td>
-        <td class="text-cell">${name}</td>
-        <td class="text-cell">${phone}</td>
-        <td class="text-cell">${officialNo}</td>
-        <td class="num-cell">${total}</td>
-      </tr>
-    `;
-  });
+  worksheet['!cols'] = [
+    { wch: 8 },  // Sr. No.
+    { wch: 15 }, // Chalan No
+    { wch: 15 }, // Date
+    { wch: 25 }, // Customer Name
+    { wch: 18 }, // Phone No
+    { wch: 18 }, // Official Bill No
+    { wch: 18 }  // Total Amount
+  ];
 
-  excelXML += `
-        </tbody>
-      </table>
-    </body>
-    </html>
-  `;
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Summary Bill History");
 
-  const blob = new Blob([excelXML], { type: "application/vnd.ms-excel;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
   const dateStr = new Date().toISOString().slice(0, 10);
+  XLSX.writeFile(workbook, `Summary_Bill_History_${dateStr}.xlsx`);
   
-  link.setAttribute("href", url);
-  link.setAttribute("download", `Summary_Bill_History_${dateStr}.xls`);
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  
-  showToast("Formatted Excel downloaded!");
+  showToast("Native Excel (.xlsx) downloaded!");
 }
 
 async function updateOfficialBillNo(encodedId, value, inputElem) {
@@ -682,6 +616,23 @@ function showToast(msg) {
   toast.classList.add('show');
   setTimeout(() => toast.classList.remove('show'), 2500);
 }
+
+// --- TAB CLOSING & SESSION TERMINATION BEACON ---
+function terminateSessionBeacon() {
+  const sessionId = sessionStorage.getItem('sessionId');
+  if (sessionId) {
+    const payload = JSON.stringify({ sessionId });
+    const blob = new Blob([payload], { type: 'application/json' });
+    navigator.sendBeacon('/api/logout', blob);
+  }
+}
+
+window.addEventListener('pagehide', terminateSessionBeacon);
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') {
+    terminateSessionBeacon();
+  }
+});
 
 // --- AUTOMATIC DISCONNECT MONITOR ---
 setInterval(async () => {
