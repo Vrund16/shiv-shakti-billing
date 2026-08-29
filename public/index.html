@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <script>
-  if (sessionStorage.getItem('isLoggedIn') !== 'true') {
+  if (sessionStorage.getItem('isLoggedIn') !== 'true' || !sessionStorage.getItem('sessionId')) {
     window.location.replace('login.html');
   }
 </script>
@@ -446,16 +446,21 @@ let isGstApplied = false;
 let currentEditingId = null;
 let currentOfficialBillNo = '';
 
+// --- AUTH HEADER HELPER ---
+function getAuthHeaders() {
+  return {
+    'Content-Type': 'application/json',
+    'x-session-id': sessionStorage.getItem('sessionId') || ''
+  };
+}
+
 async function logout() {
   const sessionId = sessionStorage.getItem('sessionId');
   if (sessionId) {
     try {
       await fetch('/api/logout', {
         method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'x-session-id': sessionId 
-        },
+        headers: getAuthHeaders(),
         body: JSON.stringify({ sessionId })
       });
     } catch (err) {
@@ -626,7 +631,6 @@ function preparePrintView() {
 
       const lineAmtDisplay = (q > 0 || r > 0) ? lineAmt.toFixed(2) : '';
 
-      // Reset Sr. No. to 1..10 for each individual printed bill/page
       const isBlank = item._padded || globalIdx >= activeItemsCount;
       const srNo = isBlank ? '' : (idx + 1);
 
@@ -641,7 +645,6 @@ function preparePrintView() {
       `;
     });
 
-    // Calculate individual total price for this specific bill page
     const pageGstAmt = isGstApplied ? (pageSubtotal * 0.18) : 0;
     const pageGrandTotal = pageSubtotal + pageGstAmt;
 
@@ -828,7 +831,16 @@ async function checkEditState() {
 
   if (editId) {
     try {
-      const res = await fetch(`/api/bills/${editId}`);
+      const res = await fetch(`/api/bills/${editId}`, {
+        headers: getAuthHeaders()
+      });
+
+      if (res.status === 401) {
+        sessionStorage.clear();
+        window.location.replace('login.html');
+        return;
+      }
+
       if (!res.ok) return;
       const b = await res.json();
       
@@ -914,15 +926,21 @@ async function saveBill() {
     if (currentEditingId) {
       res = await fetch(`/api/bills/${currentEditingId}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders(),
         body: JSON.stringify(payload)
       });
     } else {
       res = await fetch('/api/bills', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders(),
         body: JSON.stringify(payload)
       });
+    }
+
+    if (res.status === 401) {
+      sessionStorage.clear();
+      window.location.replace('login.html');
+      return;
     }
 
     if (res.ok) {
@@ -967,7 +985,12 @@ async function exportDataBackup() {
   try {
     let allBills = [];
     try {
-      const res = await fetch('/api/bills');
+      const res = await fetch('/api/bills', { headers: getAuthHeaders() });
+      if (res.status === 401) {
+        sessionStorage.clear();
+        window.location.replace('login.html');
+        return;
+      }
       if (res.ok) {
         allBills = await res.json();
       }
@@ -1019,9 +1042,14 @@ function importDataBackup(event) {
         try {
           const res = await fetch('/api/bills', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: getAuthHeaders(),
             body: JSON.stringify(bill)
           });
+          if (res.status === 401) {
+            sessionStorage.clear();
+            window.location.replace('login.html');
+            return;
+          }
           if (res.ok) successCount++;
         } catch (err) {
           console.warn('Failed syncing item to server:', err);
@@ -1059,10 +1087,7 @@ setInterval(async () => {
   try {
     const res = await fetch('/api/session-ping', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-session-id': mySessionId
-      },
+      headers: getAuthHeaders(),
       body: JSON.stringify({ sessionId: mySessionId })
     });
     
@@ -1074,22 +1099,6 @@ setInterval(async () => {
     // Network glitch
   }
 }, 3000);
-// Add to the bottom of the main <script> tag in index.html and activity.html
-function terminateSessionBeacon() {
-  const sessionId = sessionStorage.getItem('sessionId');
-  if (sessionId) {
-    const payload = JSON.stringify({ sessionId });
-    const blob = new Blob([payload], { type: 'application/json' });
-    navigator.sendBeacon('/api/logout', blob);
-  }
-}
-
-window.addEventListener('pagehide', terminateSessionBeacon);
-document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'hidden') {
-    terminateSessionBeacon();
-  }
-});
 </script>
 </body>
 </html>
