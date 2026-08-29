@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <script>
-  if (sessionStorage.getItem('isLoggedIn') !== 'true') {
+  if (sessionStorage.getItem('isLoggedIn') !== 'true' || !sessionStorage.getItem('sessionId')) {
     window.location.replace('login.html');
   }
 </script>
@@ -141,7 +141,15 @@ body{font-family:'Inter',Arial,sans-serif;background:#eef2f7;min-height:100vh;co
 </div>
 
 <script>
-// --- AUTOMATIC SESSION HEARTBEAT (Kicks user off if terminated) ---
+// --- AUTH HEADER HELPER ---
+function getAuthHeaders() {
+  return {
+    'Content-Type': 'application/json',
+    'x-session-id': sessionStorage.getItem('sessionId') || ''
+  };
+}
+
+// --- AUTOMATIC SESSION HEARTBEAT ---
 setInterval(async () => {
   const mySessionId = sessionStorage.getItem('sessionId');
   if (!mySessionId) {
@@ -152,14 +160,10 @@ setInterval(async () => {
   try {
     const res = await fetch('/api/session-ping', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-session-id': mySessionId
-      },
+      headers: getAuthHeaders(),
       body: JSON.stringify({ sessionId: mySessionId })
     });
     
-    // Server responded with 401 Unauthorized -> Session killed!
     if (res.status === 401) {
       sessionStorage.clear();
       window.location.replace('login.html');
@@ -167,7 +171,7 @@ setInterval(async () => {
   } catch (err) {
     // Network glitch, skip ping
   }
-}, 3000); // Checks every 3 seconds
+}, 3000);
 
 // --- LOGOUT HANDLER ---
 async function logout() {
@@ -176,10 +180,7 @@ async function logout() {
     try {
       await fetch('/api/logout', {
         method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'x-session-id': sessionId 
-        },
+        headers: getAuthHeaders(),
         body: JSON.stringify({ sessionId })
       });
     } catch (err) {
@@ -189,10 +190,20 @@ async function logout() {
   sessionStorage.clear();
   window.location.replace('login.html');
 }
+
 // --- FETCH DASHBOARD ACTIVITY ---
 async function fetchActivity() {
   try {
-    const res = await fetch('/api/admin/login-activity');
+    const res = await fetch('/api/admin/login-activity', {
+      headers: getAuthHeaders()
+    });
+
+    if (res.status === 401 || res.status === 403) {
+      sessionStorage.clear();
+      window.location.replace('login.html');
+      return;
+    }
+
     if (!res.ok) throw new Error('Failed to fetch activity');
     const data = await res.json();
 
@@ -259,18 +270,22 @@ async function terminateSession(targetSessionId) {
   try {
     const res = await fetch('/api/admin/terminate-session', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: getAuthHeaders(),
       body: JSON.stringify({ sessionId: targetSessionId })
     });
 
+    if (res.status === 401) {
+      sessionStorage.clear();
+      window.location.replace('login.html');
+      return;
+    }
+
     if (res.ok) {
-      // If you disconnected YOUR OWN current device/session, logout immediately!
       if (targetSessionId === mySessionId) {
         sessionStorage.clear();
         window.location.replace('login.html');
         return;
       }
-      // Otherwise refresh table
       fetchActivity();
     }
   } catch (err) {
@@ -284,23 +299,7 @@ function escapeHtml(str) {
 
 window.addEventListener('DOMContentLoaded', () => {
   fetchActivity();
-  setInterval(fetchActivity, 2000); // Auto-refresh active user table every 5 seconds
-});
-// Add to the bottom of the main <script> tag in index.html and activity.html
-function terminateSessionBeacon() {
-  const sessionId = sessionStorage.getItem('sessionId');
-  if (sessionId) {
-    const payload = JSON.stringify({ sessionId });
-    const blob = new Blob([payload], { type: 'application/json' });
-    navigator.sendBeacon('/api/logout', blob);
-  }
-}
-
-window.addEventListener('pagehide', terminateSessionBeacon);
-document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'hidden') {
-    terminateSessionBeacon();
-  }
+  setInterval(fetchActivity, 5000);
 });
 </script>
 </body>
