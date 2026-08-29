@@ -25,21 +25,27 @@ let authConfig = {
 };
 
 const MAX_CONCURRENT_USERS = parseInt(process.env.MAX_ACTIVE_USERS, 10) || 4;
-const SESSION_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes inactivity timeout
 
-// Active Sessions (Max 4 allowed concurrently) & Login Activity Tracker
+// 10 seconds inactivity threshold (client pings every 3s)
+const HEARTBEAT_TIMEOUT_MS = 10 * 1000; 
+
+// Active Sessions & Login Activity Tracker
 const activeSessions = new Map(); // sessionId -> { sessionId, username, ip, device, loginTime, lastSeen }
 const loginAttemptsLog = [];      // History of login attempts (max 200)
 
-// Helper to clean up inactive sessions
+// Helper to clean up inactive sessions whose heartbeats stopped
 function pruneExpiredSessions() {
   const now = Date.now();
   for (const [sessionId, session] of activeSessions.entries()) {
-    if (now - session.lastSeen > SESSION_TIMEOUT_MS) {
+    if (now - session.lastSeen > HEARTBEAT_TIMEOUT_MS) {
       activeSessions.delete(sessionId);
+      console.log(`⏳ Session timed out (no ping): user [${session.username}] (${sessionId})`);
     }
   }
 }
+
+// Background cleanup task: Runs every 4 seconds for fast user-count updates
+setInterval(pruneExpiredSessions, 4000);
 
 // Helper to extract clean single IP address and location details
 async function getClientIp(req) {
@@ -90,9 +96,6 @@ function logLoginAttempt(username, ip, userAgent, status, reason = '') {
   loginAttemptsLog.unshift(attemptInfo);
   if (loginAttemptsLog.length > 200) loginAttemptsLog.pop();
 }
-
-// Periodic Session Cleanup: Runs every 5 minutes
-setInterval(pruneExpiredSessions, 5 * 60 * 1000);
 
 // Authentication Middleware to Protect API Routes
 function requireAuth(req, res, next) {
@@ -158,6 +161,15 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+// GET /api/active-users - Instant live active user count check
+app.get('/api/active-users', (req, res) => {
+  pruneExpiredSessions();
+  res.json({
+    activeUserCount: activeSessions.size,
+    maxAllowed: MAX_CONCURRENT_USERS
+  });
+});
+
 // -------------------------------------------------------------
 // AUTHENTICATION & CONCURRENCY RATE LIMITER ENDPOINTS
 // -------------------------------------------------------------
@@ -215,7 +227,8 @@ app.post('/api/login', async (req, res) => {
       success: true,
       message: 'Login successful',
       sessionId: sessionId,
-      username: sessionData.username
+      username: sessionData.username,
+      activeUserCount: activeSessions.size
     });
   } else {
     logLoginAttempt(username, clientIp, userAgent, 'FAILED_INVALID_CREDS', 'Incorrect username or password');
@@ -254,7 +267,7 @@ app.post('/api/reset-password', (req, res) => {
   });
 });
 
-// POST /api/logout - Immediately Releases Active Session Slot
+// POST /api/logout - Handles explicit logout & navigator.sendBeacon tab close
 app.post('/api/logout', (req, res) => {
   const body = parseRequestBody(req);
   const sessionId = req.headers['x-session-id'] || body.sessionId || req.query.sessionId;
@@ -263,10 +276,14 @@ app.post('/api/logout', (req, res) => {
     const session = activeSessions.get(sessionId);
     activeSessions.delete(sessionId);
     console.log(`🚪 Session released for user [${session.username}] (${sessionId})`);
-    return res.json({ success: true, message: 'Session released successfully' });
+    return res.json({
+      success: true,
+      message: 'Session released successfully',
+      activeUserCount: activeSessions.size
+    });
   }
 
-  res.json({ success: true, message: 'Logged out successfully' });
+  res.json({ success: true, message: 'Logged out successfully', activeUserCount: activeSessions.size });
 });
 
 // POST /api/admin/terminate-session - Force Kill Session from Dashboard
@@ -275,13 +292,18 @@ app.post('/api/admin/terminate-session', requireAuth, (req, res) => {
   const { sessionId } = body;
   if (sessionId && activeSessions.has(sessionId)) {
     activeSessions.delete(sessionId);
-    return res.json({ success: true, message: 'Session forcefully terminated' });
+    return res.json({
+      success: true,
+      message: 'Session forcefully terminated',
+      activeUserCount: activeSessions.size
+    });
   }
   return res.status(404).json({ success: false, message: 'Session not found' });
 });
 
 // GET /api/session-check
 app.get('/api/session-check', (req, res) => {
+  pruneExpiredSessions();
   const sessionId = req.headers['x-session-id'] || req.query.sessionId;
   if (sessionId && activeSessions.has(sessionId)) {
     const session = activeSessions.get(sessionId);
@@ -295,13 +317,13 @@ app.get('/api/session-check', (req, res) => {
   return res.status(401).json({ active: false, message: 'Session invalid or expired' });
 });
 
-// POST /api/session-ping - Heartbeat
+// POST /api/session-ping - Client Heartbeat (runs every 3 seconds)
 app.post('/api/session-ping', (req, res) => {
   const body = parseRequestBody(req);
   const sessionId = req.headers['x-session-id'] || body.sessionId;
   if (sessionId && activeSessions.has(sessionId)) {
     activeSessions.get(sessionId).lastSeen = Date.now();
-    return res.json({ success: true });
+    return res.json({ success: true, activeUserCount: activeSessions.size });
   }
   return res.status(401).json({ success: false, message: 'Session expired' });
 });
