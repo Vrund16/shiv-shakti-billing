@@ -445,6 +445,7 @@ let items = Array.from({ length: 10 }, () => ({ desc: '', qty: '', rate: '' }));
 let isGstApplied = false;
 let currentEditingId = null;
 let currentOfficialBillNo = '';
+let isNavigating = false;
 
 // --- AUTH HEADER HELPER ---
 function getAuthHeaders() {
@@ -1076,6 +1077,49 @@ if ('serviceWorker' in navigator) {
       .catch((err) => console.error('Service Worker Registration Error:', err));
   });
 }
+
+// Track internal link clicks and form submissions
+document.addEventListener('click', (e) => {
+  const anchor = e.target.closest('a');
+  if (anchor && anchor.getAttribute('href')) {
+    isNavigating = true;
+  }
+});
+
+document.addEventListener('submit', () => {
+  isNavigating = true;
+});
+
+// Track page reloads and browser navigation shortcuts
+window.addEventListener('keydown', (e) => {
+  if (
+    e.key === 'F5' ||
+    ((e.ctrlKey || e.metaKey) && (e.key === 'r' || e.key === 'R')) ||
+    (e.altKey && (e.key === 'ArrowLeft' || e.key === 'ArrowRight'))
+  ) {
+    isNavigating = true;
+  }
+});
+
+// Reset flag if page navigation/unload was cancelled
+window.addEventListener('pageshow', () => {
+  isNavigating = false;
+});
+
+// Automatically logout and decrement active session count on tab close
+window.addEventListener('pagehide', () => {
+  if (!isNavigating) {
+    const sessionId = sessionStorage.getItem('sessionId');
+    if (sessionId) {
+      fetch('/api/logout', {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ sessionId }),
+        keepalive: true
+      }).catch(() => {});
+    }
+  }
+});
 
 setInterval(async () => {
   const mySessionId = sessionStorage.getItem('sessionId');
