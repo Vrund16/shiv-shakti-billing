@@ -1074,6 +1074,22 @@ setInterval(async () => {
     // Network glitch
   }
 }, 3000);
+// Add to the bottom of the main <script> tag in index.html and activity.html
+function terminateSessionBeacon() {
+  const sessionId = sessionStorage.getItem('sessionId');
+  if (sessionId) {
+    const payload = JSON.stringify({ sessionId });
+    const blob = new Blob([payload], { type: 'application/json' });
+    navigator.sendBeacon('/api/logout', blob);
+  }
+}
+
+window.addEventListener('pagehide', terminateSessionBeacon);
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') {
+    terminateSessionBeacon();
+  }
+});
 </script>
 </body>
 </html>
