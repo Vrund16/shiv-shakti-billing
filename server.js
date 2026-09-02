@@ -26,26 +26,26 @@ let authConfig = {
 
 const MAX_CONCURRENT_USERS = parseInt(process.env.MAX_ACTIVE_USERS, 10) || 4;
 
-// 10 seconds inactivity threshold (client pings every 3s)
-const HEARTBEAT_TIMEOUT_MS = 10 * 1000; 
+// 1 Hour Inactivity Threshold (60 minutes)
+const SESSION_TIMEOUT_MS = 60 * 60 * 1000; 
 
 // Active Sessions & Login Activity Tracker
 const activeSessions = new Map(); // sessionId -> { sessionId, username, ip, device, loginTime, lastSeen }
 const loginAttemptsLog = [];      // History of login attempts (max 200)
 
-// Helper to clean up inactive sessions whose heartbeats stopped
+// Helper to clean up abandoned sessions past the 1-hour idle threshold
 function pruneExpiredSessions() {
   const now = Date.now();
   for (const [sessionId, session] of activeSessions.entries()) {
-    if (now - session.lastSeen > HEARTBEAT_TIMEOUT_MS) {
+    if (now - session.lastSeen > SESSION_TIMEOUT_MS) {
       activeSessions.delete(sessionId);
-      console.log(`⏳ Session timed out (no ping): user [${session.username}] (${sessionId})`);
+      console.log(`⏳ Session expired due to 1-hour inactivity: user [${session.username}] (${sessionId})`);
     }
   }
 }
 
-// Background cleanup task: Runs every 4 seconds for fast user-count updates
-setInterval(pruneExpiredSessions, 4000);
+// Background cleanup task: Runs every 1 minute to sweep inactive sessions
+setInterval(pruneExpiredSessions, 60 * 1000);
 
 // Helper to extract clean single IP address and location details
 async function getClientIp(req) {
@@ -317,7 +317,7 @@ app.get('/api/session-check', (req, res) => {
   return res.status(401).json({ active: false, message: 'Session invalid or expired' });
 });
 
-// POST /api/session-ping - Client Heartbeat (runs every 3 seconds)
+// POST /api/session-ping - Client Heartbeat
 app.post('/api/session-ping', (req, res) => {
   const body = parseRequestBody(req);
   const sessionId = req.headers['x-session-id'] || body.sessionId;
