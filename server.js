@@ -136,11 +136,12 @@ const billSchema = new mongoose.Schema({}, { strict: false, timestamps: true });
 const Bill = mongoose.model('Bill', billSchema);
 
 // Explicit HTML Page Routes
-app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'login.html')));
-app.get('/login', (req, res) => res.sendFile(path.join(__dirname, 'login.html')));
-app.get('/index', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
-app.get('/history', (req, res) => res.sendFile(path.join(__dirname, 'history.html')));
-app.get('/activity', (req, res) => res.sendFile(path.join(__dirname, 'activity.html')));
+// Explicit HTML Page Routes (Updated for public folder location)
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'login.html')));
+app.get('/login', (req, res) => res.sendFile(path.join(__dirname, 'public', 'login.html')));
+app.get('/index', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
+app.get('/history', (req, res) => res.sendFile(path.join(__dirname, 'public', 'history.html')));
+app.get('/activity', (req, res) => res.sendFile(path.join(__dirname, 'public', 'activity.html')));
 
 // -------------------------------------------------------------
 // SYSTEM & HEALTH ENDPOINTS
