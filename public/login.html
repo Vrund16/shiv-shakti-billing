@@ -1,15 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<script>
-  // Redirect to index if already logged in within this active session
-  if (sessionStorage.getItem('isLoggedIn') === 'true') {
-    window.location.replace('index.html');
-  }
-</script>
+<script src="auth-session.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Shiv Shakti Tiles – Login</title>
+<title>Billing Application – Login</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -27,7 +22,7 @@ body{font-family:'Inter','Segoe UI',sans-serif;min-height:100vh;display:flex;bac
   border:1px solid rgba(255,255,255,.15);}
 .brand-logo svg{width:40px;height:40px;}
 .brand-name{font-size:24px;font-weight:700;color:#fff;letter-spacing:1px;text-align:center;}
-.brand-gu{font-size:15px;color:rgba(255,255,255,.6);margin-top:8px;text-align:center;}
+.brand-gu{font-size:14px;color:rgba(255,255,255,.6);margin-top:8px;text-align:center;}
 .brand-address{font-size:12px;color:rgba(255,255,255,.4);margin-top:20px;text-align:center;
   line-height:1.8;border-top:1px solid rgba(255,255,255,.1);padding-top:20px;}
 .features{margin-top:48px;display:flex;flex-direction:column;gap:16px;width:100%;max-width:320px;}
@@ -84,17 +79,16 @@ body{font-family:'Inter','Segoe UI',sans-serif;min-height:100vh;display:flex;bac
       <rect x="22" y="22" width="14" height="14" rx="2" fill="white" opacity=".9"/>
     </svg>
   </div>
-  <div class="brand-name">SHIV SHAKTI TILES</div>
-  <div class="brand-gu">શિવ શક્તિ ટાઈલ્સ</div>
+  <div class="brand-name">DEMO BILLING PORTAL</div>
+  <div class="brand-gu">Full-Stack Portfolio Showcase</div>
   <div class="brand-address">
-    મહાનગર સોસાયટીની બાજુ માં, યમુના મીલ પાસે<br>
-    ડભોઈ રોડ, વડોદરા – ૩૯૦ ૦૦૪<br><br>
-    GSTIN: 24ACCFS8163L1ZR
+    Sample Industrial Area, Gujarat, India<br><br>
+    GSTIN: 24AAAAA0000A1Z5
   </div>
   <div class="features">
     <div class="feature-item"><div class="feature-dot"></div>Create &amp; print professional bills instantly</div>
-    <div class="feature-item"><div class="feature-dot"></div>Auto-calculate totals and GST</div>
-    <div class="feature-item"><div class="feature-dot"></div>Save &amp; export backup data easily</div>
+    <div class="feature-item"><div class="feature-dot"></div>60-Min active session &amp; 4-user limit guard</div>
+    <div class="feature-item"><div class="feature-dot"></div>Persistent MongoDB Atlas database storage</div>
     <div class="feature-item"><div class="feature-dot"></div>Access restricted to authorized personnel</div>
   </div>
 </div>
@@ -122,7 +116,7 @@ body{font-family:'Inter','Segoe UI',sans-serif;min-height:100vh;display:flex;bac
           </svg>
         </span>
         <input type="text" id="username" name="username" class="form-input"
-          placeholder="Enter your username" autocomplete="username" oninput="hideError()" required>
+          placeholder="Enter username (e.g. admin)" autocomplete="username" oninput="hideError()" required>
       </div>
     </div>
 
@@ -136,7 +130,7 @@ body{font-family:'Inter','Segoe UI',sans-serif;min-height:100vh;display:flex;bac
           </svg>
         </span>
         <input type="password" id="password" name="password" class="form-input"
-          placeholder="Enter your password" autocomplete="current-password" oninput="hideError()" required>
+          placeholder="Enter password" autocomplete="current-password" oninput="hideError()" required>
         <button type="button" class="toggle-pass" onclick="togglePass()" aria-label="Toggle password visibility">
           <svg id="eye-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
@@ -150,8 +144,8 @@ body{font-family:'Inter','Segoe UI',sans-serif;min-height:100vh;display:flex;bac
   </form>
 
   <div class="login-footer">
-    Access is restricted to authorized personnel only.<br>
-    Contact admin to request access.
+    Demo Showcase Access: <strong>admin</strong> / <strong>admin123</strong><br>
+    Restricted to authorized personnel.
   </div>
 </div>
 
@@ -159,6 +153,15 @@ body{font-family:'Inter','Segoe UI',sans-serif;min-height:100vh;display:flex;bac
   function hideError() {
     const errBox = document.getElementById('err-box');
     if (errBox) errBox.classList.remove('show');
+  }
+
+  function showError(msg) {
+    const errBox = document.getElementById('err-box');
+    const errText = document.getElementById('err-text');
+    if (errText && errBox) {
+      errText.textContent = msg;
+      errBox.classList.add('show');
+    }
   }
 
   function togglePass() {
@@ -174,69 +177,7 @@ body{font-family:'Inter','Segoe UI',sans-serif;min-height:100vh;display:flex;bac
     }
   }
 
-  async function handleLogin(event) {
-    event.preventDefault();
-
-    const usernameInput = document.getElementById('username').value.trim();
-    const passwordInput = document.getElementById('password').value;
-    const errBox = document.getElementById('err-box');
-    const errText = document.getElementById('err-text');
-    const submitBtn = document.getElementById('btnSubmit');
-
-    hideError();
-    if (submitBtn) {
-      submitBtn.disabled = true;
-      submitBtn.textContent = 'Signing in...';
-    }
-
-    try {
-      const res = await fetch('/api/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          username: usernameInput,
-          password: passwordInput
-        })
-      });
-
-      const data = await res.json();
-
-      if (res.ok && data.success) {
-        sessionStorage.setItem('isLoggedIn', 'true');
-        sessionStorage.setItem('sessionId', data.sessionId || 'session-' + Date.now());
-        window.location.replace('index.html');
-      } else {
-        showError(data.message || 'Invalid username or password.');
-      }
-    } catch (err) {
-      console.warn('Backend server unreachable. Checking offline emergency login:', err);
-      
-      // Emergency Offline Testing Fallback (e.g., admin / admin123)
-      if (usernameInput === 'admin' && passwordInput === 'admin123') {
-        sessionStorage.setItem('isLoggedIn', 'true');
-        sessionStorage.setItem('sessionId', 'offline-session-' + Date.now());
-        window.location.replace('index.html');
-      } else {
-        showError('Unable to connect to server. Check network connection or try admin credentials.');
-      }
-    } finally {
-      if (submitBtn) {
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Sign In →';
-      }
-    }
-  }
-
-  function showError(msg) {
-    const errBox = document.getElementById('err-box');
-    const errText = document.getElementById('err-text');
-    if (errText && errBox) {
-      errText.textContent = msg;
-      errBox.classList.add('show');
-    }
-  }
-
-  // Function to extract client-side local/private IP
+  // Extract client-side local/private IP for security log audit
   async function getLocalPrivateIp() {
     return new Promise((resolve) => {
       try {
@@ -263,30 +204,70 @@ body{font-family:'Inter','Segoe UI',sans-serif;min-height:100vh;display:flex;bac
       }
     });
   }
-  
-  // Modify your login submission handler:
+
+  // Unified login submission handler
   async function handleLogin(event) {
     event.preventDefault();
-    
-    const username = document.getElementById('username').value;
-    const password = document.getElementById('password').value;
-    
-    // Grab local IP before sending request
-    const privateIp = await getLocalPrivateIp();
-  
-    const response = await fetch('/api/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password, privateIp })
-    });
-  
-    const data = await response.json();
-    if (data.success) {
-      sessionStorage.setItem('isLoggedIn', 'true');
-      sessionStorage.setItem('sessionId', data.sessionId);
-      window.location.href = 'index.html';
-    } else {
-      alert(data.message || 'Login failed');
+
+    const usernameInput = document.getElementById('username').value.trim();
+    const passwordInput = document.getElementById('password').value;
+    const submitBtn = document.getElementById('btnSubmit');
+
+    hideError();
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Signing in...';
+    }
+
+    try {
+      const privateIp = await getLocalPrivateIp();
+      const res = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username: usernameInput,
+          password: passwordInput,
+          privateIp: privateIp
+        })
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        if (window.AuthSession) {
+          window.AuthSession.saveSession(data.sessionId);
+        } else {
+          sessionStorage.setItem('isLoggedIn', 'true');
+          sessionStorage.setItem('sessionId', data.sessionId);
+        }
+        sessionStorage.setItem('username', data.username || usernameInput);
+        localStorage.setItem('username', data.username || usernameInput);
+        window.location.replace('index.html');
+      } else {
+        showError(data.message || 'Invalid username or password.');
+      }
+    } catch (err) {
+      console.warn('Backend server unreachable. Checking offline demo login:', err);
+      
+      // Emergency Offline Demo Fallback
+      if (usernameInput === 'admin' && passwordInput === 'admin123') {
+        const demoSess = 'offline-session-' + Date.now();
+        if (window.AuthSession) {
+          window.AuthSession.saveSession(demoSess);
+        } else {
+          sessionStorage.setItem('isLoggedIn', 'true');
+          sessionStorage.setItem('sessionId', demoSess);
+        }
+        sessionStorage.setItem('username', 'admin');
+        window.location.replace('index.html');
+      } else {
+        showError('Unable to connect to server. Try demo credentials (admin / admin123).');
+      }
+    } finally {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Sign In →';
+      }
     }
   }
 </script>
