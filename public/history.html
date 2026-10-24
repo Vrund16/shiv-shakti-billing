@@ -2,15 +2,10 @@
 <html lang="en">
 <head>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<script>
-  // Instant Auth Guard
-  if (sessionStorage.getItem('isLoggedIn') !== 'true' || !sessionStorage.getItem('sessionId')) {
-    window.location.replace('login.html');
-  }
-</script>
+<script src="auth-session.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Shiv Shakti Tiles – Bill History</title>
+<title>Billing Application – Bill History</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
@@ -236,7 +231,7 @@ body { font-family: 'Inter', Arial, sans-serif; background: #f1f5f9; min-height:
         <rect x="22" y="22" width="14" height="14" rx="2" fill="white"/>
       </svg>
     </div>
-    <div class="nav-title">SHIV SHAKTI TILES <span>Bill History</span></div>
+    <div class="nav-title">BILLING SYSTEM <span>Bill History</span></div>
   </div>
   <div class="nav-links">
     <a href="index.html" class="nav-link">New Bill</a>
@@ -248,7 +243,7 @@ body { font-family: 'Inter', Arial, sans-serif; background: #f1f5f9; min-height:
       <div class="user-avatar" id="userAvatar">A</div>
       <span id="userNameDisplay">Admin</span>
     </div>
-    <button class="btn-logout" onclick="logout()">Sign Out</button>
+    <button class="btn-logout" onclick="AuthSession.logout()">Sign Out</button>
   </div>
 </nav>
 
@@ -316,34 +311,26 @@ function escapeHtml(str) {
 }
 
 function getAuthHeaders() {
-  const sessionId = sessionStorage.getItem('sessionId');
-  return {
+  return window.AuthSession ? window.AuthSession.getAuthHeaders() : {
     'Content-Type': 'application/json',
-    'x-session-id': sessionId || ''
+    'x-session-id': sessionStorage.getItem('sessionId') || localStorage.getItem('sessionId') || ''
   };
 }
 
 function initializeUserProfile() {
-  const name = sessionStorage.getItem('username') || 'Admin';
+  const name = sessionStorage.getItem('username') || localStorage.getItem('username') || 'Admin';
   document.getElementById('userNameDisplay').textContent = name;
   document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
 }
 
-async function logout() {
-  const sessionId = sessionStorage.getItem('sessionId');
-  if (sessionId) {
-    try {
-      await fetch('/api/logout', {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify({ sessionId })
-      });
-    } catch (err) {
-      console.warn('Logout notification error:', err);
-    }
+function triggerLogout() {
+  if (window.AuthSession) {
+    window.AuthSession.logout();
+  } else {
+    sessionStorage.clear();
+    localStorage.clear();
+    window.location.replace('login.html');
   }
-  sessionStorage.clear();
-  window.location.replace('login.html');
 }
 
 window.addEventListener('DOMContentLoaded', () => {
@@ -358,7 +345,7 @@ async function fetchBills() {
     });
     
     if (res.status === 401 || res.status === 403) {
-      logout();
+      triggerLogout();
       return;
     }
     if (!res.ok) throw new Error('Failed to fetch bills');
@@ -560,7 +547,7 @@ async function updateOfficialBillNo(encodedId, value, inputElem) {
     });
     
     if (res.status === 401 || res.status === 403) {
-      logout();
+      triggerLogout();
       return;
     }
 
@@ -590,7 +577,7 @@ async function deleteBill(encodedId) {
     });
 
     if (res.status === 401 || res.status === 403) {
-      logout();
+      triggerLogout();
       return;
     }
 
@@ -614,30 +601,6 @@ function showToast(msg) {
   toast.classList.add('show');
   setTimeout(() => toast.classList.remove('show'), 2500);
 }
-
-// --- AUTOMATIC DISCONNECT MONITOR ---
-setInterval(async () => {
-  const mySessionId = sessionStorage.getItem('sessionId');
-  if (!mySessionId) {
-    sessionStorage.clear();
-    window.location.replace('login.html');
-    return;
-  }
-  try {
-    const res = await fetch('/api/session-ping', {
-      method: 'POST',
-      headers: getAuthHeaders(),
-      body: JSON.stringify({ sessionId: mySessionId })
-    });
-    
-    if (res.status === 401) {
-      sessionStorage.clear();
-      window.location.replace('login.html');
-    }
-  } catch (err) {
-    // Ignore brief network hiccups
-  }
-}, 3000);
 </script>
 </body>
 </html>
