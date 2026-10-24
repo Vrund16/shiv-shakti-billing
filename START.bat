@@ -1,16 +1,16 @@
 @echo off
-title Shiv Shakti Tiles - Billing Server
+title Billing & Session System - Showcase Server
 color 0A
 cd /d "%~dp0"
 
 echo.
 echo  ==========================================
-echo   SHIV SHAKTI TILES - BILLING SERVER
+echo   BILLING & SESSION SYSTEM - SHOWCASE
 echo  ==========================================
 echo.
 
-echo  Step 1: Stopping any old server on port 4000...
-for /f "tokens=5" %%a in ('netstat -aon 2^>nul ^| findstr ":4000 "') do (
+echo  Step 1: Stopping any old server on port 3000...
+for /f "tokens=5" %%a in ('netstat -aon 2^>nul ^| findstr ":3000 "') do (
     if not "%%a"=="0" taskkill /PID %%a /F >nul 2>&1
 )
 timeout /t 2 /nobreak >nul
@@ -36,14 +36,13 @@ if not exist "node_modules" (
 echo  Step 4: Starting server...
 echo.
 echo  ==========================================
-echo   Open Chrome and go to:
-echo   http://localhost:4000
+echo   Open browser and go to:
+echo   http://localhost:3000
 echo  ==========================================
 echo.
-echo  LOGIN CREDENTIALS:
-echo    Username: admin     Password: shivshakti
-echo    Username: suresh    Password: suresh123
-echo    Username: vishnu    Password: vishnu123
+echo  SHOWCASE DEMO CREDENTIALS:
+echo   Username: admin     Password: admin123
+echo   Username: demo-user Password: admin123
 echo.
 echo  Keep this window open while using the app.
 echo  Press Ctrl+C to stop the server.
