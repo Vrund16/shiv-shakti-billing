@@ -17,11 +17,11 @@ app.use(cors());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(__dirname));
 
-// Dynamic Authentication Configuration
+// Dynamic Authentication Configuration (Sanitized Environment Defaults)
 let authConfig = {
-  username: process.env.ADMIN_USERNAME || 'Shiv-Shakti',
-  password: process.env.ADMIN_PASSWORD || 'shivshakti@*&$#2012sungranites',
-  resetPin: process.env.RESET_PIN || '2012' // Master PIN to reset password
+  username: process.env.ADMIN_USERNAME || 'admin',
+  password: process.env.ADMIN_PASSWORD || 'admin123',
+  resetPin: process.env.RESET_PIN || '1234' // Master PIN to reset password
 };
 
 const MAX_CONCURRENT_USERS = parseInt(process.env.MAX_ACTIVE_USERS, 10) || 4;
@@ -123,8 +123,8 @@ function parseRequestBody(req) {
   return req.body || {};
 }
 
-// MongoDB Connection Configuration
-const MONGO_URI = process.env.MONGO_URI || process.env.MONGODB_URI || 'mongodb://localhost:27017/shiv_shakti_tiles';
+// MongoDB Connection Configuration (Sanitized Fallback)
+const MONGO_URI = process.env.MONGO_URI || process.env.MONGODB_URI || 'mongodb://localhost:27017/showcase_billing_db';
 
 console.log('Attempting MongoDB connection...');
 mongoose.connect(MONGO_URI)
@@ -136,7 +136,6 @@ const billSchema = new mongoose.Schema({}, { strict: false, timestamps: true });
 const Bill = mongoose.model('Bill', billSchema);
 
 // Explicit HTML Page Routes
-// Explicit HTML Page Routes (Updated for public folder location)
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'login.html')));
 app.get('/login', (req, res) => res.sendFile(path.join(__dirname, 'public', 'login.html')));
 app.get('/index', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
@@ -190,12 +189,11 @@ app.post('/api/login', async (req, res) => {
   const reqUserClean = (username || '').trim().toLowerCase();
   const reqPass = (password || '');
 
-  // Flexible Username Acceptance
+  // Generic Valid Usernames (Sanitized for Portfolio Showcase)
   const validUsernames = [
     authConfig.username.toLowerCase(),
     'admin',
-    'shiv-shakti',
-    'shivshakti'
+    'demo-user'
   ];
 
   if (validUsernames.includes(reqUserClean) && reqPass === authConfig.password) {
