@@ -1,0 +1,4 @@
+node_modules/
+.env
+data/bills.json
+*.log
