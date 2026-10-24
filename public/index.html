@@ -1,17 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<script>
-  if (sessionStorage.getItem('isLoggedIn') !== 'true' || !sessionStorage.getItem('sessionId')) {
-    window.location.replace('login.html');
-  }
-</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="auth-session.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Shiv Shakti Tiles – Billing</title>
-
-<!-- html2pdf Library for direct PDF download -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<title>Billing Application – Dashboard</title>
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
@@ -69,7 +63,7 @@ input[type="number"] { -moz-appearance: textfield; }
   padding:28px;color:#000;font-size:12px;position:relative;}
 .sub-title{text-align:center;font-size:12.5px;font-weight:600;color:#333;margin-bottom:2px;}
 .main-title{text-align:center;font-size:20px;font-weight:800;letter-spacing:.5px;color:#0f2847;}
-.guj-title{text-align:center;font-size:15px;font-weight:700;margin-bottom:4px;color:#1e293b;}
+.guj-title{text-align:center;font-size:14px;font-weight:600;margin-bottom:4px;color:#475569;}
 .shop-addr{text-align:center;font-size:10.5px;font-weight:700;color:#000;margin-bottom:12px;}
 
 /* ── TOP HEADER CONTACTS & GSTIN ── */
@@ -194,7 +188,7 @@ input[type="number"] { -moz-appearance: textfield; }
 
 .print-page .sub-title { font-size: 11.5px !important; margin-bottom: 2px !important; text-align: center !important; }
 .print-page .main-title { font-size: 18px !important; letter-spacing: 0.5px !important; text-align: center !important; }
-.print-page .guj-title { font-size: 13.5px !important; margin-bottom: 3px !important; text-align: center !important; }
+.print-page .guj-title { font-size: 12px !important; margin-bottom: 3px !important; text-align: center !important; }
 .print-page .shop-addr { font-size: 9.5px !important; margin-bottom: 8px !important; text-align: center !important; font-weight: 700 !important; color: #000 !important; }
 
 .print-page .meta-row {
@@ -280,7 +274,7 @@ input[type="number"] { -moz-appearance: textfield; }
         <rect x="22" y="22" width="14" height="14" rx="2" fill="white"/>
       </svg>
     </div>
-    <div class="nav-title">SHIV SHAKTI TILES <span>Billing</span></div>
+    <div class="nav-title">BILLING SYSTEM <span>Dashboard</span></div>
   </div>
   <div class="nav-links">
     <a href="index.html" class="nav-link active">New Bill</a>
@@ -288,8 +282,8 @@ input[type="number"] { -moz-appearance: textfield; }
     <a href="activity.html" class="nav-link">Login Dashboard</a>
   </div>
   <div class="nav-right">
-    <div class="nav-user"><div class="user-avatar">A</div><span>Admin</span></div>
-    <button class="btn-logout" onclick="logout()">Sign Out</button>
+    <div class="nav-user"><div class="user-avatar" id="userAvatar">A</div><span id="userNameDisplay">Admin</span></div>
+    <button class="btn-logout" onclick="AuthSession.logout()">Sign Out</button>
   </div>
 </nav>
 
@@ -311,21 +305,19 @@ input[type="number"] { -moz-appearance: textfield; }
 
   <div class="challan-box" id="challan-sheet">
     <div class="gstin-left">
-      <div>GSTIN: 24ACCFS8163L1ZR</div>
-      <div>Office No.: 84605 26012</div>
+      <div>GSTIN: 24AAAAA0000A1Z5</div>
+      <div>Office No.: +91 9876543210</div>
     </div>
 
     <div class="contacts">
-      <div class="phone-no">Phone No.: 94280 73316</div>
-      <div class="phone-no">Phone No.: 98240 49919</div>
-      <div class="email-id">Email: Sureshpatel@sungranites.in</div>
-      <div class="email-id">Email: Vishnupatel@sungranites.in</div>
+      <div class="phone-no">Phone No.: +91 9876543210</div>
+      <div class="email-id">Email: support@example.com</div>
     </div>
 
     <div class="sub-title">Invoice / Delivery Memo</div>
-    <div class="main-title">SHIV SHAKTI TILES</div>
-    <div class="guj-title">શિવ શક્તિ ટાઇલ્સ</div>
-    <div class="shop-addr">મહાનગર સોસાયટીની સામે, યમુના મીલ પાસે, ડભોઇ રોડ, વડોદરા – ૩૯૦ ૦૦૪.</div>
+    <div class="main-title">DEMO BILLING PORTAL</div>
+    <div class="guj-title">Full-Stack Portfolio Showcase</div>
+    <div class="shop-addr">Sample Industrial Area, Gujarat, India - 390001.</div>
 
     <div class="meta-row">
       <div class="field-group">
@@ -333,7 +325,7 @@ input[type="number"] { -moz-appearance: textfield; }
         <input type="text" id="billNo" class="clean-input" style="width:140px; font-weight:700;">
       </div>
       <div class="field-group">
-        <span class="field-label">તા. :</span>
+        <span class="field-label">Date :</span>
         <input type="text" id="billDate" class="clean-input" style="width:110px; text-align:center; font-weight:700;">
       </div>
     </div>
@@ -341,12 +333,12 @@ input[type="number"] { -moz-appearance: textfield; }
     <!-- CUSTOMER DETAILS SECTION -->
     <div class="cust-info-box">
       <div class="cust-row">
-        <span class="cust-label">માલ લેનારનું નામ :</span>
+        <span class="cust-label">Customer Name :</span>
         <input type="text" id="custName" class="clean-input" style="flex:1;">
       </div>
 
       <div class="cust-row">
-        <span class="cust-label">ફોન નં. / ઈમેઈલ આઈડી :</span>
+        <span class="cust-label">Phone / Email :</span>
         <div style="flex:1; display:flex; align-items:center; gap:8px;">
           <input type="text" id="custPhone" class="clean-input" style="width:180px;" placeholder="Phone No.">
           <span style="font-weight:700; color:#334155;">/</span>
@@ -355,17 +347,17 @@ input[type="number"] { -moz-appearance: textfield; }
       </div>
 
       <div class="cust-row">
-        <span class="cust-label">ઠા. (સરનામું) :</span>
+        <span class="cust-label">Address Line 1 :</span>
         <input type="text" id="custAddress1" class="clean-input" style="flex:1;" placeholder="Address Line 1">
       </div>
 
       <div class="cust-row">
-        <span class="cust-label"></span>
+        <span class="cust-label">Address Line 2 :</span>
         <input type="text" id="custAddress2" class="clean-input" style="flex:1;" placeholder="Address Line 2">
       </div>
 
       <div class="cust-row">
-        <span class="cust-label">જી.એસ.ટી. નં. :</span>
+        <span class="cust-label">GSTIN No. :</span>
         <input type="text" id="custGst" class="clean-input" style="width:240px; text-transform:uppercase;">
       </div>
     </div>
@@ -402,36 +394,36 @@ input[type="number"] { -moz-appearance: textfield; }
     <div class="bottom-grid">
       <div>
         <div class="cust-sig-area">
-          <div style="font-size:11px; font-weight:700; color:#0f2847; margin-bottom:15px;">સહી</div>
-          <div class="cust-sig-line">માલ લેનારની સહી</div>
+          <div style="font-size:11px; font-weight:700; color:#0f2847; margin-bottom:15px;">Signature</div>
+          <div class="cust-sig-line">Customer Signature</div>
         </div>
         <div class="terms-box">
-          <div class="terms-title">સૂચના :</div>
-          <div>(૧) વેચેલો માલ પાછો લેવામાં આવશે નહીં.</div>
-          <div>(૨) માલ તપાસીને લેવો. પાછળથી તકરાર ચાલશે નહીં.</div>
-          <div>(૩) JAQUAR-TOLL FREE NO.: 18001216808</div>
+          <div class="terms-title">Terms &amp; Conditions :</div>
+          <div>(1) Goods once sold will not be taken back.</div>
+          <div>(2) Please check goods upon delivery.</div>
+          <div>(3) Support Toll-Free: 1800-000-0000</div>
         </div>
       </div>
 
       <div class="center-payment-group">
         <div class="bank-details-box">
           <div class="bank-title">Company's Bank Details</div>
-          <div><strong>A/c Holder's Name :</strong> Shiv Shakti Tiles</div>
-          <div><strong>Bank Name :</strong> Union Bank of India</div>
-          <div><strong>A/c No. :</strong> 355101010110766</div>
-          <div><strong>Branch &amp; IFS Code :</strong> Pratapnagar &amp; UBIN0807346</div>
+          <div><strong>A/c Holder :</strong> Demo Store Account</div>
+          <div><strong>Bank Name :</strong> Sample Bank of India</div>
+          <div><strong>A/c No. :</strong> 12345678901234</div>
+          <div><strong>IFS Code :</strong> SBIN0000000</div>
         </div>
 
         <div class="qr-code-box">
-          <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=WL0507341A0031400@unionbank&pn=SHIVSHAKTI%20TILES" alt="GPay QR Code">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=demo@upi&pn=DemoStore" alt="UPI QR Code">
           <div class="qr-label">Scan to Pay<br>GPay / UPI</div>
         </div>
       </div>
 
       <div class="retailer-signature-box">
-        <div style="font-size:11px; font-weight:700; color:#0f2847;">For, SHIV SHAKTI TILES</div>
-        <div style="font-size:10.5px; font-weight:700; color:#1e293b; margin-top:2px;">શિવ શક્તિ ટાઇલ્સ વતી</div>
-        <div class="retailer-sig-line">ઓથોરાઇઝ્ડ સહી</div>
+        <div style="font-size:11px; font-weight:700; color:#0f2847;">For, DEMO BILLING PORTAL</div>
+        <div style="font-size:10.5px; font-weight:700; color:#1e293b; margin-top:2px;">Authorized Signatory</div>
+        <div class="retailer-sig-line">Authorized Sign</div>
       </div>
     </div>
   </div>
@@ -445,31 +437,27 @@ let items = Array.from({ length: 10 }, () => ({ desc: '', qty: '', rate: '' }));
 let isGstApplied = false;
 let currentEditingId = null;
 let currentOfficialBillNo = '';
-let isNavigating = false;
 
-// --- AUTH HEADER HELPER ---
 function getAuthHeaders() {
-  return {
+  return window.AuthSession ? window.AuthSession.getAuthHeaders() : {
     'Content-Type': 'application/json',
     'x-session-id': sessionStorage.getItem('sessionId') || ''
   };
 }
 
-async function logout() {
-  const sessionId = sessionStorage.getItem('sessionId');
-  if (sessionId) {
-    try {
-      await fetch('/api/logout', {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify({ sessionId })
-      });
-    } catch (err) {
-      console.warn('Logout notification error:', err);
-    }
+function initializeUserProfile() {
+  const name = sessionStorage.getItem('username') || localStorage.getItem('username') || 'Admin';
+  document.getElementById('userNameDisplay').textContent = name;
+  document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
+}
+
+function triggerLogout() {
+  if (window.AuthSession) {
+    window.AuthSession.logout();
+  } else {
+    sessionStorage.clear();
+    window.location.replace('login.html');
   }
-  sessionStorage.clear();
-  window.location.replace('login.html');
 }
 
 function getTodayFormatted() {
@@ -490,6 +478,7 @@ function escapeHtml(str) {
 }
 
 window.addEventListener('DOMContentLoaded', () => {
+  initializeUserProfile();
   document.getElementById('billDate').value = getTodayFormatted();
   renderTable();
   checkEditState();
@@ -654,21 +643,19 @@ function preparePrintView() {
 
     pageDiv.innerHTML = `
       <div class="gstin-left">
-        <div>GSTIN: 24ACCFS8163L1ZR</div>
-        <div>Office No.: 84605 26012</div>
+        <div>GSTIN: 24AAAAA0000A1Z5</div>
+        <div>Office No.: +91 9876543210</div>
       </div>
 
       <div class="contacts">
-        <div class="phone-no">Phone No.: 94280 73316</div>
-        <div class="phone-no">Phone No.: 98240 49919</div>
-        <div class="email-id">Email: Sureshpatel@sungranites.in</div>
-        <div class="email-id">Email: Vishnupatel@sungranites.in</div>
+        <div class="phone-no">Phone No.: +91 9876543210</div>
+        <div class="email-id">Email: support@example.com</div>
       </div>
 
       <div class="sub-title">Invoice / Delivery Memo</div>
-      <div class="main-title">SHIV SHAKTI TILES</div>
-      <div class="guj-title">શિવ શક્તિ ટાઇલ્સ</div>
-      <div class="shop-addr">મહાનગર સોસાયટીની સામે, યમુના મીલ પાસે, ડભોઇ રોડ, વડોદરા – ૩૯૦ ૦૦૪.</div>
+      <div class="main-title">DEMO BILLING PORTAL</div>
+      <div class="guj-title">Full-Stack Portfolio Showcase</div>
+      <div class="shop-addr">Sample Industrial Area, Gujarat, India - 390001.</div>
 
       <div class="meta-row">
         <div class="field-group">
@@ -676,26 +663,26 @@ function preparePrintView() {
           <span class="print-val">${escapeHtml(billNo)}</span>
         </div>
         <div class="field-group">
-          <span class="field-label">તા. :</span>
+          <span class="field-label">Date :</span>
           <span class="print-val">${escapeHtml(billDate)}</span>
         </div>
       </div>
 
       <div class="cust-info-box">
         <div class="cust-row">
-          <span class="cust-label">માલ લેનારનું નામ :</span>
+          <span class="cust-label">Customer Name :</span>
           <span class="cust-val">${escapeHtml(custName)}</span>
         </div>
         <div class="cust-row">
-          <span class="cust-label">ફોન નં. / ઈમેઈલ આઈડી :</span>
+          <span class="cust-label">Phone / Email :</span>
           <span class="cust-val">${escapeHtml(phoneEmailStr)}</span>
         </div>
         <div class="cust-row">
-          <span class="cust-label">ઠા. (સરનામું) :</span>
+          <span class="cust-label">Address :</span>
           <span class="cust-val">${escapeHtml(fullAddressStr)}</span>
         </div>
         <div class="cust-row">
-          <span class="cust-label">જી.એસ.ટી. નં. :</span>
+          <span class="cust-label">GSTIN No. :</span>
           <span class="cust-val" style="text-transform:uppercase;">${escapeHtml(custGst)}</span>
         </div>
       </div>
@@ -728,36 +715,36 @@ function preparePrintView() {
       <div class="bottom-grid">
         <div>
           <div class="cust-sig-area">
-            <div style="font-size:10px; font-weight:700; color:#000; margin-bottom:15px;">સહી</div>
-            <div class="cust-sig-line">માલ લેનારની સહી</div>
+            <div style="font-size:10px; font-weight:700; color:#000; margin-bottom:15px;">Signature</div>
+            <div class="cust-sig-line">Customer Signature</div>
           </div>
           <div class="terms-box">
-            <div class="terms-title">સૂચના :</div>
-            <div>(૧) વેચેલો માલ પાછો લેવામાં આવશે નહીં.</div>
-            <div>(૨) માલ તપાસીને લેવો. પાછળથી તકરાર ચાલશે નહીં.</div>
-            <div>(૩) JAQUAR-TOLL FREE NO.: 18001216808</div>
+            <div class="terms-title">Terms &amp; Conditions :</div>
+            <div>(1) Goods once sold will not be taken back.</div>
+            <div>(2) Please check goods upon delivery.</div>
+            <div>(3) Support Toll-Free: 1800-000-0000</div>
           </div>
         </div>
 
         <div class="center-payment-group">
           <div class="bank-details-box">
             <div class="bank-title">Company's Bank Details</div>
-            <div><strong>A/c Holder's Name :</strong> Shiv Shakti Tiles</div>
-            <div><strong>Bank Name :</strong> Union Bank of India</div>
-            <div><strong>A/c No. :</strong> 355101010110766</div>
-            <div><strong>Branch &amp; IFS Code :</strong> Pratapnagar &amp; UBIN0807346</div>
+            <div><strong>A/c Holder :</strong> Demo Store Account</div>
+            <div><strong>Bank Name :</strong> Sample Bank of India</div>
+            <div><strong>A/c No. :</strong> 12345678901234</div>
+            <div><strong>IFS Code :</strong> SBIN0000000</div>
           </div>
 
           <div class="qr-code-box">
-            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=WL0507341A0031400@unionbank&pn=SHIVSHAKTI%20TILES" alt="GPay QR Code">
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=demo@upi&pn=DemoStore" alt="UPI QR Code">
             <div class="qr-label">Scan to Pay<br>GPay / UPI</div>
           </div>
         </div>
 
         <div class="retailer-signature-box">
-          <div>For, SHIV SHAKTI TILES</div>
-          <div style="font-size:9px; margin-top:1px;">શિવ શક્તિ ટાઇલ્સ વતી</div>
-          <div class="retailer-sig-line">ઓથોરાઇઝ્ડ સહી</div>
+          <div>For, DEMO BILLING PORTAL</div>
+          <div style="font-size:9px; margin-top:1px;">Authorized Signatory</div>
+          <div class="retailer-sig-line">Authorized Sign</div>
         </div>
       </div>
     `;
@@ -836,9 +823,8 @@ async function checkEditState() {
         headers: getAuthHeaders()
       });
 
-      if (res.status === 401) {
-        sessionStorage.clear();
-        window.location.replace('login.html');
+      if (res.status === 401 || res.status === 403) {
+        triggerLogout();
         return;
       }
 
@@ -938,9 +924,8 @@ async function saveBill() {
       });
     }
 
-    if (res.status === 401) {
-      sessionStorage.clear();
-      window.location.replace('login.html');
+    if (res.status === 401 || res.status === 403) {
+      triggerLogout();
       return;
     }
 
@@ -987,9 +972,8 @@ async function exportDataBackup() {
     let allBills = [];
     try {
       const res = await fetch('/api/bills', { headers: getAuthHeaders() });
-      if (res.status === 401) {
-        sessionStorage.clear();
-        window.location.replace('login.html');
+      if (res.status === 401 || res.status === 403) {
+        triggerLogout();
         return;
       }
       if (res.ok) {
@@ -1013,7 +997,7 @@ async function exportDataBackup() {
     const dateStr = new Date().toISOString().slice(0, 10);
 
     dlAnchor.setAttribute("href", dataStr);
-    dlAnchor.setAttribute("download", `Shiv_Shakti_Tiles_Backup_${dateStr}.json`);
+    dlAnchor.setAttribute("download", `Billing_System_Backup_${dateStr}.json`);
     document.body.appendChild(dlAnchor);
     dlAnchor.click();
     dlAnchor.remove();
@@ -1046,9 +1030,8 @@ function importDataBackup(event) {
             headers: getAuthHeaders(),
             body: JSON.stringify(bill)
           });
-          if (res.status === 401) {
-            sessionStorage.clear();
-            window.location.replace('login.html');
+          if (res.status === 401 || res.status === 403) {
+            triggerLogout();
             return;
           }
           if (res.ok) successCount++;
@@ -1077,80 +1060,6 @@ if ('serviceWorker' in navigator) {
       .catch((err) => console.error('Service Worker Registration Error:', err));
   });
 }
-
-// Track internal link clicks and form submissions
-document.addEventListener('click', (e) => {
-  const anchor = e.target.closest('a');
-  if (anchor && anchor.getAttribute('href')) {
-    isNavigating = true;
-  }
-});
-
-document.addEventListener('submit', () => {
-  isNavigating = true;
-});
-
-// Track page reloads and browser navigation shortcuts
-window.addEventListener('keydown', (e) => {
-  if (
-    e.key === 'F5' ||
-    ((e.ctrlKey || e.metaKey) && (e.key === 'r' || e.key === 'R')) ||
-    (e.altKey && (e.key === 'ArrowLeft' || e.key === 'ArrowRight'))
-  ) {
-    isNavigating = true;
-  }
-});
-
-// Reset flag if page navigation/unload was cancelled
-window.addEventListener('pageshow', () => {
-  isNavigating = false;
-});
-
-// Automatically logout and update active session count on tab close via sendBeacon
-window.addEventListener('pagehide', () => {
-  if (!isNavigating) {
-    const sessionId = sessionStorage.getItem('sessionId');
-    if (sessionId) {
-      const payload = JSON.stringify({ sessionId });
-
-      if (navigator.sendBeacon) {
-        const blob = new Blob([payload], { type: 'application/json' });
-        navigator.sendBeacon('/api/logout', blob);
-      } else {
-        fetch('/api/logout', {
-          method: 'POST',
-          headers: getAuthHeaders(),
-          body: payload,
-          keepalive: true
-        }).catch(() => {});
-      }
-      sessionStorage.clear();
-    }
-  }
-});
-
-setInterval(async () => {
-  const mySessionId = sessionStorage.getItem('sessionId');
-  if (!mySessionId) {
-    sessionStorage.clear();
-    window.location.replace('login.html');
-    return;
-  }
-  try {
-    const res = await fetch('/api/session-ping', {
-      method: 'POST',
-      headers: getAuthHeaders(),
-      body: JSON.stringify({ sessionId: mySessionId })
-    });
-    
-    if (res.status === 401) {
-      sessionStorage.clear();
-      window.location.replace('login.html');
-    }
-  } catch (err) {
-    // Network glitch
-  }
-}, 3000);
 </script>
 </body>
 </html>
