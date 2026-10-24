@@ -1,7 +1,9 @@
-(function () {
-  const IS_LOGIN_PAGE = window.location.pathname.endsWith('login.html');
+// public/auth-session.js - Portfolio Showcase Client Session Manager
 
-  // Load session from storage
+(function () {
+  const IS_LOGIN_PAGE = window.location.pathname.endsWith('login.html') || window.location.pathname === '/login';
+
+  // Load session ID from storage
   function getSessionId() {
     return sessionStorage.getItem('sessionId') || localStorage.getItem('sessionId') || '';
   }
@@ -19,28 +21,29 @@
     localStorage.setItem('sessionId', sessionId);
   }
 
+  // Clear session storage on logout or expiry
   function clearSession() {
     sessionStorage.clear();
     localStorage.removeItem('isLoggedIn');
     localStorage.removeItem('sessionId');
   }
 
-  // Route guard check
+  // Route guard check to prevent unauthorized page access
   function enforceRouteGuard() {
     if (IS_LOGIN_PAGE) {
-      if (isLoggedIn()) window.location.replace('index.html');
+      if (isLoggedIn()) {
+        window.location.replace('index.html');
+      }
       return;
     }
 
     if (!isLoggedIn()) {
-      if (navigator.onLine) {
-        clearSession();
-        window.location.replace('login.html');
-      }
+      clearSession();
+      window.location.replace('login.html');
     }
   }
 
-  // Request Header Helper
+  // Request Header Helper for authenticated API calls
   function getAuthHeaders() {
     return {
       'Content-Type': 'application/json',
@@ -48,10 +51,11 @@
     };
   }
 
-  // Periodic heartbeat ping to server
+  // Periodic heartbeat ping to refresh 60-minute server session timer
   function startSessionPing() {
     if (IS_LOGIN_PAGE) return;
 
+    // Heartbeat ping every 10 seconds
     setInterval(async () => {
       if (!navigator.onLine) return;
 
@@ -69,17 +73,18 @@
           body: JSON.stringify({ sessionId: sid })
         });
 
+        // 401 response indicates 60-min session expiry or admin termination
         if (res.status === 401) {
           clearSession();
           window.location.replace('login.html');
         }
       } catch (err) {
-        console.warn('Session ping network issue:', err);
+        console.warn('Session heartbeat network issue:', err);
       }
-    }, 5000);
+    }, 10000);
   }
 
-  // Logout handler
+  // Explicit user logout handler
   async function logout() {
     const sid = getSessionId();
     if (sid && navigator.onLine) {
@@ -97,10 +102,20 @@
     window.location.replace('login.html');
   }
 
-  // Run guard immediately on script parse
+  // Instantly release user session when mobile or browser tab is closed/hidden
+  window.addEventListener('pagehide', () => {
+    const sid = getSessionId();
+    if (sid && navigator.sendBeacon && !IS_LOGIN_PAGE) {
+      const payload = JSON.stringify({ sessionId: sid });
+      const blob = new Blob([payload], { type: 'application/json' });
+      navigator.sendBeacon('/api/logout', blob);
+    }
+  });
+
+  // Run Route Guard immediately on script parse
   enforceRouteGuard();
 
-  // Global window access
+  // Expose global session functions for index.html, history.html, etc.
   window.AuthSession = {
     saveSession,
     clearSession,
